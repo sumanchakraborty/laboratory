@@ -1,49 +1,55 @@
-#
-# rpm spec for libdeep
-#
-
-%define        __spec_install_post %{nil}
-%define          debug_package %{nil}
-%define        __os_install_post %{_dbpath}/brp-compress
-
-Summary: Genetic programming
 Name: libdeep
 Version: 1.00
-Release: 1
+Release: 1%{?dist}
+Summary: Library for deep learning
 License: BSD
-Group: libs
-SOURCE0 : %{name}-%{version}.tar.gz
-URL: https://launchpad.net/libdeep
-Packager: Bob Mottram <bob@robotics.uk.to>
-Requires: gnuplot
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+URL: https://github.com/fuzzgun/libdeep
+Packager: Bob Mottram (4096 bits) <bob@robotics.uk.to>
+Source0: http://yourdomainname.com/src/%{name}_%{version}.orig.tar.gz
+Group: Development/ArtificialIntelligence
+
+Requires: gnuplot, libpng-devel
+
 
 %description
-The aim of libdeep is to make using deep learning easy to include within any C/C++ application.
+Makes using deep learning easy to include within any C/C++ application.
 
 %prep
 %setup -q
 
 %build
- # Empty section.
+%configure
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
-mkdir -p  %{buildroot}
-
-# in builddir
-cp -a * %{buildroot}
-
-%clean
-rm -rf %{buildroot}
+mkdir -p %{buildroot}
+mkdir -p %{buildroot}/etc
+mkdir -p %{buildroot}/etc/%{name}
+mkdir -p %{buildroot}/usr
+mkdir -p %{buildroot}/usr/bin
+mkdir -p %{buildroot}/usr/lib
+mkdir -p %{buildroot}/usr/lib/%{name}
+mkdir -p %{buildroot}/usr/share
+mkdir -p %{buildroot}/usr/share/man
+mkdir -p %{buildroot}/usr/share/man/man1
+# Make install but to the RPM BUILDROOT directory
+make instlib -B DESTDIR=%{buildroot} PREFIX=/usr
 
 %files
+%doc README.md LICENSE
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %{_bindir}/*
-%attr(644,root,root) /usr/share/man/man1/%{name}.1.gz
+%{_mandir}/man1/*
+
+%post
+umask 007
+ldconfig > /dev/null 2>&1
+
+%postun
+umask 007
+ldconfig > /dev/null 2>&1
 
 %changelog
-* Thu Jan 5 2013  Bob Mottram <bob@robotics.uk.to>
-- Spec file created
-
+* Sat Jan 5 2013 Bob Mottram (4096 bits) <bob@robotics.uk.to> - 1.00-1
+- Initial release

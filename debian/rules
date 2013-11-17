@@ -1,34 +1,12 @@
 #!/usr/bin/make -f
 
 APP=libdeep
-VERSION=1.00
-RELEASE=1
-SONAME=$(APP).so.0
-LIBNAME=$(APP)-$(VERSION).so.0.0.$(RELEASE)
-USRBASE=/usr
-
-library = $(CURDIR)/$(LIBNAME)
-libraryso = $(CURDIR)/$(SONAME)
-header = $(CURDIR)/src/*.h
-man_page = $(CURDIR)/man/$(APP).1.gz
-
-DEST_INCLUDE = $(CURDIR)/debian/$(APP)0-dev$(USRBASE)/include/$(APP)
-DEST_LIB = $(CURDIR)/debian/$(APP)0$(USRBASE)/lib
-DEST_MAN = $(CURDIR)/debian/$(APP)0-dev$(USRBASE)/share/man/man1
-
-CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
-CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
-CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
-LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
-
+application = ${CURDIR}/${APP}
+PREFIX=/usr
 build: build-stamp
-		gcc -c -std=c99 -pedantic -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(APP).o src/backprop.c -Isrc -lm -fopenmp
-		gcc -c -std=c99 -pedantic -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(APP)_neuron.o src/backprop_neuron.c -Isrc -lm -fopenmp
-		gcc -c -std=c99 -pedantic -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(APP)learn.o src/deeplearn.c -Isrc -lm -fopenmp
-		gcc -c -std=c99 -pedantic -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(APP)random.o src/deeplearn_random.c -Isrc -lm
-		gcc -c -std=c99 -pedantic -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(APP)images.o src/deeplearn_images.c -Isrc -lm -lpng
-		gcc -shared -Wl,-soname,$(SONAME) $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) -o $(LIBNAME) $(APP).o $(APP)_neuron.o $(APP)learn.o $(APP)random.o $(APP)images.o
-
+	make
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp:
 		dh_testdir
 		touch build-stamp
@@ -39,23 +17,13 @@ clean:
 		rm -f build-stamp
 		dh_clean
 
-install: build clean $(library) $(man_page)
+install: build clean ${application}
 		 dh_testdir
 		 dh_testroot
 		 dh_prep
 		 dh_installdirs
-
-		 mkdir -m 755 -p $(DEST_LIB)
-		 mkdir -m 755 -p $(DEST_INCLUDE)
-		 mkdir -m 755 -p $(DEST_MAN)
-
-		 install -m 755 --strip $(library) $(DEST_LIB)
-		 install -m 644 $(man_page) $(DEST_MAN)
-		 install -m 644 $(header) $(DEST_INCLUDE)
-
+		 ${MAKE} instlib -B DESTDIR=${CURDIR}/debian/${APP} PREFIX=/usr
 binary-indep: build install
-	 		  dh_makeshlibs
-			  dh_shlibdeps
 			  dh_testdir
 			  dh_testroot
 			  dh_installchangelogs
