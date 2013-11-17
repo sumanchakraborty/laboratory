@@ -15,15 +15,15 @@
     without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -44,7 +44,12 @@ void deeplearn_read_png(char * filename,
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		printf("[read_png_file] File %s could not be opened for reading", filename);
-	fread(header, 1, 8, fp);
+	if (fread(header, 1, 8, fp) == 0) {
+		*width = 0;
+		*height = 0;
+		fclose(fp);
+		return;
+	}
 	if (png_sig_cmp((png_bytep)header, 0, 8))
 		printf("[read_png_file] File %s is not recognized as a PNG file", filename);
 
@@ -87,7 +92,7 @@ void deeplearn_read_png(char * filename,
 									 sizeof(unsigned char));
 	n = 0;
 	bpp = png_get_rowbytes(png_ptr,info_ptr)/(*width);
-	for (y = 0; y < *height; y++) {		
+	for (y = 0; y < *height; y++) {
 		for (i = 0; i < png_get_rowbytes(png_ptr,info_ptr);
 			 i += bpp, n += 3) {
 			switch(bpp) {
@@ -380,4 +385,3 @@ void bp_plot_images(unsigned char **images,
 	/* free the image memory */
 	free(img);
 }
-
