@@ -15,15 +15,15 @@
     without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -74,7 +74,7 @@ static int create_test_data(float * training_data,
 
 		/* reshuffle the original data set */
 		for (j = index+1; j < (*no_of_training_examples); j++) {
-			training_data[(j-1)*fields_per_example + j] = 
+			training_data[(j-1)*fields_per_example + j] =
 				training_data[j*fields_per_example + j];
 		}
 		/* decrease the number of training data examples */
@@ -83,7 +83,7 @@ static int create_test_data(float * training_data,
 
 	return no_of_test_examples;
 }
-							
+
 
 static int load_data(char * filename, float * training_data,
 					 int max_examples,
@@ -180,7 +180,7 @@ float neuron_value_to_data(int field_number,
 {
 	float range =
 		data_max_value[field_number] -
-		data_min_value[field_number];	
+		data_min_value[field_number];
 
 	if (range > 0) {
 		return data_min_value[field_number] +
@@ -230,7 +230,7 @@ float get_performance(deeplearn * learner,
 static void concreteslump_training()
 {
 	int no_of_hiddens = 4*4;
-	int hidden_layers=1;
+	int hidden_layers=3;
 	int no_of_outputs=3;
 	int itt,i,index;
 	unsigned int random_seed = 123;
@@ -239,9 +239,9 @@ static void concreteslump_training()
 	char weights_filename[256];
 	int weights_image_width = 480;
 	int weights_image_height = 800;
-	float error_threshold[] = { 0.008f, 0.001f };
+	float error_threshold[] = { 0.009f, 0.007f, 0.006f, 0.001f };
 	float v;
-	const int logging_interval = 400000;
+	const int logging_interval = 40000;
 
 	current_data_set = concrete_data;
 
@@ -257,7 +257,7 @@ static void concreteslump_training()
 				   &random_seed);
 
 	/* set learning rate */
-	deeplearn_set_learning_rate(&learner, 0.2f);
+	deeplearn_set_learning_rate(&learner, 0.1f);
 
 	/* perform pre-training with an autocoder */
 	itt = 0;
@@ -308,7 +308,7 @@ static void concreteslump_training()
 	sprintf(filename,"%s","training_error.png");
 	deeplearn_plot_history(&learner,
 						   filename, title,
-						   1024, 480);			
+						   1024, 480);
 	/* plot the weights */
 	bp_plot_weights((&learner)->net,
 					weights_filename,
@@ -352,7 +352,7 @@ static void concreteslump_training()
 			sprintf(filename,"%s","training_error.png");
 			deeplearn_plot_history(&learner,
 								   filename, title,
-								   1024, 480);			
+								   1024, 480);
 			/* plot the weights */
 			if ((&learner)->autocoder!=0) {
 				bp_plot_weights((&learner)->autocoder,
@@ -423,4 +423,3 @@ int main(int argc, char* argv[])
 
 	return 1;
 }
-

@@ -15,15 +15,15 @@
     without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -75,7 +75,7 @@ void deeplearn_init(deeplearn * learner,
 	memcpy((void*)learner->error_threshold,
 		   (void*)error_threshold,
 		   (hidden_layers+1)*sizeof(float));
-	
+
 	/* clear history */
 	learner->history_index = 0;
 	learner->history_ctr = 0;
@@ -86,7 +86,7 @@ void deeplearn_init(deeplearn * learner,
 
 	/* set the current layer being trained */
 	learner->current_hidden_layer = 0;
-	
+
 	/* create the network */
 	learner->net = (bp*)malloc(sizeof(bp));
 
@@ -136,7 +136,8 @@ void deeplearn_update(deeplearn * learner)
 		/* If below the error threshold.
 		   Only do this after a minimum number of itterations
 		   in order to allow the running average to stabilise */
-		if ((learner->BPerror < max_backprop_error) &&
+		if ((learner->BPerror != DEEPLEARN_UNKNOWN_ERROR) &&
+			(learner->BPerror < max_backprop_error) &&
 			(learner->autocoder->itterations > 100)) {
 
 			/* copy the hidden units */
