@@ -3,7 +3,7 @@ Version: 1.00
 Release: 1%{?dist}
 Summary: Library for deep learning
 License: BSD
-URL: https://github.com/fuzzgun/libdeep
+URL: https://github.com/bashrc/libdeep
 Packager: Bob Mottram (4096 bits) <bob@robotics.uk.to>
 Source0: http://yourdomainname.com/src/%{name}_%{version}.orig.tar.gz
 Group: Development/ArtificialIntelligence
