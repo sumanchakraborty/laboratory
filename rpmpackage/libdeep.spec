@@ -1,7 +1,7 @@
 Name: libdeep
 Version: 1.00
 Release: 1%{?dist}
-Summary: Library for deep learning
+Summary: C Library for deep learning
 License: BSD
 URL: https://github.com/bashrc/libdeep
 Packager: Bob Mottram (4096 bits) <bob@robotics.uk.to>
