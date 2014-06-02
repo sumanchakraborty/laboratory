@@ -29,6 +29,15 @@
 
 #include "backprop.h"
 
+/**
+* @brief Initialise a backprop neural net
+* @param net Backprop neural net object
+* @param no_of_inputs The number of input units
+* @param no_of_hiddens The number of units in each hidden layer
+* @param hidden_layers The number of hidden layers
+* @param no_of_inputs The number of output units
+* @param random_seed The random number generator seed
+*/
 void bp_init(bp * net,
              int no_of_inputs,
              int no_of_hiddens,
@@ -63,13 +72,13 @@ void bp_init(bp * net,
     net->NoOfOutputs = no_of_outputs;
     net->outputs = (bp_neuron**)malloc(no_of_outputs*sizeof(bp_neuron*));
 
-    /* create inputs */
+    /** create inputs */
     for (i = 0; i < net->NoOfInputs; i++) {
         net->inputs[i] = (bp_neuron*)malloc(sizeof(struct bp_n));
         bp_neuron_init(net->inputs[i], 1, random_seed);
     }
 
-    /* create hiddens */
+    /** create hiddens */
     for (l = 0; l < hidden_layers; l++) {
         for (i = 0; i < net->NoOfHiddens; i++) {
             net->hiddens[l][i] =
@@ -77,14 +86,14 @@ void bp_init(bp * net,
             n = net->hiddens[l][i];
             if (l == 0) {
                 bp_neuron_init(n, no_of_inputs, random_seed);
-                /* connect to input layer */
+                /** connect to input layer */
                 for (j = 0; j < net->NoOfInputs; j++) {
                     bp_neuron_add_connection(n, j, net->inputs[j]);
                 }
             }
             else {
                 bp_neuron_init(n, no_of_hiddens, random_seed);
-                /* connect to previous hidden layer */
+                /** connect to previous hidden layer */
                 for (j = 0; j < net->NoOfHiddens; j++) {
                     bp_neuron_add_connection(n, j, net->hiddens[l-1][j]);
                 }
@@ -92,7 +101,7 @@ void bp_init(bp * net,
         }
     }
 
-    /* create outputs */
+    /** create outputs */
     for (i = 0; i < net->NoOfOutputs; i++) {
         net->outputs[i] = (bp_neuron*)malloc(sizeof(bp_neuron));
         n = net->outputs[i];
@@ -104,7 +113,10 @@ void bp_init(bp * net,
     }
 }
 
-/* deallocates memory */
+/**
+* @brief Deallocate the memory for a backprop neural net object
+* @param net Backprop neural net object
+*/
 void bp_free(bp * net)
 {
     int l,i;
@@ -134,77 +146,115 @@ void bp_free(bp * net)
     free(net->outputs);
 }
 
+/**
+* @brief Propagates the current inputs through the layers of the network
+* @param net Backprop neural net object
+*/
 void bp_feed_forward(bp * net)
 {
     int i,l;
     bp_neuron * n;
 
+    /** for each hidden layer */
     for (l = 0; l < net->HiddenLayers; l++) {
+        /** For each unit within the layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
+            /** get the neuron object */
             n = net->hiddens[l][i];
+            /** the neuron's activation function */
             bp_neuron_feedForward(n, net->noise, &net->random_seed);
         }
     }
 
+    /** for each unit in the output layer */
     for (i = 0; i < net->NoOfOutputs; i++) {
+        /** get the neuron object */
         n = net->outputs[i];
+        /** the neuron's activation function */
         bp_neuron_feedForward(n, net->noise, &net->random_seed);
     }
 }
 
-/* feed forward for a number of layers */
+/**
+* @brief Propagates the current inputs through a given number of
+*        layers of the network
+* @param net Backprop neural net object
+* @param layers The number of layers to propagate through
+*/
 void bp_feed_forward_layers(bp * net, int layers)
 {
     int i,l;
     bp_neuron * n;
 
+    /** for each hidden layer */
     for (l = 0; l < layers; l++) {
+        /** if this layer is a hidden layer */
         if (l < net->HiddenLayers) {
+            /** For each unit within the layer */
             for (i = 0; i < net->NoOfHiddens; i++) {
+                /** get the neuron object */
                 n = net->hiddens[l][i];
+                /** the neuron's activation function */
                 bp_neuron_feedForward(n, net->noise, &net->random_seed);
             }
         }
         else {
+            /** For each unit within the output layer */
             for (i = 0; i < net->NoOfOutputs; i++) {
+                /** get the neuron object */
                 n = net->outputs[i];
+                /** the neuron's activation function */
                 bp_neuron_feedForward(n, net->noise, &net->random_seed);
             }
         }
     }
 }
 
-/* back-propogate errors */
+/**
+* @brief back-propogate errors from the output layer towards the input layer
+* @param net Backprop neural net object
+*/
 void bp_backprop(bp * net)
 {
     int i,l;
     bp_neuron * n;
 
-    /* clear all previous backprop errors */
+    /** clear all previous backprop errors */
     for (i = 0; i < net->NoOfInputs; i++) {
+        /** get the neuron object */
         n = net->inputs[i];
+        /** set the backprop error to zero */
         n->BPerror = 0;
     }
 
+    /** for every hidden layer */
     for (l = 0; l < net->HiddenLayers; l++) {
+        /** For each unit within the layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
+            /** get the neuron object */
             n = net->hiddens[l][i];
+            /** set the backprop error to zero */
             n->BPerror = 0;
         }
     }
 
-    /* now back-propogate the error from the output units */
+    /** now back-propogate the error from the output units */
     net->BPerrorTotal = 0;
+    /** for every output unit */
     for (i = 0; i < net->NoOfOutputs; i++) {
+        /** get the neuron object */
         n = net->outputs[i];
+        /** backpropogate the error */
         bp_neuron_backprop(n);
+        /** update the total error which is used to assess
+            network performance */
         net->BPerrorTotal += n->BPerror;
     }
 
-    /* error on the output units */
+    /** error on the output units */
     net->BPerror = fabs(net->BPerrorTotal / net->NoOfOutputs);
 
-    /* update the running average */
+    /** update the running average */
     if (net->BPerrorAverage == DEEPLEARN_UNKNOWN_ERROR) {
         net->BPerrorAverage = net->BPerror;
     }
@@ -214,33 +264,38 @@ void bp_backprop(bp * net)
             (net->BPerror*0.02f);
     }
 
-    /* back-propogate through the hidden layers */
+    /** back-propogate through the hidden layers */
     for (l = net->HiddenLayers-1; l >= 0; l--) {
+        /** for every unit in the hidden layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
+            /** get the neuron object */
             n = net->hiddens[l][i];
+            /** backpropogate the error */
             bp_neuron_backprop(n);
+            /** update the total error which is used to assess
+                network performance */
             net->BPerrorTotal += n->BPerror;
         }
     }
 
-    /* overall average error */
+    /** overall average error */
     net->BPerrorTotal =
         fabs(net->BPerrorTotal /
              (net->NoOfOutputs + net->NoOfHiddens));
 
-    /* increment the number of training itterations */
+    /** increment the number of training itterations */
     if (net->itterations < UINT_MAX) {
         net->itterations++;
     }
 }
 
-/* adjust connection weights and bias values */
+/** adjust connection weights and bias values */
 void bp_learn(bp * net)
 {
     int i,l;
     bp_neuron * n;
 
-    /* hidden layers */
+    /** hidden layers */
     for (l = 0; l < net->HiddenLayers; l++) {
         for (i = 0; i < net->NoOfHiddens; i++) {
             n = net->hiddens[l][i];
@@ -248,7 +303,7 @@ void bp_learn(bp * net)
         }
     }
 
-    /* output layer */
+    /** output layer */
     for (i = 0; i < net->NoOfOutputs; i++) {
         n = net->outputs[i];
         bp_neuron_learn(n,net->learningRate);
@@ -263,7 +318,7 @@ void bp_set_input(bp * net, int index, float value)
     n->value = value;
 }
 
-/* Set the unputs of the network from a patch within an image.
+/** Set the unputs of the network from a patch within an image.
    It is assumed that the image is mono (1 byte per pixel) */
 void bp_inputs_from_image_patch(bp * net,
                                 unsigned char * img,
@@ -275,7 +330,7 @@ void bp_inputs_from_image_patch(bp * net,
 
     assert(patch_size*patch_size <= net->NoOfInputs);
 
-    /* set the inputs */
+    /** set the inputs */
     for (py = ty; py < ty+patch_size; py++) {
         if (py >= image_height) break;
         for (px = tx; px < tx+patch_size; px++, i++) {
@@ -286,7 +341,7 @@ void bp_inputs_from_image_patch(bp * net,
     }
 }
 
-/* Set the inputs of the network from an image.
+/** Set the inputs of the network from an image.
    It is assumed that the image is mono (1 byte per pixel) */
 void bp_inputs_from_image(bp * net,
                           unsigned char * img,
@@ -294,11 +349,11 @@ void bp_inputs_from_image(bp * net,
 {
     int px,py,i=0;
 
-    /* check that the number of inputs is the same as the
+    /** check that the number of inputs is the same as the
        number of pixels */
     assert(net->NoOfInputs == image_width*image_height);
 
-    /* set the inputs */
+    /** set the inputs */
     for (py = 0; py < image_height; py++) {
         for (px = 0; px < image_width; px++, i++) {
             bp_set_input(net, i, 0.25f + (img[i]*0.5f/255.0f));
@@ -306,7 +361,7 @@ void bp_inputs_from_image(bp * net,
     }
 }
 
-/* plots weight matrices within an image */
+/** plots weight matrices within an image */
 void bp_plot_weights(bp * net,
                      char * filename,
                      int image_width, int image_height,
@@ -319,17 +374,17 @@ void bp_plot_weights(bp * net,
     bp_neuron ** neurons, * curr_neuron;
     unsigned char * img;
 
-    /* allocate memory for the image */
+    /** allocate memory for the image */
     img = (unsigned char*)malloc(image_width*image_height*3);
 
-    /* clear the image with a white background */
+    /** clear the image with a white background */
     memset((void*)img,'\255',image_width*image_height*3);
 
-    /* dimension of the neurons matrix for each layer */
+    /** dimension of the neurons matrix for each layer */
     neurons_x = (int)sqrt(net->NoOfHiddens);
     neurons_y = (net->NoOfHiddens/neurons_x);
 
-    /* dimensions of the weight matrix */
+    /** dimensions of the weight matrix */
     if (input_image_width <= 0) {
         inputs_x = (int)sqrt(net->NoOfInputs);
     }
@@ -340,7 +395,7 @@ void bp_plot_weights(bp * net,
 
     no_of_weights = net->NoOfInputs;;
 
-    /* plot the inputs */
+    /** plot the inputs */
     ty = 0;
     by = image_height/(net->HiddenLayers+3);
     h = (by-ty)*95/100;
@@ -362,12 +417,12 @@ void bp_plot_weights(bp * net,
 
     for (layer = 0; layer < net->HiddenLayers+1; layer++) {
 
-        /* vertical top and bottom coordinates */
+        /** vertical top and bottom coordinates */
         ty = (layer+1)*image_height/(net->HiddenLayers+3);
         by = (layer+2)*image_height/(net->HiddenLayers+3);
         h = (by-ty)*95/100;
 
-        /* number of patches across and down for the final layer */
+        /** number of patches across and down for the final layer */
         if (layer == net->HiddenLayers) {
             neurons_x = (int)sqrt(net->NoOfOutputs);
             neurons_y = (net->NoOfOutputs/neurons_x);
@@ -379,21 +434,21 @@ void bp_plot_weights(bp * net,
             no_of_neurons = net->NoOfHiddens;
         }
 
-        /* for every pixel within the region */
+        /** for every pixel within the region */
         for (y = ty; y < by; y++) {
             neurony = (y-ty)*neurons_y/(float)h;
-            /* y coordinate within the weights */
+            /** y coordinate within the weights */
             wy = (neurony - (int)neurony)*inputs_y;
             for (x = 0; x < image_width; x++) {
                 neuronx = x*neurons_x/(float)image_width;
-                /* x coordinate within the weights */
+                /** x coordinate within the weights */
                 wx = (neuronx - (int)neuronx)*inputs_x;
-                /* coordinate within the image */
+                /** coordinate within the image */
                 n = ((y * image_width) + x)*3;
-                /* weight index */
+                /** weight index */
                 i = (wy*inputs_x) + wx;
                 if (i < no_of_weights) {
-                    /* neuron index */
+                    /** neuron index */
                     unit = ((int)neurony*neurons_x) + (int)neuronx;
                     if (unit < no_of_neurons)  {
                         curr_neuron = neurons[unit];
@@ -416,7 +471,7 @@ void bp_plot_weights(bp * net,
                 }
             }
         }
-        /* dimensions of the weight matrix for the next layer */
+        /** dimensions of the weight matrix for the next layer */
         inputs_x = (int)sqrt(net->NoOfHiddens);
         inputs_y = (net->NoOfHiddens/inputs_x);
         no_of_weights = net->NoOfHiddens;;
@@ -445,11 +500,11 @@ void bp_plot_weights(bp * net,
         }
     }
 
-    /* write the image to file */
+    /** write the image to file */
     deeplearn_write_png(filename,
                         image_width, image_height, img);
 
-    /* free the image memory */
+    /** free the image memory */
     free(img);
 }
 
@@ -485,14 +540,14 @@ float bp_get_output(bp * net, int index)
     return n->value;
 }
 
-/* clears the exclusion flags on neurons which have dropped out */
+/** clears the exclusion flags on neurons which have dropped out */
 static void bp_clear_dropouts(bp * net)
 {
     int l,i;
 
     if (net->DropoutPercent==0) return;
 
-    /* clear exclusions */
+    /** clear exclusions */
     for (l = 0; l < net->HiddenLayers; l++) {
         for (i = 0; i < net->NoOfHiddens; i++) {
             net->hiddens[l][i]->excluded = 0;
@@ -500,20 +555,20 @@ static void bp_clear_dropouts(bp * net)
     }
 }
 
-/* sets exclusion flags to cause neurons to drop out */
+/** sets exclusion flags to cause neurons to drop out */
 static void bp_dropouts(bp * net)
 {
     int l,i,no_of_dropouts,hidden_units,n;
 
     if (net->DropoutPercent==0) return;
 
-    /* total number of hidden units */
+    /** total number of hidden units */
     hidden_units = net->HiddenLayers * net->NoOfHiddens;
 
-    /* total number of dropouts */
+    /** total number of dropouts */
     no_of_dropouts = net->DropoutPercent*hidden_units/100;
 
-    /* set the exclusion flags */
+    /** set the exclusion flags */
     for (n = 0; n < no_of_dropouts; n++) {
         l = rand_num(&net->random_seed)%net->HiddenLayers;
         i = rand_num(&net->random_seed)%net->NoOfHiddens;
@@ -534,19 +589,19 @@ static void bp_update_autocoder(bp * net)
 {
     int i;
 
-    /* number of input and output units should be the same */
+    /** number of input and output units should be the same */
     assert(net->NoOfInputs == net->NoOfOutputs);
 
-    /* set the target outputs to be the same as the inputs */
+    /** set the target outputs to be the same as the inputs */
     for (i = 0; i < net->NoOfInputs; i++) {
         bp_set_output(net,i,net->inputs[i]->value);
     }
 
-    /* run the autocoder */
+    /** run the autocoder */
     bp_update(net);
 }
 
-/* coppies the hidden layer from the autocoder to the main network */
+/** coppies the hidden layer from the autocoder to the main network */
 void bp_update_from_autocoder(bp * net,
                               bp * autocoder,
                               int hidden_layer)
@@ -559,7 +614,7 @@ void bp_update_from_autocoder(bp * net,
     }
 }
 
-/* generates an autocoder for the given layer */
+/** generates an autocoder for the given layer */
 void bp_create_autocoder(bp * net,
                          int hidden_layer,
                          bp * autocoder)
@@ -580,7 +635,7 @@ void bp_create_autocoder(bp * net,
     autocoder->learningRate = net->learningRate;
 }
 
-/* pre-trains a hidden layer using an autocoder */
+/** pre-trains a hidden layer using an autocoder */
 void bp_pretrain(bp * net,
                  bp * autocoder,
                  int hidden_layer)
@@ -588,14 +643,14 @@ void bp_pretrain(bp * net,
     int i;
     float hidden_value;
 
-    /* feed forward to the given hidden layer */
+    /** feed forward to the given hidden layer */
     bp_feed_forward_layers(net, hidden_layer);
 
     if (hidden_layer > 0) {
-        /* check that the number of inputs is valid */
+        /** check that the number of inputs is valid */
         assert(net->NoOfHiddens == autocoder->NoOfInputs);
 
-        /* copy the hidden unit values to the inputs
+        /** copy the hidden unit values to the inputs
            of the autocoder */
         for (i = 0; i < net->NoOfHiddens; i++) {
             hidden_value = bp_get_hidden(net, hidden_layer-1, i);
@@ -603,10 +658,10 @@ void bp_pretrain(bp * net,
         }
     }
     else {
-        /* check that the number of inputs is valid */
+        /** check that the number of inputs is valid */
         assert(autocoder->NoOfInputs == net->NoOfInputs);
 
-        /* copy the input unit values to the inputs
+        /** copy the input unit values to the inputs
            of the autocoder */
         for (i = 0; i < net->NoOfInputs; i++) {
             bp_set_input(autocoder, i,
@@ -614,11 +669,11 @@ void bp_pretrain(bp * net,
         }
     }
 
-    /* run the autocoder */
+    /** run the autocoder */
     bp_update_autocoder(autocoder);
 }
 
-/* save a network to file */
+/** save a network to file */
 int bp_save(FILE * fp, bp * net)
 {
     int retval,i,l;
@@ -645,7 +700,7 @@ int bp_save(FILE * fp, bp * net)
     return retval;
 }
 
-/* load a network from file */
+/** load a network from file */
 int bp_load(FILE * fp, bp * net,
             unsigned int * random_seed)
 {
@@ -690,7 +745,7 @@ int bp_load(FILE * fp, bp * net,
     return retval;
 }
 
-/* compares two networks and returns a greater than zero
+/** compares two networks and returns a greater than zero
    value if they are the same */
 int bp_compare(bp * net1, bp * net2)
 {
@@ -738,7 +793,7 @@ int bp_compare(bp * net1, bp * net2)
     return 1;
 }
 
-/* Extract the classification from the filename.
+/** Extract the classification from the filename.
    This assumes a filename of the type class.instance.extension
 */
 void bp_get_classification_from_filename(char * filename,
@@ -761,7 +816,7 @@ void bp_get_classification_from_filename(char * filename,
     classification[i-start] = 0;
 }
 
-/* takes a set of classification labels for each instance within
+/** takes a set of classification labels for each instance within
    a training/test set and produces an array of numbers corresponding
    to that */
 void bp_classifications_to_numbers(int no_of_instances,
@@ -772,11 +827,11 @@ void bp_classifications_to_numbers(int no_of_instances,
     int unique_ctr = 0;
     char ** unique_classification;
 
-    /* allocate memory for a list of unique classifications */
+    /** allocate memory for a list of unique classifications */
     unique_classification =
         (char**)malloc(no_of_instances * sizeof(char*));
 
-    /* create a list of unique classification names */
+    /** create a list of unique classification names */
     for (i = 0; i < no_of_instances; i++) {
         for (j = 0; j < unique_ctr; j++) {
             if (strcmp(instance_classification[i],
@@ -796,7 +851,7 @@ void bp_classifications_to_numbers(int no_of_instances,
         }
     }
 
-    /* free memory */
+    /** free memory */
     for (i = 0; i < unique_ctr; i++) {
         free(unique_classification[i]);
     }
