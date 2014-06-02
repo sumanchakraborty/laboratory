@@ -15,15 +15,15 @@
     without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -39,27 +39,27 @@
 #include "backprop_neuron.h"
 
 struct backprop {
-	int NoOfInputs,NoOfHiddens,NoOfOutputs;
-	int HiddenLayers;
-	float DropoutPercent;
-	bp_neuron ** inputs;
-	bp_neuron *** hiddens;
-	bp_neuron ** outputs;
-	float BPerrorTotal;
-	float BPerror, BPerrorAverage;
-	float learningRate;
-	float noise;
-	unsigned int random_seed;
-	unsigned int itterations;
+    int NoOfInputs,NoOfHiddens,NoOfOutputs;
+    int HiddenLayers;
+    float DropoutPercent;
+    bp_neuron ** inputs;
+    bp_neuron *** hiddens;
+    bp_neuron ** outputs;
+    float BPerrorTotal;
+    float BPerror, BPerrorAverage;
+    float learningRate;
+    float noise;
+    unsigned int random_seed;
+    unsigned int itterations;
 };
 typedef struct backprop bp;
 
 void bp_init(bp * net,
-			 int no_of_inputs,
-			 int no_of_hiddens,
-			 int hidden_layers,
-			 int no_of_outputs,
-			 unsigned int * random_seed);
+             int no_of_inputs,
+             int no_of_hiddens,
+             int hidden_layers,
+             int no_of_outputs,
+             unsigned int * random_seed);
 void bp_free(bp * net);
 void bp_feed_forward(bp * net);
 void bp_feed_forward_layers(bp * net, int layers);
@@ -74,23 +74,23 @@ void bp_pretrain(bp * net, bp * autocoder, int hidden_layer);
 void bp_update_from_autocoder(bp * net, bp * autocoder, int hidden_layer);
 int bp_save(FILE * fp, bp * net);
 int bp_load(FILE * fp, bp * net,
-			unsigned int * random_seed);
+            unsigned int * random_seed);
 int bp_compare(bp * net1, bp * net2);
 void bp_inputs_from_image_patch(bp * net,
-								unsigned char * img,
-								int image_width, int image_height,
-								int tx, int ty);
+                                unsigned char * img,
+                                int image_width, int image_height,
+                                int tx, int ty);
 void bp_inputs_from_image(bp * net,
-						  unsigned char * img,
-						  int image_width, int image_height);
+                          unsigned char * img,
+                          int image_width, int image_height);
 void bp_plot_weights(bp * net,
-					 char * filename,
-					 int image_width, int image_height,
-					 int input_image_width);
+                     char * filename,
+                     int image_width, int image_height,
+                     int input_image_width);
 void bp_get_classification_from_filename(char * filename,
-										 char * classification);
+                                         char * classification);
 void bp_classifications_to_numbers(int no_of_instances,
-								   char ** instance_classification,
-								   int * numbers);
+                                   char ** instance_classification,
+                                   int * numbers);
 
 #endif
