@@ -10,6 +10,8 @@ all:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -O3 -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
 debug:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -g -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
+tests:
+	gcc -Wall -std=c99 -pedantic -g -o tests unittests/*.c src/*.c -Isrc -Iunittests -lpng -lm -fopenmp
 source:
 	tar -cvf ../${APP}_${VERSION}.orig.tar ../${APP}-${VERSION} --exclude-vcs
 	gzip -f9n ../${APP}_${VERSION}.orig.tar
