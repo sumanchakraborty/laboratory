@@ -30,6 +30,15 @@ Or to check for any memory leaks:
 valgrind --leak-check=full ./tests
 ```
 
+Source Documentation
+====================
+
+To generate source code documentation make sure that you have doxygen installed and then run the generatedocs.sh script.  A subdirectory called docs will be created within which html and latex formated documentation can be found.  For general usage information you can also see the manpage.
+
+```bash
+man libdeep
+```
+
 Examples
 ========
 
