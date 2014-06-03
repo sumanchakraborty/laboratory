@@ -29,7 +29,13 @@
 
 #include "backprop_neuron.h"
 
-/* randomly initialises the weights within the given range */
+/**
+* @brief Randomly initialises the weights within the given range
+* @param n Backprop neuron object
+* @param minVal The minimum weight value
+* @param maxVal The maximum weight value
+* @param random_seed Random number generator seed
+*/
 static void bp_neuron_init_weights(bp_neuron * n,
                                    float minVal, float maxVal,
                                    unsigned int * random_seed)
@@ -64,51 +70,74 @@ static void bp_neuron_init_weights(bp_neuron * n,
     n->lastBiasChange = 0;
 }
 
-/* copy weights from one neuron to another */
+/**
+* @brief Copy weights from one neuron to another
+* @param source The neuron to copy from
+* @param dest The neuron to copy to
+*/
 void bp_neuron_copy(bp_neuron * source,
                     bp_neuron * dest)
 {
-    int i;
-
+    /** check that the source and destination have the same
+        number of inputs */
     if (source->NoOfInputs !=
         dest->NoOfInputs) {
         printf("Warning: neurons have different numbers of inputs\n");
         return;
     }
 
-    for (i = 0; i < source->NoOfInputs; i++) {
-        dest->weights[i] = source->weights[i];
-    }
+    /** copy the connection weights */
+    memcpy(dest->weights,source->weights,source->NoOfInputs*sizeof(float));
+
+    /** copy the bias */
     dest->bias = source->bias;
+
+    /** copy the weight range */
+    dest->min_weight = source->min_weight;
+    dest->max_weight = source->max_weight;
+
+    /** clear the previous weight changes */
+    memset(dest->lastWeightChange,'\0',dest->NoOfInputs*sizeof(float));
 }
 
-/* initialises the neuron */
+/**
+* @brief Initialises the neuron
+* @param n Backprop neuron object
+* @param no_of_inputs The number of input connections
+* @param random_seed Random number generator seed
+*/
 void bp_neuron_init(bp_neuron * n,
                     int no_of_inputs,
                     unsigned int * random_seed)
 {
-    int i;
-
+    /** should have more than zero inpyts */
     assert(no_of_inputs > 0);
+
     n->NoOfInputs = no_of_inputs;
+
+    /** create some weights */
     n->weights = (float*)malloc(no_of_inputs*sizeof(float));
     n->lastWeightChange = (float*)malloc(no_of_inputs*sizeof(float));
-    n->inputs = (struct bp_n **)malloc(no_of_inputs*
-                                       sizeof(struct bp_n *));
+
     bp_neuron_init_weights(n, -0.1f, 0.1f, random_seed);
     n->desiredValue = -1;
     n->value = 0;
     n->BPerror = 0;
     n->excluded = 0;
 
-    /* clear the input pointers */
-    for (i = 0; i < no_of_inputs; i++) {
-        n->inputs[i] = 0;
-    }
+    /** pointers to input neurons */
+    n->inputs = (struct bp_n **)malloc(no_of_inputs*
+                                       sizeof(struct bp_n *));
+    memset(n->inputs,'\0',no_of_inputs*sizeof(struct bp_n *));
 }
 
-/* compares two neurons and returns a non-zero value
-   if they are the same */
+/**
+* @brief Compares two neurons and returns a non-zero value
+*        if they are the same
+* @param n1 First backprop neuron object
+* @param n2 Second backprop neuron object
+* @return 1 if they are the same, 0 otherwise
+*/
 int bp_neuron_compare(bp_neuron * n1, bp_neuron * n2)
 {
     int i;
@@ -127,34 +156,56 @@ int bp_neuron_compare(bp_neuron * n1, bp_neuron * n2)
     return 1;
 }
 
-/* free memory */
+/**
+* @brief Deallocates memory for a neuron
+* @param n Backprop neuron object
+*/
 void bp_neuron_free(bp_neuron * n)
 {
     int i;
 
+    /** free the weights */
     free(n->weights);
+    free(n->lastWeightChange);
+
+    /** clear the pointers to input neurons */
     for (i = 0; i < n->NoOfInputs; i++) {
         n->inputs[i]=0;
     }
+
+    /** free the inputs */
     free(n->inputs);
-    free(n->lastWeightChange);
 }
 
-/* activation function */
+/**
+* @brief Activation function
+* @param x The weighted sum of inputs
+* @return Result of the activation function
+*/
 static float af(float x)
 {
     return x * (1.0f - x);
 }
 
 
-/* adds a connection to a neuron */
+/**
+* @brief Adds a connection to a neuron
+* @param dest Destination backprop neuron object
+* @param index Index number of the input connection
+* @param source Incoming backprop neuron object
+*/
 void bp_neuron_add_connection(bp_neuron * dest,
                               int index, bp_neuron * source)
 {
     dest->inputs[index] = source;
 }
 
-/* feed forward */
+/**
+* @brief Feed forward
+* @param n Backprop neuron object
+* @param noise Noise in the range 0.0 to 1.0
+* @param random_seed Random number generator seed
+*/
 void bp_neuron_feedForward(bp_neuron * n,
                            float noise,
                            unsigned int * random_seed)
@@ -162,32 +213,43 @@ void bp_neuron_feedForward(bp_neuron * n,
     float adder;
     int i;
 
-    if (n->excluded > 0) return;
+    /** if the neuron has dropped out then set its output to zero */
+    if (n->excluded > 0) {
+        n->value = 0;
+        return;
+    }
 
+    /** Sum with initial bias */
     adder = n->bias;
 
+    /** calculate weighted sum of inputs */
     for (i = 0; i < n->NoOfInputs; i++) {
         if (n->inputs[i] != 0) {
             adder += n->weights[i] * n->inputs[i]->value;
         }
     }
 
-    /* add some random noise */
+    /** add some random noise */
     if (noise > 0) {
         adder = ((1.0f - noise) * adder) +
             (noise * ((rand_num(random_seed)%10000)/10000.0f));
     }
 
+    /** activation function */
     n->value = 1.0f / (1.0f + exp(-adder));
 }
 
-/* back-propagate the error */
+/**
+* @brief back-propagate the error
+* @param n Backprop neuron object
+*/
 void bp_neuron_backprop(bp_neuron * n)
 {
     int i;
     bp_neuron * nrn;
     float afact;
 
+    /** if the neuron has dropped out then don't continue */
     if (n->excluded > 0) return;
 
     if (n->desiredValue > -1) {
@@ -195,8 +257,10 @@ void bp_neuron_backprop(bp_neuron * n)
         n->BPerror = n->desiredValue - n->value;
     }
 
+    /** activation function */
     afact = af(n->value);
 
+    /** back-propogate the error */
     for (i = 0; i < n->NoOfInputs; i++) {
         nrn = n->inputs[i];
         if (nrn != 0) {
@@ -207,7 +271,11 @@ void bp_neuron_backprop(bp_neuron * n)
 }
 
 
-/* adjust the weights */
+/**
+* @brief Adjust the weights of a neuron
+* @param n Backprop neuron object
+* @param learningRate Learning rate in the range 0.0 to 1.0
+*/
 void bp_neuron_learn(bp_neuron * n,
                      float learningRate)
 {
@@ -223,12 +291,16 @@ void bp_neuron_learn(bp_neuron * n,
     n->bias += n->lastBiasChange;
     n->min_weight = 9999;
     n->max_weight = -9999;
+
+    /** for each input */
     for (i = 0; i < n->NoOfInputs; i++) {
         if (n->inputs[i] != 0) {
             n->lastWeightChange[i] =
                 e * (n->lastWeightChange[i] + 1) *
                 gradient * n->inputs[i]->value;
             n->weights[i] += n->lastWeightChange[i];
+
+            /** limit weights within range */
             if (n->weights[i] < n->min_weight) {
                 n->min_weight = n->weights[i];
             }
@@ -239,9 +311,13 @@ void bp_neuron_learn(bp_neuron * n,
     }
 }
 
-/* saves neuron parameters.  Note that there is no need to
-   save the connections, since layers are always fully
-   interconnected */
+/**
+* @brief Saves neuron parameters to a file.  Note that there is no need to
+         save the connections, since layers are always fully interconnected
+* @param fp File pointer
+* @param n Backprop neuron object
+* @return Non zero value if saving is successful
+*/
 int bp_neuron_save(FILE * fp, bp_neuron * n)
 {
     int retval;
@@ -263,7 +339,12 @@ int bp_neuron_save(FILE * fp, bp_neuron * n)
     return retval;
 }
 
-/* load neuron parameters */
+/**
+* @brief Load neuron parameters from file
+* @param fp File pointer
+* @param n Backprop neuron object
+* @return Non zero value if loading is successful
+*/
 int bp_neuron_load(FILE * fp, bp_neuron * n)
 {
     int retval;
