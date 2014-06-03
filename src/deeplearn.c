@@ -29,7 +29,10 @@
 
 #include "deeplearn.h"
 
-/* update the learning history */
+/**
+* @brief Update the learning history
+* @param learner Deep learner object
+*/
 static void deeplean_update_history(deeplearn * learner)
 {
     int i;
@@ -57,7 +60,17 @@ static void deeplean_update_history(deeplearn * learner)
     }
 }
 
-/* initialise a deep learner */
+/**
+* @brief Initialise a deep learner
+* @param learner Deep learner object
+* @param no_of_inputs The number of input units
+* @param no_of_hiddens The number of hidden units within each layer
+* @param hidden_layers The number of hidden layers
+* @param no_of_outputs The number of output units
+* @param error_threshold Minimum training error for each hidden layer plus
+*        the output layer
+* @param random_seed Random number generator seed
+*/
 void deeplearn_init(deeplearn * learner,
                     int no_of_inputs,
                     int no_of_hiddens,
@@ -66,37 +79,37 @@ void deeplearn_init(deeplearn * learner,
                     float error_threshold[],
                     unsigned int * random_seed)
 {
-    /* has not been trained */
+    /** has not been trained */
     learner->training_complete = 0;
 
-    /* create the error thresholds for each layer */
+    /** create the error thresholds for each layer */
     learner->error_threshold =
         (float*)malloc((hidden_layers+1)*sizeof(float));
     memcpy((void*)learner->error_threshold,
            (void*)error_threshold,
            (hidden_layers+1)*sizeof(float));
 
-    /* clear history */
+    /** clear history */
     learner->history_index = 0;
     learner->history_ctr = 0;
     learner->history_step = 1;
 
-    /* clear the number of training itterations */
+    /** clear the number of training itterations */
     learner->itterations = 0;
 
-    /* set the current layer being trained */
+    /** set the current layer being trained */
     learner->current_hidden_layer = 0;
 
-    /* create the network */
+    /** create the network */
     learner->net = (bp*)malloc(sizeof(bp));
 
-    /* initialise the network */
+    /** initialise the network */
     bp_init(learner->net,
             no_of_inputs, no_of_hiddens,
             hidden_layers, no_of_outputs,
             random_seed);
 
-    /* create the autocoder */
+    /** create the autocoder */
     learner->autocoder = (bp*)malloc(sizeof(bp));
     bp_create_autocoder(learner->net,
                         learner->current_hidden_layer,
@@ -105,127 +118,159 @@ void deeplearn_init(deeplearn * learner,
     learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
 }
 
+/**
+* @brief Feeds the input values through the network towards the outputs
+* @param learner Deep learner object
+*/
 void deeplearn_feed_forward(deeplearn * learner)
 {
     bp_feed_forward(learner->net);
 }
 
+/**
+* @brief Performs training initially using autocoders for each hidden
+*        layer and eventually for the entire network.
+* @param learner Deep learner object
+*/
 void deeplearn_update(deeplearn * learner)
 {
     float max_backprop_error = 0;
 
-    /* only continue if training is not complete */
+    /** only continue if training is not complete */
     if (learner->training_complete == 1) return;
 
-    /* get the maximum backprop error after which a layer
-       will be considered to have been trained */
+    /** get the maximum backprop error after which a layer
+        will be considered to have been trained */
     max_backprop_error =
         learner->error_threshold[learner->current_hidden_layer];
 
-    /* pretraining */
+    /** pretraining */
     if (learner->current_hidden_layer <
         learner->net->HiddenLayers) {
 
-        /* train the autocoder */
+        /** train the autocoder */
         bp_pretrain(learner->net, learner->autocoder,
                     learner->current_hidden_layer);
 
-        /* update the backprop error value */
+        /** update the backprop error value */
         learner->BPerror = learner->autocoder->BPerrorAverage;
 
-        /* If below the error threshold.
-           Only do this after a minimum number of itterations
-           in order to allow the running average to stabilise */
+        /** If below the error threshold.
+            Only do this after a minimum number of itterations
+            in order to allow the running average to stabilise */
         if ((learner->BPerror != DEEPLEARN_UNKNOWN_ERROR) &&
             (learner->BPerror < max_backprop_error) &&
             (learner->autocoder->itterations > 100)) {
 
-            /* copy the hidden units */
+            /** copy the hidden units */
             bp_update_from_autocoder(learner->net,
                                      learner->autocoder,
                                      learner->current_hidden_layer);
 
-            /* delete the existing autocoder */
+            /** delete the existing autocoder */
             bp_free(learner->autocoder);
             free(learner->autocoder);
             learner->autocoder = 0;
 
-            /* advance to the next hidden layer */
+            /** advance to the next hidden layer */
             learner->current_hidden_layer++;
 
-            /* if not the final hidden layer */
+            /** if not the final hidden layer */
             if (learner->current_hidden_layer <
                 learner->net->HiddenLayers) {
 
-                /* make a new autocoder */
+                /** make a new autocoder */
                 learner->autocoder = (bp*)malloc(sizeof(bp));
                 bp_create_autocoder(learner->net,
                                     learner->current_hidden_layer,
                                     learner->autocoder);
             }
 
-            /* reset the error value */
+            /** reset the error value */
             learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
         }
     }
     else {
-        /* ordinary network training */
+        /** ordinary network training */
         bp_update(learner->net);
 
-        /* update the backprop error value */
+        /** update the backprop error value */
         learner->BPerror = learner->net->BPerrorAverage;
 
-        /* set the training completed flag */
+        /** set the training completed flag */
         if (learner->BPerror < max_backprop_error) {
             learner->training_complete = 1;
         }
     }
 
-    /* record the history of error values */
+    /** record the history of error values */
     deeplean_update_history(learner);
 
-    /* increment the number of itterations */
+    /** increment the number of itterations */
     if (learner->net->itterations < UINT_MAX) {
         learner->net->itterations++;
     }
 }
 
-/* free the deep learner's allocated memory */
+/**
+* @brief Deallocates memory for the given deep learner object
+* @param learner Deep learner object
+*/
 void deeplearn_free(deeplearn * learner)
 {
-    /* free the learner */
+    /** free the learner */
     bp_free(learner->net);
     free(learner->net);
 
-    /* free the error thresholds */
+    /** free the error thresholds */
     free(learner->error_threshold);
 
-    /* free the autocoder */
+    /** free the autocoder */
     if (learner->autocoder != 0) {
         bp_free(learner->autocoder);
         free(learner->autocoder);
     }
 }
 
-/* sets the value of an input to the network */
+/**
+* @brief Sets the value of an input to the network
+* @param learner Deep learner object
+* @param index Index number of the input unit
+* @param value Value to set the input unit to in the range 0.0 to 1.0
+*/
 void deeplearn_set_input(deeplearn * learner, int index, float value)
 {
     bp_set_input(learner->net, index, value);
 }
 
-/* sets the value of an output */
+/**
+* @brief Sets the value of an output unit
+* @param learner Deep learner object
+* @param index Index number of the output unit
+* @param value Value to set the output unit to in the range 0.0 to 1.0
+*/
 void deeplearn_set_output(deeplearn * learner, int index, float value)
 {
     bp_set_output(learner->net, index, value);
 }
 
-/* returns the value of an output */
+/**
+* @brief Returns the value of an output unit
+* @param learner Deep learner object
+* @param index Index number of the output unit
+* @return Value of the output unit to in the range 0.0 to 1.0
+*/
 float deeplearn_get_output(deeplearn * learner, int index)
 {
     return bp_get_output(learner->net, index);
 }
 
-/* save to file */
+/**
+* @brief Saves the given deep learner object to a file
+* @param fp File pointer
+* @param learner Deep learner object
+* @return Non-zero value on success
+*/
 int deeplearn_save(FILE * fp, deeplearn * learner)
 {
     int retval,val;
@@ -246,11 +291,11 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
         retval = fwrite(&val, sizeof(int), 1, fp);
     }
 
-    /* save error thresholds */
+    /** save error thresholds */
     retval = fwrite(learner->error_threshold, sizeof(float),
                     learner->net->HiddenLayers+1, fp);
 
-    /* save the history */
+    /** save the history */
     retval = fwrite(&learner->history_index, sizeof(int), 1, fp);
     retval = fwrite(&learner->history_ctr, sizeof(int), 1, fp);
     retval = fwrite(&learner->history_step, sizeof(int), 1, fp);
@@ -260,7 +305,13 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
     return retval;
 }
 
-/* load from file */
+/**
+* @brief Loads a deep learner object from file
+* @param fp File pointer
+* @param learner Deep learner object
+* @param random_seed Random number generator seed
+* @return Non-zero value on success
+*/
 int deeplearn_load(FILE * fp, deeplearn * learner,
                    unsigned int * random_seed)
 {
@@ -299,8 +350,13 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     return retval;
 }
 
-/* compares two deep learners and returns a greater
-   than zero value if they are the same */
+/**
+* @brief Compares two deep learners and returns a greater
+*        than zero value if they are the same
+* @param learner1 First deep learner object
+* @param learner2 Second deep learner object
+* @return Greater than zero if the two learners are the same
+*/
 int deeplearn_compare(deeplearn * learner1,
                       deeplearn * learner2)
 {
@@ -350,7 +406,15 @@ int deeplearn_compare(deeplearn * learner1,
     return 1;
 }
 
-/* uses gnuplot to plot the training error for the given learner */
+/**
+* @brief Uses gnuplot to plot the training error for the given learner
+* @param learner Deep learner object
+* @param filename Filename for the image to save as
+* @param title Title of the graph
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @return zero on success
+*/
 int deeplearn_plot_history(deeplearn * learner,
                            char * filename, char * title,
                            int image_width, int image_height)
@@ -366,21 +430,21 @@ int deeplearn_plot_history(deeplearn * learner,
     sprintf(data_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,"libgpr_data.dat");
     sprintf(plot_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,"libgpr_data.plot");
 
-    /* save the data */
+    /** save the data */
     fp = fopen(data_filename,"w");
     if (!fp) return -1;
     for (index = 0; index < learner->history_index; index++) {
         value = learner->history[index];
         fprintf(fp,"%d    %.10f\n",
                 index*learner->history_step,value);
-        /* record the maximum error value */
+        /** record the maximum error value */
         if (value > max_value) {
             max_value = value;
         }
     }
     fclose(fp);
 
-    /* create a plot file */
+    /** create a plot file */
     fp = fopen(plot_filename,"w");
     if (!fp) return -1;
     fprintf(fp,"%s","reset\n");
@@ -403,16 +467,25 @@ int deeplearn_plot_history(deeplearn * learner,
             data_filename);
     fclose(fp);
 
-    /* run gnuplot using the created files */
+    /** run gnuplot using the created files */
     sprintf(command_str,"gnuplot %s", plot_filename);
     retval = system(command_str); /* I assume this is synchronous */
 
-    /* remove temporary files */
+    /** remove temporary files */
     sprintf(command_str,"rm %s %s", data_filename,plot_filename);
     retval = system(command_str);
     return retval;
 }
 
+/**
+* @brief Updates the input units from a patch within a larger image
+* @param learner Deep learner object
+* @param img Image buffer (1 byte per pixel)
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @param tx Top left x coordinate of the patch
+* @param ty Top left y coordinate of the patch
+*/
 void deeplearn_inputs_from_image_patch(deeplearn * learner,
                                        unsigned char * img,
                                        int image_width, int image_height,
@@ -423,6 +496,13 @@ void deeplearn_inputs_from_image_patch(deeplearn * learner,
                                tx, ty);
 }
 
+/**
+* @brief Updates the input units from an image
+* @param learner Deep learner object
+* @param img Image buffer (1 byte per pixel)
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+*/
 void deeplearn_inputs_from_image(deeplearn * learner,
                                  unsigned char * img,
                                  int image_width, int image_height)
@@ -430,6 +510,11 @@ void deeplearn_inputs_from_image(deeplearn * learner,
     bp_inputs_from_image(learner->net, img, image_width, image_height);
 }
 
+/**
+* @brief Sets the learning rate
+* @param learner Deep learner object
+* @param rate the learning rate in the range 0.0 to 1.0
+*/
 void deeplearn_set_learning_rate(deeplearn * learner, float rate)
 {
     learner->net->learningRate = rate;
@@ -438,6 +523,11 @@ void deeplearn_set_learning_rate(deeplearn * learner, float rate)
     }
 }
 
+/**
+* @brief Sets the percentage of units which drop out during training
+* @param learner Deep learner object
+* @param dropout_percent Percentage of units which drop out in the range 0 to 100
+*/
 void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent)
 {
     learner->net->DropoutPercent = dropout_percent;
