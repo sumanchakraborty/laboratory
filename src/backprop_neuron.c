@@ -78,7 +78,7 @@ static void bp_neuron_init_weights(bp_neuron * n,
 void bp_neuron_copy(bp_neuron * source,
                     bp_neuron * dest)
 {
-    /** check that the source and destination have the same
+    /* check that the source and destination have the same
         number of inputs */
     if (source->NoOfInputs !=
         dest->NoOfInputs) {
@@ -86,17 +86,17 @@ void bp_neuron_copy(bp_neuron * source,
         return;
     }
 
-    /** copy the connection weights */
+    /* copy the connection weights */
     memcpy(dest->weights,source->weights,source->NoOfInputs*sizeof(float));
 
-    /** copy the bias */
+    /* copy the bias */
     dest->bias = source->bias;
 
-    /** copy the weight range */
+    /* copy the weight range */
     dest->min_weight = source->min_weight;
     dest->max_weight = source->max_weight;
 
-    /** clear the previous weight changes */
+    /* clear the previous weight changes */
     memset(dest->lastWeightChange,'\0',dest->NoOfInputs*sizeof(float));
 }
 
@@ -110,12 +110,12 @@ void bp_neuron_init(bp_neuron * n,
                     int no_of_inputs,
                     unsigned int * random_seed)
 {
-    /** should have more than zero inpyts */
+    /* should have more than zero inpyts */
     assert(no_of_inputs > 0);
 
     n->NoOfInputs = no_of_inputs;
 
-    /** create some weights */
+    /* create some weights */
     n->weights = (float*)malloc(no_of_inputs*sizeof(float));
     n->lastWeightChange = (float*)malloc(no_of_inputs*sizeof(float));
 
@@ -125,7 +125,7 @@ void bp_neuron_init(bp_neuron * n,
     n->BPerror = 0;
     n->excluded = 0;
 
-    /** pointers to input neurons */
+    /* pointers to input neurons */
     n->inputs = (struct bp_n **)malloc(no_of_inputs*
                                        sizeof(struct bp_n *));
     memset(n->inputs,'\0',no_of_inputs*sizeof(struct bp_n *));
@@ -164,16 +164,16 @@ void bp_neuron_free(bp_neuron * n)
 {
     int i;
 
-    /** free the weights */
+    /* free the weights */
     free(n->weights);
     free(n->lastWeightChange);
 
-    /** clear the pointers to input neurons */
+    /* clear the pointers to input neurons */
     for (i = 0; i < n->NoOfInputs; i++) {
         n->inputs[i]=0;
     }
 
-    /** free the inputs */
+    /* free the inputs */
     free(n->inputs);
 }
 
@@ -213,29 +213,29 @@ void bp_neuron_feedForward(bp_neuron * n,
     float adder;
     int i;
 
-    /** if the neuron has dropped out then set its output to zero */
+    /* if the neuron has dropped out then set its output to zero */
     if (n->excluded > 0) {
         n->value = 0;
         return;
     }
 
-    /** Sum with initial bias */
+    /* Sum with initial bias */
     adder = n->bias;
 
-    /** calculate weighted sum of inputs */
+    /* calculate weighted sum of inputs */
     for (i = 0; i < n->NoOfInputs; i++) {
         if (n->inputs[i] != 0) {
             adder += n->weights[i] * n->inputs[i]->value;
         }
     }
 
-    /** add some random noise */
+    /* add some random noise */
     if (noise > 0) {
         adder = ((1.0f - noise) * adder) +
             (noise * ((rand_num(random_seed)%10000)/10000.0f));
     }
 
-    /** activation function */
+    /* activation function */
     n->value = 1.0f / (1.0f + exp(-adder));
 }
 
@@ -249,7 +249,7 @@ void bp_neuron_backprop(bp_neuron * n)
     bp_neuron * nrn;
     float afact;
 
-    /** if the neuron has dropped out then don't continue */
+    /* if the neuron has dropped out then don't continue */
     if (n->excluded > 0) return;
 
     if (n->desiredValue > -1) {
@@ -257,10 +257,10 @@ void bp_neuron_backprop(bp_neuron * n)
         n->BPerror = n->desiredValue - n->value;
     }
 
-    /** activation function */
+    /* activation function */
     afact = af(n->value);
 
-    /** back-propogate the error */
+    /* back-propogate the error */
     for (i = 0; i < n->NoOfInputs; i++) {
         nrn = n->inputs[i];
         if (nrn != 0) {
@@ -292,7 +292,7 @@ void bp_neuron_learn(bp_neuron * n,
     n->min_weight = 9999;
     n->max_weight = -9999;
 
-    /** for each input */
+    /* for each input */
     for (i = 0; i < n->NoOfInputs; i++) {
         if (n->inputs[i] != 0) {
             n->lastWeightChange[i] =
@@ -300,7 +300,7 @@ void bp_neuron_learn(bp_neuron * n,
                 gradient * n->inputs[i]->value;
             n->weights[i] += n->lastWeightChange[i];
 
-            /** limit weights within range */
+            /* limit weights within range */
             if (n->weights[i] < n->min_weight) {
                 n->min_weight = n->weights[i];
             }
