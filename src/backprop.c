@@ -289,79 +289,119 @@ void bp_backprop(bp * net)
     }
 }
 
-/** adjust connection weights and bias values */
+/**
+* @brief Adjust connection weights and bias values
+* @param net Backprop neural net object
+*/
 void bp_learn(bp * net)
 {
     int i,l;
     bp_neuron * n;
 
-    /** hidden layers */
+    /** for each hidden layers */
     for (l = 0; l < net->HiddenLayers; l++) {
+        /** for every unit in the hidden layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
+            /** get the neuron object */
             n = net->hiddens[l][i];
+			/** adjust the weights for this neuron */
             bp_neuron_learn(n,net->learningRate);
         }
     }
 
-    /** output layer */
+    /** for every unit in the output layer */
     for (i = 0; i < net->NoOfOutputs; i++) {
+		/** get the neuron object */
         n = net->outputs[i];
+		/** adjust the weights for this neuron */
         bp_neuron_learn(n,net->learningRate);
     }
 }
 
+/**
+* @brief Set the value of an input
+* @param net Backprop neural net object
+* @param index The index number of the input unit
+* @param value The value to set the unit to in the range 0.0 to 1.0
+*/
 void bp_set_input(bp * net, int index, float value)
 {
-    bp_neuron * n;
-
-    n = net->inputs[index];
+	/** get the neuron object */
+    bp_neuron * n  = net->inputs[index];
+	/** Set the value */
     n->value = value;
 }
 
-/** Set the unputs of the network from a patch within an image.
-   It is assumed that the image is mono (1 byte per pixel) */
+/**
+* @brief Set the inputs of the network from a patch within an image.
+*        It is assumed that the image is mono (1 byte per pixel)
+* @param net Backprop neural net object
+* @param img Array storing the image
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @param tx Top left x coordinate of the patch within the image
+* @param ty Top left y coordinate of the patch within the image
+*/
 void bp_inputs_from_image_patch(bp * net,
                                 unsigned char * img,
                                 int image_width, int image_height,
                                 int tx, int ty)
 {
-    int px,py,i=0,n;
+    int px,py,i=0,idx;
+
+	/** The patch size is calculated from the number of inputs
+        of the neural net.  It's assumed to be square. */
     int patch_size = (int)sqrt(net->NoOfInputs);
 
+	/** make sure that the patch fits within the number of inputs */
     assert(patch_size*patch_size <= net->NoOfInputs);
 
-    /** set the inputs */
+    /** set the inputs from the patch */
     for (py = ty; py < ty+patch_size; py++) {
         if (py >= image_height) break;
         for (px = tx; px < tx+patch_size; px++, i++) {
             if (px >= image_width) break;
-            n = (py*image_width) + px;
-            bp_set_input(net, i, 0.25f + (img[n]*0.5f/255.0f));
+			/** array index within the image */
+            idx = (py*image_width) + px;
+			/** set the input value within the range 0.25 to 0.75 */
+            bp_set_input(net, i, 0.25f + (img[idx]*0.5f/255.0f));
         }
     }
 }
 
-/** Set the inputs of the network from an image.
-   It is assumed that the image is mono (1 byte per pixel) */
+/**
+* @brief Set the inputs of the network from an image.
+*        It is assumed that the image is mono (1 byte per pixel)
+* @param net Backprop neural net object
+* @param img Array storing the image
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+*/
 void bp_inputs_from_image(bp * net,
                           unsigned char * img,
                           int image_width, int image_height)
 {
-    int px,py,i=0;
+    int i=0;
 
     /** check that the number of inputs is the same as the
        number of pixels */
     assert(net->NoOfInputs == image_width*image_height);
 
     /** set the inputs */
-    for (py = 0; py < image_height; py++) {
-        for (px = 0; px < image_width; px++, i++) {
-            bp_set_input(net, i, 0.25f + (img[i]*0.5f/255.0f));
-        }
+    for (i = 0; i < image_width*image_height; i++) {
+		/** set the input value within the range 0.25 to 0.75 */
+		bp_set_input(net, i, 0.25f + (img[i]*0.5f/255.0f));
     }
 }
 
-/** plots weight matrices within an image */
+/**
+* @brief Plots weight matrices within an image
+* @param net Backprop neural net object
+* @param filename Filename of the image to save as
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @param input_image_width TODO
+*/
 void bp_plot_weights(bp * net,
                      char * filename,
                      int image_width, int image_height,
@@ -508,36 +548,48 @@ void bp_plot_weights(bp * net,
     free(img);
 }
 
+/**
+* @brief Returns the value of one of the input units
+* @param net Backprop neural net object
+* @param index Index of the input unit
+* @return value in the range 0.0 to 1.0
+*/
 static float bp_get_input(bp * net, int index)
 {
-    bp_neuron * n;
-
-    n = net->inputs[index];
-    return n->value;
+    return net->inputs[index]->value;
 }
 
+/**
+* @brief Sets the value of one of the output units
+* @param net Backprop neural net object
+* @param index Index of the output unit
+*/
 void bp_set_output(bp * net, int index, float value)
 {
-    bp_neuron * n;
-
-    n = net->outputs[index];
-    n->desiredValue = value;
+    net->outputs[index]->desiredValue = value;
 }
 
+/**
+* @brief Gets the value of one of the hidden units
+* @param net Backprop neural net object
+* @param layer Index number of the hidden layer
+* @param index Index of the unit within the given hidden layer
+* @return value in the range 0.0 to 1.0
+*/
 static float bp_get_hidden(bp * net, int layer, int index)
 {
-    bp_neuron * n;
-
-    n = net->hiddens[layer][index];
-    return n->value;
+    return net->hiddens[layer][index]->value;
 }
 
+/**
+* @brief Gets the value of one of the output units
+* @param net Backprop neural net object
+* @param index Index of the unit within the output layer
+* @return value in the range 0.0 to 1.0
+*/
 float bp_get_output(bp * net, int index)
 {
-    bp_neuron * n;
-
-    n = net->outputs[index];
-    return n->value;
+    return net->outputs[index]->value;
 }
 
 /** clears the exclusion flags on neurons which have dropped out */
