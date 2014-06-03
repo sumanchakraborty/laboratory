@@ -565,6 +565,7 @@ static float bp_get_input(bp * net, int index)
 * @brief Sets the value of one of the output units
 * @param net Backprop neural net object
 * @param index Index of the output unit
+* @param value The value to set the output to in the range 0.0 to 1.0
 */
 void bp_set_output(bp * net, int index, float value)
 {
