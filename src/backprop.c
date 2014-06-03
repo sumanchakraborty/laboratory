@@ -304,16 +304,16 @@ void bp_learn(bp * net)
         for (i = 0; i < net->NoOfHiddens; i++) {
             /** get the neuron object */
             n = net->hiddens[l][i];
-			/** adjust the weights for this neuron */
+            /** adjust the weights for this neuron */
             bp_neuron_learn(n,net->learningRate);
         }
     }
 
     /** for every unit in the output layer */
     for (i = 0; i < net->NoOfOutputs; i++) {
-		/** get the neuron object */
+        /** get the neuron object */
         n = net->outputs[i];
-		/** adjust the weights for this neuron */
+        /** adjust the weights for this neuron */
         bp_neuron_learn(n,net->learningRate);
     }
 }
@@ -326,9 +326,9 @@ void bp_learn(bp * net)
 */
 void bp_set_input(bp * net, int index, float value)
 {
-	/** get the neuron object */
+    /** get the neuron object */
     bp_neuron * n  = net->inputs[index];
-	/** Set the value */
+    /** Set the value */
     n->value = value;
 }
 
@@ -349,11 +349,11 @@ void bp_inputs_from_image_patch(bp * net,
 {
     int px,py,i=0,idx;
 
-	/** The patch size is calculated from the number of inputs
+    /** The patch size is calculated from the number of inputs
         of the neural net.  It's assumed to be square. */
     int patch_size = (int)sqrt(net->NoOfInputs);
 
-	/** make sure that the patch fits within the number of inputs */
+    /** make sure that the patch fits within the number of inputs */
     assert(patch_size*patch_size <= net->NoOfInputs);
 
     /** set the inputs from the patch */
@@ -361,9 +361,9 @@ void bp_inputs_from_image_patch(bp * net,
         if (py >= image_height) break;
         for (px = tx; px < tx+patch_size; px++, i++) {
             if (px >= image_width) break;
-			/** array index within the image */
+            /** array index within the image */
             idx = (py*image_width) + px;
-			/** set the input value within the range 0.25 to 0.75 */
+            /** set the input value within the range 0.25 to 0.75 */
             bp_set_input(net, i, 0.25f + (img[idx]*0.5f/255.0f));
         }
     }
@@ -389,8 +389,8 @@ void bp_inputs_from_image(bp * net,
 
     /** set the inputs */
     for (i = 0; i < image_width*image_height; i++) {
-		/** set the input value within the range 0.25 to 0.75 */
-		bp_set_input(net, i, 0.25f + (img[i]*0.5f/255.0f));
+        /** set the input value within the range 0.25 to 0.75 */
+        bp_set_input(net, i, 0.25f + (img[i]*0.5f/255.0f));
     }
 }
 
@@ -400,7 +400,9 @@ void bp_inputs_from_image(bp * net,
 * @param filename Filename of the image to save as
 * @param image_width Width of the image in pixels
 * @param image_height Height of the image in pixels
-* @param input_image_width TODO
+* @param input_image_width When displaying all inputs as an image this
+         is the number of inputs across.  Set this to zero for the
+         inputs image to be square.
 */
 void bp_plot_weights(bp * net,
                      char * filename,
@@ -592,22 +594,32 @@ float bp_get_output(bp * net, int index)
     return net->outputs[index]->value;
 }
 
-/** clears the exclusion flags on neurons which have dropped out */
+/**
+* @brief Exclusion flags indicate that a unit has temporarily dropped out.
+*        This clears the all the exclusion flags
+* @param net Backprop neural net object
+*/
 static void bp_clear_dropouts(bp * net)
 {
     int l,i;
 
+    /** if no dropouts then don't continue */
     if (net->DropoutPercent==0) return;
 
-    /** clear exclusions */
+    /** for every hidden layer */
     for (l = 0; l < net->HiddenLayers; l++) {
+        /** for every unit in the layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
+            /** clear the excluded flag */
             net->hiddens[l][i]->excluded = 0;
         }
     }
 }
 
-/** sets exclusion flags to cause neurons to drop out */
+/**
+* @brief Randomly sets exclusion flags to cause units to drop out
+* @param net Backprop neural net object
+*/
 static void bp_dropouts(bp * net)
 {
     int l,i,no_of_dropouts,hidden_units,n;
@@ -628,6 +640,10 @@ static void bp_dropouts(bp * net)
     }
 }
 
+/**
+* @brief Update the neural net during training
+* @param net Backprop neural net object
+*/
 void bp_update(bp * net)
 {
     bp_dropouts(net);
@@ -637,6 +653,10 @@ void bp_update(bp * net)
     bp_clear_dropouts(net);
 }
 
+/**
+* @brief Update an autocoder neural net
+* @param net Backprop neural net object
+*/
 static void bp_update_autocoder(bp * net)
 {
     int i;
@@ -653,41 +673,66 @@ static void bp_update_autocoder(bp * net)
     bp_update(net);
 }
 
-/** coppies the hidden layer from the autocoder to the main network */
+/**
+* @brief Copies the hidden layer from the autocoder to the main network
+* @param net Backprop neural net object
+* @param autocoder Autocoder neural net object
+* @param hidden_layer The layer within the neural net to be replaced with
+*        autocoder hidden units
+*/
 void bp_update_from_autocoder(bp * net,
                               bp * autocoder,
                               int hidden_layer)
 {
     int i;
 
+    /** for each unit on the hidden layer */
     for (i = 0; i < net->NoOfHiddens; i++) {
+        /** copy the neuron parameters from the autocoder hidden layer */
         bp_neuron_copy(autocoder->hiddens[0][i],
                        net->hiddens[hidden_layer][i]);
     }
 }
 
-/** generates an autocoder for the given layer */
+/**
+* @brief Generates an autocoder for the given neural net layer
+* @param net Backprop neural net object
+* @param hidden_layer The layer within the neural net to be autocoded
+* @param autocoder Autocoder neural net object
+*/
 void bp_create_autocoder(bp * net,
                          int hidden_layer,
                          bp * autocoder)
 {
+    /** number of inputs for the autocoder is the same as
+        the number of hidden units */
     int no_of_inputs = net->NoOfHiddens;
 
     if (hidden_layer == 0) {
+        /** if this is the first hidden layer then number of inputs
+            for the autocoder is the same as the number of
+            neural net input units */
         no_of_inputs = net->NoOfInputs;
     }
 
+    /** create the autocoder */
     bp_init(autocoder,
             no_of_inputs,
             net->NoOfHiddens,1,
             no_of_inputs,
             &net->random_seed);
 
+    /** assign parameters to the autocoder */
     autocoder->DropoutPercent = net->DropoutPercent;
     autocoder->learningRate = net->learningRate;
 }
 
-/** pre-trains a hidden layer using an autocoder */
+/**
+* @brief Pre-trains a hidden layer using an autocoder
+* @param net Backprop neural net object
+* @param autocoder Autocoder neural net object
+* @param hidden_layer The layer within the neural net to be autocoded
+*/
 void bp_pretrain(bp * net,
                  bp * autocoder,
                  int hidden_layer)
@@ -703,7 +748,7 @@ void bp_pretrain(bp * net,
         assert(net->NoOfHiddens == autocoder->NoOfInputs);
 
         /** copy the hidden unit values to the inputs
-           of the autocoder */
+            of the autocoder */
         for (i = 0; i < net->NoOfHiddens; i++) {
             hidden_value = bp_get_hidden(net, hidden_layer-1, i);
             bp_set_input(autocoder,i, hidden_value);
@@ -714,7 +759,7 @@ void bp_pretrain(bp * net,
         assert(autocoder->NoOfInputs == net->NoOfInputs);
 
         /** copy the input unit values to the inputs
-           of the autocoder */
+            of the autocoder */
         for (i = 0; i < net->NoOfInputs; i++) {
             bp_set_input(autocoder, i,
                          bp_get_input(net, i));
@@ -725,7 +770,11 @@ void bp_pretrain(bp * net,
     bp_update_autocoder(autocoder);
 }
 
-/** save a network to file */
+/**
+* @brief Save a neural network to file
+* @brief fp File pointer
+* @param net Backprop neural net object
+*/
 int bp_save(FILE * fp, bp * net)
 {
     int retval,i,l;
@@ -752,7 +801,12 @@ int bp_save(FILE * fp, bp * net)
     return retval;
 }
 
-/** load a network from file */
+/**
+* @brief Load a network from file
+* @brief fp File pointer
+* @param net Backprop neural net object
+* @param random_seed Random number generator seed
+*/
 int bp_load(FILE * fp, bp * net,
             unsigned int * random_seed)
 {
@@ -797,8 +851,12 @@ int bp_load(FILE * fp, bp * net,
     return retval;
 }
 
-/** compares two networks and returns a greater than zero
-   value if they are the same */
+/**
+* @brief compares two networks and returns a greater than
+*        zero value if they are the same
+* @param net1 The first backprop neural net object
+* @param net2 The second backprop neural net object
+*/
 int bp_compare(bp * net1, bp * net2)
 {
     int retval,i,l;
@@ -845,32 +903,47 @@ int bp_compare(bp * net1, bp * net2)
     return 1;
 }
 
-/** Extract the classification from the filename.
-   This assumes a filename of the type class.instance.extension
+/**
+* @brief Extract the classification string from the filename.
+*        This assumes a filename of the type class.instance.extension
+* @param filename The filename to examine
+* @param classification The returned classification
 */
 void bp_get_classification_from_filename(char * filename,
                                          char * classification)
 {
     int i,start=0;
 
+    /** start with an empty classification string */
     classification[0] = 0;
 
+    /** find the last separator */
     for (i = 0; i < strlen(filename); i++) {
         if (filename[i] == '/') {
             start = i+1;
         }
     }
 
+    /** find the first full stop */
     for (i = start; i < strlen(filename); i++) {
         if (filename[i] == '.') break;
         classification[i-start] = filename[i];
     }
+
+    /** add a string terminator */
     classification[i-start] = 0;
 }
 
-/** takes a set of classification labels for each instance within
-   a training/test set and produces an array of numbers corresponding
-   to that */
+/**
+* @brief Takes a set of classification text descriptions (labels) for each instance
+*        within a training or test set and produces an array of classification
+*        numbers corresponding to the text descriptions.
+*        It's easier for the system to deal with classification numbers
+*        rather than text descriptions.
+* @param no_of_instances The number of instances in the training or test set
+* @param instance_classification Text Description for each instance
+* @param numbers Array of numbers corresponding to each instance
+*/
 void bp_classifications_to_numbers(int no_of_instances,
                                    char ** instance_classification,
                                    int * numbers)
@@ -879,31 +952,39 @@ void bp_classifications_to_numbers(int no_of_instances,
     int unique_ctr = 0;
     char ** unique_classification;
 
-    /** allocate memory for a list of unique classifications */
+    /** allocate memory for a list of unique descriptions (labels) */
     unique_classification =
         (char**)malloc(no_of_instances * sizeof(char*));
 
     /** create a list of unique classification names */
     for (i = 0; i < no_of_instances; i++) {
+		/** for every class number assigned so far */
         for (j = 0; j < unique_ctr; j++) {
+			/** is this instance description (label) the same as a previous
+				instance description ? */
             if (strcmp(instance_classification[i],
                        unique_classification[j])==0) {
+				/** assign the same class number and finish the search */
                 numbers[i] = j;
                 break;
             }
         }
+		/** if this instance has a description which has not been used before */
         if (j == unique_ctr) {
+			/** store the description */
             unique_classification[unique_ctr] =
                 (char*)malloc((1+strlen(instance_classification[i]))*
                               sizeof(char));
             sprintf(unique_classification[unique_ctr],
                     "%s", instance_classification[i]);
+			/** store the classification number */
             numbers[i] = unique_ctr;
+			/** increment the number of classes */
             unique_ctr++;
         }
     }
 
-    /** free memory */
+    /** free memory which was used to store descriptions */
     for (i = 0; i < unique_ctr; i++) {
         free(unique_classification[i]);
     }
