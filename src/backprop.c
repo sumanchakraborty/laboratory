@@ -958,28 +958,28 @@ void bp_classifications_to_numbers(int no_of_instances,
 
     /** create a list of unique classification names */
     for (i = 0; i < no_of_instances; i++) {
-		/** for every class number assigned so far */
+        /** for every class number assigned so far */
         for (j = 0; j < unique_ctr; j++) {
-			/** is this instance description (label) the same as a previous
-				instance description ? */
+            /** is this instance description (label) the same as a previous
+                instance description ? */
             if (strcmp(instance_classification[i],
                        unique_classification[j])==0) {
-				/** assign the same class number and finish the search */
+                /** assign the same class number and finish the search */
                 numbers[i] = j;
                 break;
             }
         }
-		/** if this instance has a description which has not been used before */
+        /** if this instance has a description which has not been used before */
         if (j == unique_ctr) {
-			/** store the description */
+            /** store the description */
             unique_classification[unique_ctr] =
                 (char*)malloc((1+strlen(instance_classification[i]))*
                               sizeof(char));
             sprintf(unique_classification[unique_ctr],
                     "%s", instance_classification[i]);
-			/** store the classification number */
+            /** store the classification number */
             numbers[i] = unique_ctr;
-			/** increment the number of classes */
+            /** increment the number of classes */
             unique_ctr++;
         }
     }
