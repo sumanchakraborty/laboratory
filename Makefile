@@ -10,6 +10,8 @@ all:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -O3 -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
 debug:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -g -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
+tests:
+	gcc -Wall -std=c99 -pedantic -g -o tests unittests/*.c src/*.c -Isrc -Iunittests -lpng -lm -fopenmp
 source:
 	tar -cvf ../${APP}_${VERSION}.orig.tar ../${APP}-${VERSION} --exclude-vcs
 	gzip -f9n ../${APP}_${VERSION}.orig.tar
@@ -50,7 +52,7 @@ instlib:
 	mkdir -m 755 -p ${DESTDIR}${PREFIX}/share/man/man1
 	install -m 644 man/${APP}.1.gz ${DESTDIR}${PREFIX}/share/man/man1
 clean:
-	rm -f ${LIBNAME} \#* \.#* gnuplot* *.png debian/*.substvars debian/*.log
+	rm -f tests ${LIBNAME} \#* \.#* gnuplot* *.png debian/*.substvars debian/*.log
 	rm -fr deb.* debian/${APP} rpmpackage/${ARCH_TYPE}
 	rm -f ../${APP}*.deb ../${APP}*.changes ../${APP}*.asc ../${APP}*.dsc
 	rm -f rpmpackage/*.src.rpm archpackage/*.gz archpackage/*.xz
