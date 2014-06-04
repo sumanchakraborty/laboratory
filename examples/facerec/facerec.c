@@ -50,7 +50,9 @@ int * class_number;
 
 deeplearn learner;
 
-/* train the deep learner */
+/**
+* @brief Train the deep learner
+*/
 static void facerec_training()
 {
     int no_of_inputs = image_width*image_height;
@@ -185,7 +187,13 @@ static void facerec_training()
                     image_width);
 }
 
-/* deallocate images */
+/**
+* @brief Deallocate images
+* @param images Array containing images
+* @param classifications Array containing descriptions (labels)
+* @param class_number Array containing class numbers
+* @param no_of_images The number of images in the array
+*/
 static void free_mem(unsigned char ** images,
                      char ** classifications,
                      int * class_number,
@@ -209,6 +217,9 @@ static void free_mem(unsigned char ** images,
     deeplearn_free(&learner);
 }
 
+/**
+* @brief Saves the training examples as an image
+*/
 static void plot_training_images()
 {
     int max_images = no_of_images;

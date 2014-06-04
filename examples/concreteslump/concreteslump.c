@@ -31,9 +31,9 @@
 #include "libdeep/globals.h"
 #include "libdeep/deeplearn.h"
 
-#define MAX_EXAMPLES 200
+#define MAX_EXAMPLES      200
 #define MAX_TEST_EXAMPLES 20
-#define MAX_FIELDS   12
+#define MAX_FIELDS        12
 
 float data_max_value[MAX_FIELDS];
 float data_min_value[MAX_FIELDS];
@@ -48,10 +48,17 @@ int no_of_inputs = 0;
 
 deeplearn learner;
 
-/* create a test data set from the original data.
-   The test data can be used to calculate a final fitness
-   value, because it was not seen during training and so
-   provides an indication of how well the system has generalised */
+/**
+* @brief create a test data set from the original data.
+*        The test data can be used to calculate a final fitness
+*        value, because it was not seen during training and so
+*        provides an indication of how well the system has generalised
+* @param training_data Array storing the full data set
+* @param no_of_training_examples Returned number of training examples
+* @param fields_per_example Number of fields for each entry
+* @param test_data Array storing the test data
+* @return The number of test examples
+*/
 static int create_test_data(float * training_data,
                             int * no_of_training_examples,
                             int fields_per_example,
@@ -85,6 +92,14 @@ static int create_test_data(float * training_data,
 }
 
 
+/**
+* @brief Load the data set from file and store it within an array
+* @param filename File to load data from
+* @param training_data Array within which to store the training data
+* @param max_examples Maximum number of training examples
+* @param fields_per_example Number of fields in each entry
+* @return The number of training examples loaded
+*/
 static int load_data(char * filename, float * training_data,
                      int max_examples,
                      int * fields_per_example)
@@ -158,8 +173,13 @@ static int load_data(char * filename, float * training_data,
     return examples_loaded;
 }
 
-/* returns a normalised version of a value suitable for inserting
-   into a neuron value */
+/**
+* @brief returns a normalised version of a value suitable for inserting
+*        into a neuron value
+* @param field_number Field number within the data
+* @param value Value to be normalised
+* @return normalised value in the range 0.25 to 0.75
+*/
 float data_to_neuron_value(int field_number,
                            float value)
 {
@@ -174,7 +194,13 @@ float data_to_neuron_value(int field_number,
     return 0.5f;
 }
 
-/* converts a neuron value into a data value within the expected range */
+/**
+* @brief converts a neuron value into a data value within the expected range
+* @param field_number The field index within the data
+* @param neuron_value The value of the neuron in the range 0.0 to 1.0,
+*        but with an effective linear range of 0.25 to 0.75
+* @return Value mapped back into the expected range
+*/
 float neuron_value_to_data(int field_number,
                            float neuron_value)
 {
@@ -184,12 +210,18 @@ float neuron_value_to_data(int field_number,
 
     if (range > 0) {
         return data_min_value[field_number] +
-            ((neuron_value - 0.25f)*range);
+            (((neuron_value - 0.25f)/0.75f)*range);
     }
     return 0;
 }
 
-/* returns the performance on the test data set as a percentage value */
+/**
+* @brief Returns the performance on the test data set as a percentage value
+* @param learner Deep learner object
+* @param data_set An array containing all the data
+* @param data_set_size The number of entries in the data set
+* @return Training or test performance on the given data, in the range 0 to 100%
+*/
 float get_performance(deeplearn * learner,
                       float * data_set, int data_set_size)
 {
@@ -226,7 +258,9 @@ float get_performance(deeplearn * learner,
     return 0;
 }
 
-/* train the deep learner */
+/**
+* @brief Train the deep learner
+*/
 static void concreteslump_training()
 {
     int no_of_hiddens = 4*4;
