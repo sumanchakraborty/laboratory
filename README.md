@@ -5,6 +5,18 @@ This is a C library which can be used in deep learning applications.  It allows 
 Installation
 ============
 
+On Debian based systems:
+
+```bash
+sudo apt-get install gnuplot libpng-dev doxygen
+```
+
+On Fedora based systems:
+
+```bash
+sudo yum install gnuplot libpng-devel doxygen
+```
+
 To build from source:
 
 ```bash
