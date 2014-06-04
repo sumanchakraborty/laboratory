@@ -188,7 +188,7 @@ static void facerec_training()
 }
 
 /**
-* @brief Deallocate images
+* @brief Deallocate memory used to store images
 * @param images Array containing images
 * @param classifications Array containing descriptions (labels)
 * @param class_number Array containing class numbers
@@ -231,6 +231,9 @@ static void plot_training_images()
                    "training_images.png");
 }
 
+/**
+* @brief Main function
+*/
 int main(int argc, char* argv[])
 {
     images = NULL;
