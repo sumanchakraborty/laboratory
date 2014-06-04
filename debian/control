@@ -10,7 +10,7 @@ Vcs-Git: https://github.com/bashrc/libdeep.git
 Package: libdeep0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, gnuplot, libpng-dev
-Description: Library for deep learning
+Description: C Library for deep learning
  Makes using deep learning easy to include within any C/C++ application.
 
 Package: libdeep0-dev

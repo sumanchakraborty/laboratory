@@ -10,8 +10,6 @@ all:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -O3 -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
 debug:
 	gcc -shared -Wl,-soname,${SONAME} -std=c99 -pedantic -fPIC -g -o ${LIBNAME} src/*.c -Isrc -lpng -lm -fopenmp
-tests:
-	gcc -Wall -std=c99 -pedantic -g -o tests unittests/*.c src/*.c -Isrc -Iunittests -lpng -lm -fopenmp
 source:
 	tar -cvf ../${APP}_${VERSION}.orig.tar ../${APP}-${VERSION} --exclude-vcs
 	gzip -f9n ../${APP}_${VERSION}.orig.tar
@@ -55,7 +53,7 @@ clean:
 	rm -f ${LIBNAME} \#* \.#* gnuplot* *.png debian/*.substvars debian/*.log
 	rm -fr deb.* debian/${APP} rpmpackage/${ARCH_TYPE}
 	rm -f ../${APP}*.deb ../${APP}*.changes ../${APP}*.asc ../${APP}*.dsc
-	rm -f tests rpmpackage/*.src.rpm archpackage/*.gz archpackage/*.xz
+	rm -f rpmpackage/*.src.rpm archpackage/*.gz archpackage/*.xz
 	rm -f puppypackage/*.gz puppypackage/*.pet slackpackage/*.txz
 
 sourcedeb:
