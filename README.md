@@ -64,4 +64,4 @@ Although this software was primarily written to run on Linux-based systems it's 
 Packaging
 =========
 
-To build packages for Debian (deb) or Fedora (rpm) based systems there are two scripts, debian.sh and fedora.sh which can be used to generate packages for convenient installation.
+To build packages for Debian (deb) or Fedora (rpm) based systems there are two scripts, debian.sh and rpm.sh which can be used to generate packages for convenient installation.
