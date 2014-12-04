@@ -214,10 +214,11 @@ void bp_feed_forward_layers(bp * net, int layers)
 * @brief back-propogate errors from the output layer towards the input layer
 * @param net Backprop neural net object
 */
-void bp_backprop(bp * net)
+void bp_backprop(bp * net, int current_hidden_layer)
 {
     int i,l;
     bp_neuron * n;
+    int start_hidden_layer = current_hidden_layer-1;
 
     /* clear all previous backprop errors */
     for (i = 0; i < net->NoOfInputs; i++) {
@@ -228,7 +229,10 @@ void bp_backprop(bp * net)
     }
 
     /* for every hidden layer */
-    for (l = 0; l < net->HiddenLayers; l++) {
+    if (start_hidden_layer < 0) {
+        start_hidden_layer = 0;
+    }
+    for (l = start_hidden_layer; l < net->HiddenLayers; l++) {
         /* For each unit within the layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
             /* get the neuron object */
@@ -265,7 +269,7 @@ void bp_backprop(bp * net)
     }
 
     /* back-propogate through the hidden layers */
-    for (l = net->HiddenLayers-1; l >= 0; l--) {
+    for (l = net->HiddenLayers-1; l >= start_hidden_layer; l--) {
         /* for every unit in the hidden layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
             /* get the neuron object */
@@ -293,13 +297,17 @@ void bp_backprop(bp * net)
 * @brief Adjust connection weights and bias values
 * @param net Backprop neural net object
 */
-void bp_learn(bp * net)
+void bp_learn(bp * net, int current_hidden_layer)
 {
     int i,l;
     bp_neuron * n;
+    int start_hidden_layer = current_hidden_layer-1;
 
     /* for each hidden layers */
-    for (l = 0; l < net->HiddenLayers; l++) {
+    if (start_hidden_layer < 0) {
+        start_hidden_layer = 0;
+    }
+    for (l = start_hidden_layer; l < net->HiddenLayers; l++) {
         /* for every unit in the hidden layer */
         for (i = 0; i < net->NoOfHiddens; i++) {
             /* get the neuron object */
@@ -645,12 +653,12 @@ static void bp_dropouts(bp * net)
 * @brief Update the neural net during training
 * @param net Backprop neural net object
 */
-void bp_update(bp * net)
+void bp_update(bp * net, int current_hidden_layer)
 {
     bp_dropouts(net);
     bp_feed_forward(net);
-    bp_backprop(net);
-    bp_learn(net);
+    bp_backprop(net, current_hidden_layer);
+    bp_learn(net, current_hidden_layer);
     bp_clear_dropouts(net);
 }
 
@@ -671,7 +679,7 @@ static void bp_update_autocoder(bp * net)
     }
 
     /* run the autocoder */
-    bp_update(net);
+    bp_update(net,0);
 }
 
 /**

@@ -223,7 +223,7 @@ static void test_backprop()
 
     /* feed forward */
     bp_feed_forward(&net);
-    bp_backprop(&net);
+    bp_backprop(&net,0);
 
     /* check for non-zero backprop error values */
     for (i = 0; i < no_of_inputs; i++) {
@@ -269,7 +269,7 @@ static void test_backprop_update()
     }
 
     for (i = 0; i < 100; i++) {
-        bp_update(&net);
+        bp_update(&net,0);
     }
 
     bp_free(&net);
@@ -334,7 +334,7 @@ static void test_backprop_training()
         }
 
         /* train on the example */
-        bp_update(net);
+        bp_update(net,0);
     }
 
     bp_set_input(net, 0, state_FALSE);
@@ -404,7 +404,7 @@ static void test_backprop_autocoder()
             bp_set_output(&autocoder,i,0.75f - (i*0.5f/(float)no_of_inputs));
         }
         /* update */
-        bp_update(&autocoder);
+        bp_update(&autocoder,0);
     }
 
     for (i = 0; i < no_of_hiddens; i++) {

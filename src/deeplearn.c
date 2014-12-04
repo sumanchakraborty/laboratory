@@ -144,7 +144,7 @@ void deeplearn_update(deeplearn * learner)
     max_backprop_error =
         learner->error_threshold[learner->current_hidden_layer];
 
-    /* pretraining */
+    /* pretraining of autocoders */
     if (learner->current_hidden_layer <
         learner->net->HiddenLayers) {
 
@@ -191,8 +191,11 @@ void deeplearn_update(deeplearn * learner)
         }
     }
     else {
-        /* ordinary network training */
-        bp_update(learner->net);
+        /* ordinary network training with backprop
+           and learning between the second to last hidden layer and
+           the output layer - i.e. same as the classical
+           backprop architecture */
+        bp_update(learner->net,learner->net->HiddenLayers-1);
 
         /* update the backprop error value */
         learner->BPerror = learner->net->BPerrorAverage;

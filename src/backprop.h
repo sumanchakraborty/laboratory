@@ -63,12 +63,12 @@ void bp_init(bp * net,
 void bp_free(bp * net);
 void bp_feed_forward(bp * net);
 void bp_feed_forward_layers(bp * net, int layers);
-void bp_backprop(bp * net);
-void bp_learn(bp * net);
+void bp_backprop(bp * net, int current_hidden_layer);
+void bp_learn(bp * net, int current_hidden_layer);
 void bp_set_input(bp * net, int index, float value);
 void bp_set_output(bp * net, int index, float value);
 float bp_get_output(bp * net, int index);
-void bp_update(bp * net);
+void bp_update(bp * net, int current_hidden_layer);
 void bp_create_autocoder(bp * net, int hidden_layer, bp * autocoder);
 void bp_pretrain(bp * net, bp * autocoder, int hidden_layer);
 void bp_update_from_autocoder(bp * net, bp * autocoder, int hidden_layer);
