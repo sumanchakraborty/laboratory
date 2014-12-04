@@ -273,7 +273,7 @@ static void concreteslump_training()
     char weights_filename[256];
     int weights_image_width = 480;
     int weights_image_height = 800;
-    float error_threshold[] = { 0.009f, 0.007f, 0.006f, 0.001f };
+    float error_threshold[] = { 0.0006f, 0.0008f, 0.001f, 0.001f };
     float v;
     const int logging_interval = 40000;
 
@@ -292,6 +292,9 @@ static void concreteslump_training()
 
     /* set learning rate */
     deeplearn_set_learning_rate(&learner, 0.1f);
+
+	/* set percentage of dropouts */
+	deeplearn_set_dropouts(&learner, 0.01f);
 
     /* perform pre-training with an autocoder */
     itt = 0;
