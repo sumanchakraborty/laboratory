@@ -192,11 +192,7 @@ void deeplearn_update(deeplearn * learner)
         }
     }
     else {
-        /* ordinary network training with backprop
-           and learning between the second to last hidden layer and
-           the output layer - i.e. same as the classical
-           backprop architecture */
-        bp_update(learner->net,learner->net->HiddenLayers);
+        bp_update(learner->net,0);
 
         /* update the backprop error value */
         /*learner->BPerror = learner->net->BPerrorAverage;*/

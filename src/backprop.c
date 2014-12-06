@@ -271,11 +271,11 @@ void bp_backprop(bp * net, int current_hidden_layer)
     }
     else {
         net->BPerrorAverage =
-            (net->BPerrorAverage*0.98f) +
-            (net->BPerror*0.02f);
+            (net->BPerrorAverage*0.999f) +
+            (net->BPerror*0.001f);
         net->BPerrorPercent =
-            (net->BPerrorPercent*0.98f) +
-            (errorPercent*0.02f);
+            (net->BPerrorPercent*0.999f) +
+            (errorPercent*0.001f);
     }
 
     /* back-propogate through the hidden layers */

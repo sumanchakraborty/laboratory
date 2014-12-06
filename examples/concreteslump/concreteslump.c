@@ -291,7 +291,7 @@ static void concreteslump_training()
                    &random_seed);
 
     /* set learning rate */
-    deeplearn_set_learning_rate(&learner, 0.1f);
+    deeplearn_set_learning_rate(&learner, 0.5f);
 
 	/* set percentage of dropouts */
 	deeplearn_set_dropouts(&learner, 0.01f);
