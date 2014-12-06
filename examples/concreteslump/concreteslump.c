@@ -273,7 +273,7 @@ static void concreteslump_training()
     char weights_filename[256];
     int weights_image_width = 480;
     int weights_image_height = 800;
-    float error_threshold[] = { 0.0006f, 0.0008f, 0.001f, 0.001f };
+    float error_threshold_percent[] = { 0.5f, 0.5f, 0.5f, 0.5f };
     float v;
     const int logging_interval = 40000;
 
@@ -287,7 +287,7 @@ static void concreteslump_training()
                    no_of_inputs, no_of_hiddens,
                    hidden_layers,
                    no_of_outputs,
-                   error_threshold,
+                   error_threshold_percent,
                    &random_seed);
 
     /* set learning rate */

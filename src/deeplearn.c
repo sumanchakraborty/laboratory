@@ -134,14 +134,14 @@ void deeplearn_feed_forward(deeplearn * learner)
 */
 void deeplearn_update(deeplearn * learner)
 {
-    float max_backprop_error = 0;
+    float minimum_error_percent = 0;
 
     /* only continue if training is not complete */
     if (learner->training_complete == 1) return;
 
     /* get the maximum backprop error after which a layer
         will be considered to have been trained */
-    max_backprop_error =
+    minimum_error_percent =
         learner->error_threshold[learner->current_hidden_layer];
 
     /* pretraining of autocoders */
@@ -153,13 +153,14 @@ void deeplearn_update(deeplearn * learner)
                     learner->current_hidden_layer);
 
         /* update the backprop error value */
-        learner->BPerror = learner->autocoder->BPerrorAverage;
+        /*learner->BPerror = learner->autocoder->BPerrorAverage;*/
+        learner->BPerror = learner->autocoder->BPerrorPercent;
 
         /* If below the error threshold.
             Only do this after a minimum number of itterations
             in order to allow the running average to stabilise */
         if ((learner->BPerror != DEEPLEARN_UNKNOWN_ERROR) &&
-            (learner->BPerror < max_backprop_error) &&
+            (learner->BPerror < minimum_error_percent) &&
             (learner->autocoder->itterations > 100)) {
 
             /* copy the hidden units */
@@ -195,13 +196,14 @@ void deeplearn_update(deeplearn * learner)
            and learning between the second to last hidden layer and
            the output layer - i.e. same as the classical
            backprop architecture */
-        bp_update(learner->net,learner->net->HiddenLayers-1);
+        bp_update(learner->net,learner->net->HiddenLayers);
 
         /* update the backprop error value */
-        learner->BPerror = learner->net->BPerrorAverage;
+        /*learner->BPerror = learner->net->BPerrorAverage;*/
+        learner->BPerror = learner->net->BPerrorPercent;
 
         /* set the training completed flag */
-        if (learner->BPerror < max_backprop_error) {
+        if (learner->BPerror < minimum_error_percent) {
             learner->training_complete = 1;
         }
     }
@@ -458,7 +460,7 @@ int deeplearn_plot_history(deeplearn * learner,
     fprintf(fp,"%s","set lmargin 9\n");
     fprintf(fp,"%s","set rmargin 2\n");
     fprintf(fp,"%s","set xlabel \"Time Step\"\n");
-    fprintf(fp,"%s","set ylabel \"Training Error\"\n");
+    fprintf(fp,"%s","set ylabel \"Training Error Percent\"\n");
 
     fprintf(fp,"%s","set grid\n");
     fprintf(fp,"%s","set key right top\n");

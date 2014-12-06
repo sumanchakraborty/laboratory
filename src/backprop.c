@@ -216,9 +216,10 @@ void bp_feed_forward_layers(bp * net, int layers)
 */
 void bp_backprop(bp * net, int current_hidden_layer)
 {
-    int i,l;
+    int i, l, neuron_count=0;
     bp_neuron * n;
     int start_hidden_layer = current_hidden_layer-1;
+	float errorPercent=0;
 
     /* clear all previous backprop errors */
     for (i = 0; i < net->NoOfInputs; i++) {
@@ -245,7 +246,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
     /* now back-propogate the error from the output units */
     net->BPerrorTotal = 0;
     /* for every output unit */
-    for (i = 0; i < net->NoOfOutputs; i++) {
+    for (i = 0; i < net->NoOfOutputs; i++, neuron_count++) {
         /* get the neuron object */
         n = net->outputs[i];
         /* backpropogate the error */
@@ -253,7 +254,12 @@ void bp_backprop(bp * net, int current_hidden_layer)
         /* update the total error which is used to assess
             network performance */
         net->BPerrorTotal += n->BPerror;
+		errorPercent += fabs(n->BPerror);
     }
+
+    /* error percentage assuming an encoding range
+       of 0.25 -> 0.75 */
+    errorPercent = errorPercent * 100 / (0.5f*net->NoOfOutputs);
 
     /* error on the output units */
     net->BPerror = fabs(net->BPerrorTotal / net->NoOfOutputs);
@@ -261,17 +267,21 @@ void bp_backprop(bp * net, int current_hidden_layer)
     /* update the running average */
     if (net->BPerrorAverage == DEEPLEARN_UNKNOWN_ERROR) {
         net->BPerrorAverage = net->BPerror;
+        net->BPerrorPercent = errorPercent;
     }
     else {
         net->BPerrorAverage =
             (net->BPerrorAverage*0.98f) +
             (net->BPerror*0.02f);
+        net->BPerrorPercent =
+            (net->BPerrorPercent*0.98f) +
+            (errorPercent*0.02f);
     }
 
     /* back-propogate through the hidden layers */
     for (l = net->HiddenLayers-1; l >= start_hidden_layer; l--) {
         /* for every unit in the hidden layer */
-        for (i = 0; i < net->NoOfHiddens; i++) {
+        for (i = 0; i < net->NoOfHiddens; i++, neuron_count++) {
             /* get the neuron object */
             n = net->hiddens[l][i];
             /* backpropogate the error */
@@ -284,8 +294,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
 
     /* overall average error */
     net->BPerrorTotal =
-        fabs(net->BPerrorTotal /
-             (net->NoOfOutputs + net->NoOfHiddens));
+        fabs(net->BPerrorTotal / neuron_count);
 
     /* increment the number of training itterations */
     if (net->itterations < UINT_MAX) {
