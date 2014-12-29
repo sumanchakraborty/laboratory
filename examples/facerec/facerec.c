@@ -66,7 +66,7 @@ static void facerec_training()
     char weights_filename[256];
     int weights_image_width = 480;
     int weights_image_height = 800;
-    float error_threshold[] = { 0.01f, 0.01f,0.01f,0.01f,0.005f};
+    float error_threshold[] = { 7.5f, 7.5f, 8.0f, 8.0f, 4.5f};
     const int logging_interval = 1000;
 
     sprintf(weights_filename,"%s","weights.png");
