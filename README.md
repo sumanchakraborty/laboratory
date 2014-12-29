@@ -54,7 +54,7 @@ man libdeep
 Examples
 ========
 
-<img src="https://github.com/bashrc/libdeep/blob/master/examples/facerec/libdeep_facerec.png?raw=true" width=200/>
+<img src="https://github.com/bashrc/libdeep/blob/master/examples/facerec/libdeep_facerec.png?raw=true" width=300/>
 
 There are also some example programs within the examples directory. Reading the examples is the best way to learn how to use this library within your own code.
 
