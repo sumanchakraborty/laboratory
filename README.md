@@ -1,4 +1,4 @@
-<img src="https://github.com/bashrc/libdeep/blob/master/img/logo.png?raw=true" width=200/>
+<img src="https://github.com/bashrc/libdeep/blob/master/examples/cancer_classification/cancer_classification_training_error.png?raw=true" width=400/>
 
 This is a C library which can be used in deep learning applications.  It allows multiple layers to be trained and also includes the dropouts technique to avoid overfitting the data.
 
