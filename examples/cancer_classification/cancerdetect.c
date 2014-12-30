@@ -143,12 +143,12 @@ static int load_data(char * filename, float * data_set,
                                 (valuestr[0]<='9')) {
                                 value = atof(valuestr);
                             }
-							if (valuestr[0] == 'M') {
-								value = 0.8f;
-							}
-							if (valuestr[0] == 'B') {
-								value = 0.2f;
-							}
+                            if (valuestr[0] == 'M') {
+                                value = 0.8f;
+                            }
+                            if (valuestr[0] == 'B') {
+                                value = 0.2f;
+                            }
                         }
 
                         /* insert value into the array */
@@ -300,8 +300,8 @@ static void training()
     /* set learning rate */
     deeplearn_set_learning_rate(&learner, 0.5f);
 
-	/* set percentage of dropouts */
-	deeplearn_set_dropouts(&learner, 0.01f);
+    /* set percentage of dropouts */
+    deeplearn_set_dropouts(&learner, 0.01f);
 
     /* perform pre-training with an autocoder */
     itt = 0;
@@ -423,14 +423,14 @@ static void training()
 int main(int argc, char* argv[])
 {
     /* load the data */
-	printf("Loading data set\n");
+    printf("Loading data set\n");
     no_of_examples =
         load_data(DATA_FILE,
                   data_set, MAX_EXAMPLES,
                   &fields_per_example);
 
     /* create a test data set */
-	printf("Creating test data set\n");
+    printf("Creating test data set\n");
     no_of_test_examples =
         create_test_data(data_set,
                          &no_of_examples,

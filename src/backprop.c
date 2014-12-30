@@ -219,7 +219,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
     int i, l, neuron_count=0;
     bp_neuron * n;
     int start_hidden_layer = current_hidden_layer-1;
-	float errorPercent=0;
+    float errorPercent=0;
 
     /* clear all previous backprop errors */
     for (i = 0; i < net->NoOfInputs; i++) {
@@ -254,7 +254,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
         /* update the total error which is used to assess
             network performance */
         net->BPerrorTotal += n->BPerror;
-		errorPercent += fabs(n->BPerror);
+        errorPercent += fabs(n->BPerror);
     }
 
     /* error percentage assuming an encoding range
