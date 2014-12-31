@@ -56,7 +56,12 @@ Examples
 
 <img src="https://github.com/bashrc/libdeep/blob/master/examples/facerec/libdeep_facerec.png?raw=true" width=300/>
 
-There are also some example programs within the examples directory. Reading the examples is the best way to learn how to use this library within your own code.
+There are also some example programs within the examples directory. Reading the examples is the best way to learn how to use this library within your own code. Examples are:
+
+ * Simple face recognition
+ * Determining whether a cancer is malignant or benign
+ * Assessing wine quality from ingredients
+ * Predicting concrete quality from ingredients
 
 Portability
 ===========
