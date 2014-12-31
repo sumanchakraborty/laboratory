@@ -280,7 +280,7 @@ static void training()
     char weights_filename[256];
     int weights_image_width = 480;
     int weights_image_height = 800;
-    float error_threshold_percent[] = { 0.0015f, 0.001f, 0.001f, 0.04f };
+    float error_threshold_percent[] = { 1.6f, 0.8f, 0.8f, 11.0f };
     float v;
     const int logging_interval = 40000;
 
