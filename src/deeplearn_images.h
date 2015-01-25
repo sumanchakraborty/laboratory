@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
 #include <dirent.h>
 #include <assert.h>
 
@@ -44,16 +43,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define PNG_DEBUG 3
-#include <png.h>
+#include "lodepng.h"
 #include "backprop.h"
 
-void deeplearn_read_png(char * filename,
-                        int * width, int * height,
-                        unsigned char ** buffer);
-int deeplearn_write_png(char* filename,
-                        int width, int height,
-                        unsigned char *buffer);
+int deeplearn_read_png_file(char * filename,
+							unsigned int * width,
+							unsigned int * height,
+							unsigned int * bitsperpixel,
+							unsigned char ** buffer);
+int deeplearn_write_png_file(char * filename,
+							 unsigned int width, unsigned int height,
+							 unsigned int bitsperpixel,
+							 unsigned char * buffer);
 int deeplearn_load_training_images(char * images_directory,
                                    unsigned char *** images,
                                    char *** classifications,

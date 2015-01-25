@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013,2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -49,7 +49,7 @@ static void save_image(char * filename)
     }
 
     /* write to file */
-    deeplearn_write_png(filename, width, height, buffer);
+    assert(deeplearn_write_png_file(filename, width, height, 24, buffer)==0);
 
     /* free memory */
     free(buffer);
@@ -81,7 +81,8 @@ static void test_load_image()
 {
     char filename[256], commandstr[256];
     unsigned char * buffer;
-    int i,width,height;
+    int i;
+	unsigned int width=0,height=0,bitsperpixel=0;
 
     printf("test_load_image...");
 
@@ -90,11 +91,12 @@ static void test_load_image()
     save_image(filename);
 
     /* load image from file */
-    deeplearn_read_png(filename, &width, &height, &buffer);
+    assert(deeplearn_read_png_file(filename, &width, &height, &bitsperpixel, &buffer)==0);
 
     /* check image properties */
     assert(width==80);
     assert(height==80);
+	assert(bitsperpixel==24);
 
     /* check the pixels */
     for (i = 0; i < width*height*3; i+=3) {

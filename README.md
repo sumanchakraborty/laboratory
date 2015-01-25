@@ -8,13 +8,13 @@ Installation
 On Debian based systems:
 
 ```bash
-sudo apt-get install gnuplot libpng-dev doxygen
+sudo apt-get install gnuplot doxygen
 ```
 
 On Fedora based systems:
 
 ```bash
-sudo yum install gnuplot libpng-devel doxygen
+sudo yum install gnuplot doxygen
 ```
 
 To build from source:

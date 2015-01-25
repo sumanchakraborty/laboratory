@@ -560,8 +560,9 @@ void bp_plot_weights(bp * net,
     }
 
     /* write the image to file */
-    deeplearn_write_png(filename,
-                        image_width, image_height, img);
+    deeplearn_write_png_file(filename,
+							 (unsigned int)image_width, (unsigned int)image_height,
+							 24, img);
 
     /* free the image memory */
     free(img);
