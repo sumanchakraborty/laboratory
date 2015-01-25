@@ -82,7 +82,7 @@ static void test_load_image()
     char filename[256], commandstr[256];
     unsigned char * buffer;
     int i;
-	unsigned int width=0,height=0,bitsperpixel=0;
+    unsigned int width=0,height=0,bitsperpixel=0;
 
     printf("test_load_image...");
 
@@ -96,7 +96,7 @@ static void test_load_image()
     /* check image properties */
     assert(width==80);
     assert(height==80);
-	assert(bitsperpixel==24);
+    assert(bitsperpixel==24);
 
     /* check the pixels */
     for (i = 0; i < width*height*3; i+=3) {

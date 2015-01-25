@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -47,14 +47,14 @@
 #include "backprop.h"
 
 int deeplearn_read_png_file(char * filename,
-							unsigned int * width,
-							unsigned int * height,
-							unsigned int * bitsperpixel,
-							unsigned char ** buffer);
+                            unsigned int * width,
+                            unsigned int * height,
+                            unsigned int * bitsperpixel,
+                            unsigned char ** buffer);
 int deeplearn_write_png_file(char * filename,
-							 unsigned int width, unsigned int height,
-							 unsigned int bitsperpixel,
-							 unsigned char * buffer);
+                             unsigned int width, unsigned int height,
+                             unsigned int bitsperpixel,
+                             unsigned char * buffer);
 int deeplearn_load_training_images(char * images_directory,
                                    unsigned char *** images,
                                    char *** classifications,

@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -39,18 +39,18 @@
 * @returns 0 on success
 */
 int deeplearn_read_png_file(char * filename,
-							unsigned int * width,
-							unsigned int * height,
-							unsigned int * bitsperpixel,
-							unsigned char ** buffer)
+                            unsigned int * width,
+                            unsigned int * height,
+                            unsigned int * bitsperpixel,
+                            unsigned char ** buffer)
 {
     unsigned error;
-	unsigned w=0, h=0;
-	error = lodepng_decode24_file(buffer, &w, &h, filename);
-	if (error) {
-		printf("read_png_file: error %u: %s\n", error, lodepng_error_text(error));
-		return -1;
-	}
+    unsigned w=0, h=0;
+    error = lodepng_decode24_file(buffer, &w, &h, filename);
+    if (error) {
+        printf("read_png_file: error %u: %s\n", error, lodepng_error_text(error));
+        return -1;
+    }
 
     *width = w;
     *height = h;
@@ -68,37 +68,37 @@ int deeplearn_read_png_file(char * filename,
 * @return 0 on success
 */
 int deeplearn_write_png_file(char * filename,
-							 unsigned int width, unsigned int height,
-							 unsigned int bitsperpixel,
-							 unsigned char * buffer)
+                             unsigned int width, unsigned int height,
+                             unsigned int bitsperpixel,
+                             unsigned char * buffer)
 {
-	unsigned error=1;
-	unsigned int i;
-	unsigned char * image = buffer;
+    unsigned error=1;
+    unsigned int i;
+    unsigned char * image = buffer;
 
-	if (bitsperpixel == 32) {
-		error = lodepng_encode32_file(filename, image, width, height);
-	}
-	if (bitsperpixel == 24) {
-		error = lodepng_encode24_file(filename, image, width, height);
-	}
-	if (bitsperpixel == 8) {
-		image = (unsigned char*)malloc(width*height*3);
-		if (image) {
-			for (i = 0; i < width*height; i++) {
-				image[i*3] = buffer[i];
-				image[i*3+1] = buffer[i];
-				image[i*3+2] = buffer[i];
-			}
-			error = lodepng_encode24_file(filename, image, width, height);
-			free(image);
-		}
-	}
+    if (bitsperpixel == 32) {
+        error = lodepng_encode32_file(filename, image, width, height);
+    }
+    if (bitsperpixel == 24) {
+        error = lodepng_encode24_file(filename, image, width, height);
+    }
+    if (bitsperpixel == 8) {
+        image = (unsigned char*)malloc(width*height*3);
+        if (image) {
+            for (i = 0; i < width*height; i++) {
+                image[i*3] = buffer[i];
+                image[i*3+1] = buffer[i];
+                image[i*3+2] = buffer[i];
+            }
+            error = lodepng_encode24_file(filename, image, width, height);
+            free(image);
+        }
+    }
 
-	if (error) {
-		printf("write_png_file: error %u: %s\n", error, lodepng_error_text(error));
-		return -1;
-	}
+    if (error) {
+        printf("write_png_file: error %u: %s\n", error, lodepng_error_text(error));
+        return -1;
+    }
     return 0;
 }
 
@@ -192,8 +192,8 @@ int deeplearn_load_training_images(char * images_directory,
     int ctr,no_of_images = 0;
     struct dirent **namelist;
     int n,len;
-	unsigned int im_width=0,im_height=0;
-	unsigned int im_bitsperpixel=0;
+    unsigned int im_width=0,im_height=0;
+    unsigned int im_bitsperpixel=0;
     unsigned char * img, * downsampled;
     char * extension = "png";
     char filename[256];
@@ -238,8 +238,8 @@ int deeplearn_load_training_images(char * images_directory,
 
                     /* obtain an image from the filename */
                     if (deeplearn_read_png_file(filename,
-												&im_width, &im_height,
-												&im_bitsperpixel, &img) == 0) {
+                                                &im_width, &im_height,
+                                                &im_bitsperpixel, &img) == 0) {
                         /* create a fixed size image */
                         downsampled =
                             (unsigned char*)malloc(width*height*
@@ -316,8 +316,8 @@ void bp_plot_images(unsigned char **images,
 
     /* write the image to file */
     deeplearn_write_png_file(filename,
-							 image_width, image_height*no_of_images,
-							 24, img);
+                             image_width, image_height*no_of_images,
+                             24, img);
 
     /* free the image memory */
     free(img);

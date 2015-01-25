@@ -125,56 +125,56 @@ static int load_data(char * filename, float * data_set,
         retval = fgets(line,1999,fp);
         if (retval) {
             if (strlen(line)>0) {
-				if (line[0]!='"') {
-					field_number = 0;
-					ctr = 0;
-					for (i = 0; i < strlen(line); i++) {
-						if ((line[i]==',') || (line[i]==';') ||
-							(i==strlen(line)-1)) {
-							if (i==strlen(line)-1) {
-								valuestr[ctr++]=line[i];
-							}
-							valuestr[ctr]=0;
-							ctr=0;
+                if (line[0]!='"') {
+                    field_number = 0;
+                    ctr = 0;
+                    for (i = 0; i < strlen(line); i++) {
+                        if ((line[i]==',') || (line[i]==';') ||
+                            (i==strlen(line)-1)) {
+                            if (i==strlen(line)-1) {
+                                valuestr[ctr++]=line[i];
+                            }
+                            valuestr[ctr]=0;
+                            ctr=0;
 
-							/* get the value from the string */
-							value = 0;
-							if (valuestr[0]!='?') {
-								if ((valuestr[0]>='0') &&
-									(valuestr[0]<='9')) {
-									value = atof(valuestr);
-								}
-								if (valuestr[0] == 'M') {
-									value = 0.8f;
-								}
-								if (valuestr[0] == 'B') {
-									value = 0.2f;
-								}
-							}
+                            /* get the value from the string */
+                            value = 0;
+                            if (valuestr[0]!='?') {
+                                if ((valuestr[0]>='0') &&
+                                    (valuestr[0]<='9')) {
+                                    value = atof(valuestr);
+                                }
+                                if (valuestr[0] == 'M') {
+                                    value = 0.8f;
+                                }
+                                if (valuestr[0] == 'B') {
+                                    value = 0.2f;
+                                }
+                            }
 
-							/* insert value into the array */
-							data_set[data_set_index] = value;
-							if (value > data_max_value[field_number]) {
-								data_max_value[field_number] = value;
-							}
-							if (value < data_min_value[field_number]) {
-								data_min_value[field_number] = value;
-							}
-							field_number++;
-							data_set_index++;
-						}
-						else {
-							/* update the value string */
-							valuestr[ctr++] = line[i];
-						}
-					}
-					*fields_per_example = field_number;
-					examples_loaded++;
-					if (examples_loaded >= max_examples) {
-						fclose(fp);
-						return examples_loaded;
-					}
-				}
+                            /* insert value into the array */
+                            data_set[data_set_index] = value;
+                            if (value > data_max_value[field_number]) {
+                                data_max_value[field_number] = value;
+                            }
+                            if (value < data_min_value[field_number]) {
+                                data_min_value[field_number] = value;
+                            }
+                            field_number++;
+                            data_set_index++;
+                        }
+                        else {
+                            /* update the value string */
+                            valuestr[ctr++] = line[i];
+                        }
+                    }
+                    *fields_per_example = field_number;
+                    examples_loaded++;
+                    if (examples_loaded >= max_examples) {
+                        fclose(fp);
+                        return examples_loaded;
+                    }
+                }
             }
         }
     }
@@ -249,13 +249,13 @@ float get_performance(deeplearn * learner,
 
         deeplearn_feed_forward(learner);
 
-		reference = data_set[index*fields_per_example + fields_per_example - 1];
-		v = neuron_value_to_data(fields_per_example - 1, deeplearn_get_output(learner,0));
-		if (reference != 0) {
-			error_percent = (v-reference)/reference;
-			total_error += error_percent*error_percent;
-			hits++;
-		}
+        reference = data_set[index*fields_per_example + fields_per_example - 1];
+        v = neuron_value_to_data(fields_per_example - 1, deeplearn_get_output(learner,0));
+        if (reference != 0) {
+            error_percent = (v-reference)/reference;
+            total_error += error_percent*error_percent;
+            hits++;
+        }
     }
     if (hits > 0) {
         average_error = (float)sqrt(total_error / hits) * 100;
@@ -366,9 +366,9 @@ static void training()
         }
 
         /* set the desired outputs */
-		v = current_data_set[index*fields_per_example + fields_per_example - 1];
-		v = data_to_neuron_value(fields_per_example - 1, v);
-		deeplearn_set_output(&learner, 0, v);
+        v = current_data_set[index*fields_per_example + fields_per_example - 1];
+        v = data_to_neuron_value(fields_per_example - 1, v);
+        deeplearn_set_output(&learner, 0, v);
 
         /* update the learner */
         deeplearn_update(&learner);

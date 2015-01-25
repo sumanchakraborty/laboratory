@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -561,8 +561,8 @@ void bp_plot_weights(bp * net,
 
     /* write the image to file */
     deeplearn_write_png_file(filename,
-							 (unsigned int)image_width, (unsigned int)image_height,
-							 24, img);
+                             (unsigned int)image_width, (unsigned int)image_height,
+                             24, img);
 
     /* free the image memory */
     free(img);
