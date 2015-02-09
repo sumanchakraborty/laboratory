@@ -36,6 +36,20 @@
 #include "globals.h"
 #include "backprop.h"
 
+typedef struct {
+    float * inputs;
+    float * outputs;
+    unsigned int flags;
+    struct deeplearndata * prev;
+    struct deeplearndata * next;
+} deeplearndata;
+
+typedef struct {
+    deeplearndata * sample;
+    struct deeplearndata_meta * prev;
+    struct deeplearndata_meta * next;
+} deeplearndata_meta;
+
 struct deepl {
     bp * net;
     bp * autocoder;
@@ -45,6 +59,13 @@ struct deepl {
     float * error_threshold;
     int training_complete;
 
+    deeplearndata * data;
+    int data_samples;
+    deeplearndata_meta * training_data;
+    int training_data_samples;
+    deeplearndata_meta * test_data;
+    int test_data_samples;
+  
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
 };

@@ -79,6 +79,14 @@ void deeplearn_init(deeplearn * learner,
                     float error_threshold[],
                     unsigned int * random_seed)
 {
+    /* no training/test data yet */
+    learner->data = 0;
+    learner->data_samples = 0;
+    learner->training_data = 0;
+    learner->training_data_samples = 0;
+    learner->test_data = 0;
+    learner->test_data_samples = 0;
+
     /* has not been trained */
     learner->training_complete = 0;
 
@@ -219,6 +227,35 @@ void deeplearn_update(deeplearn * learner)
 */
 void deeplearn_free(deeplearn * learner)
 {
+    /* clear any data */
+    deeplearndata * sample = learner->data;
+    deeplearndata * prev_sample;
+    while (sample != 0) {
+        prev_sample = sample;
+        sample = (deeplearndata *)sample->next;
+        free(prev_sample->inputs);
+        free(prev_sample->outputs);
+        free(prev_sample);
+    }
+
+    /* free training samples */
+    deeplearndata_meta * training_sample = learner->training_data;
+    deeplearndata_meta * prev_training_sample;
+    while (training_sample != 0) {
+        prev_training_sample = training_sample;
+        training_sample = (deeplearndata_meta *)training_sample->next;
+        free(prev_training_sample);
+    }
+
+    /* free test samples */
+    deeplearndata_meta * test_sample = learner->test_data;
+    deeplearndata_meta * prev_test_sample;
+    while (test_sample != 0) {
+        prev_test_sample = test_sample;
+        test_sample = (deeplearndata_meta *)test_sample->next;
+        free(prev_test_sample);
+    }
+
     /* free the learner */
     bp_free(learner->net);
     free(learner->net);
