@@ -40,6 +40,8 @@ int deeplearndata_add(deeplearn * learner,
                       float * inputs,
                       float * outputs);
 deeplearndata * deeplearndata_get(deeplearn * learner, int index);
+deeplearndata * deeplearndata_get_training(deeplearn * learner, int index);
+deeplearndata * deeplearndata_get_test(deeplearn * learner, int index);
 int deeplearndata_add_training_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_add_test_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage);

@@ -78,6 +78,60 @@ int deeplearndata_add(deeplearn * learner,
 }
 
 /**
+* @brief Returns a metadata sample
+* @param Pointer to the metadata list
+* @returns metadata object
+*/
+static deeplearndata_meta * deeplearndata_get_meta(deeplearndata_meta * list, int index)
+{
+    int i = 0;
+    deeplearndata_meta * ptr = list;
+  
+    while (i < index) {
+        if (ptr == 0) {
+            break;
+        }
+        ptr = (deeplearndata_meta*)ptr->next;
+        i++;
+    }
+    return ptr;
+}
+
+/**
+* @brief Returns a training data sample
+* @param learner Deep learner object
+* @returns deeplearndata object
+*/
+deeplearndata * deeplearndata_get_training(deeplearn * learner, int index)
+{
+    if ((index < 0) || (index >= learner->training_data_samples)) {
+        return 0;
+    }
+    deeplearndata_meta * meta = deeplearndata_get_meta(learner->training_data, index);
+    if (meta == 0) {
+        return 0;
+    }
+    return meta->sample;
+}
+
+/**
+* @brief Returns a test data sample
+* @param learner Deep learner object
+* @returns deeplearndata object
+*/
+deeplearndata * deeplearndata_get_test(deeplearn * learner, int index)
+{
+    if ((index < 0) || (index >= learner->test_data_samples)) {
+        return 0;
+    }
+    deeplearndata_meta * meta = deeplearndata_get_meta(learner->test_data, index);
+    if (meta == 0) {
+        return 0;
+    }
+    return meta->sample;
+}
+
+/**
 * @brief Returns a data sample
 * @param learner Deep learner object
 * @returns deeplearndata object
