@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013,2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -33,6 +33,7 @@
 #include "tests_random.h"
 #include "tests_backprop.h"
 #include "tests_deeplearn.h"
+#include "tests_data.h"
 #include "tests_images.h"
 
 int main(int argc, char* argv[])
@@ -41,6 +42,7 @@ int main(int argc, char* argv[])
     run_tests_random();
     run_tests_backprop();
     run_tests_deeplearn();
+    run_tests_data();
 
     return 1;
 }
