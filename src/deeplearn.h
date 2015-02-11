@@ -82,7 +82,9 @@ void deeplearn_feed_forward(deeplearn * learner);
 void deeplearn_update(deeplearn * learner);
 void deeplearn_free(deeplearn * learner);
 void deeplearn_set_input(deeplearn * learner, int index, float value);
+void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample);
 void deeplearn_set_output(deeplearn * learner, int index, float value);
+void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample);
 float deeplearn_get_output(deeplearn * learner, int index);
 int deeplearn_save(FILE * fp, deeplearn * learner);
 int deeplearn_load(FILE * fp, deeplearn * learner,

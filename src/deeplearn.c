@@ -234,11 +234,11 @@ void deeplearn_free(deeplearn * learner)
     while (sample != 0) {
         prev_sample = sample;
         sample = (deeplearndata *)sample->next;
-	if (sample != 0) {
+        if (sample != 0) {
             free(prev_sample->inputs);
             free(prev_sample->outputs);
             free(prev_sample);
-	}
+        }
     }
 
     /* free training samples */
@@ -285,6 +285,17 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 }
 
 /**
+* @brief Sets inputs from the given data sample
+* @param learner Deep learner object
+*/
+void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
+{
+    for (int i = 0; i < learner->net->NoOfInputs; i++) {
+        deeplearn_set_input(learner, i, sample->inputs[i]);
+    }
+}
+
+/**
 * @brief Sets the value of an output unit
 * @param learner Deep learner object
 * @param index Index number of the output unit
@@ -293,6 +304,17 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 void deeplearn_set_output(deeplearn * learner, int index, float value)
 {
     bp_set_output(learner->net, index, value);
+}
+
+/**
+* @brief Sets outputs from the given data sample
+* @param learner Deep learner object
+*/
+void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
+{
+    for (int i = 0; i < learner->net->NoOfOutputs; i++) {
+        deeplearn_set_output(learner, i, sample->outputs[i]);
+    }
 }
 
 /**
