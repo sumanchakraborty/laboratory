@@ -230,12 +230,15 @@ void deeplearn_free(deeplearn * learner)
     /* clear any data */
     deeplearndata * sample = learner->data;
     deeplearndata * prev_sample;
+
     while (sample != 0) {
         prev_sample = sample;
         sample = (deeplearndata *)sample->next;
-        free(prev_sample->inputs);
-        free(prev_sample->outputs);
-        free(prev_sample);
+	if (sample != 0) {
+            free(prev_sample->inputs);
+            free(prev_sample->outputs);
+            free(prev_sample);
+	}
     }
 
     /* free training samples */
@@ -355,6 +358,14 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
 {
     int retval,val=0;
 
+    /* no training/test data yet */
+    learner->data = 0;
+    learner->data_samples = 0;
+    learner->training_data = 0;
+    learner->training_data_samples = 0;
+    learner->test_data = 0;
+    learner->test_data_samples = 0;
+
     retval = fread(&learner->training_complete, sizeof(int), 1, fp);
     retval = fread(&learner->itterations, sizeof(unsigned int), 1, fp);
     retval = fread(&learner->current_hidden_layer, sizeof(int), 1, fp);
@@ -457,7 +468,7 @@ int deeplearn_plot_history(deeplearn * learner,
                            char * filename, char * title,
                            int image_width, int image_height)
 {
-    int index,retval;
+    int index,retval=0;
     FILE * fp;
     char data_filename[256];
     char plot_filename[256];
@@ -512,6 +523,7 @@ int deeplearn_plot_history(deeplearn * learner,
     /* remove temporary files */
     sprintf(command_str,"rm %s %s", data_filename,plot_filename);
     retval = system(command_str);
+
     return retval;
 }
 

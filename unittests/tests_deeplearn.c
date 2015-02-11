@@ -103,6 +103,7 @@ static void test_deeplearn_update()
             break;
         }
     }
+    
     if (learner.current_hidden_layer < hidden_layers) {
         printf("\nDidn't finish training (at layer %d)\nBPerror %.5f\n",
                learner.current_hidden_layer,learner.BPerror);
@@ -165,6 +166,7 @@ static void test_deeplearn_update()
         printf("\nretval = %d\n",retval);
     }
     assert(retval==1);
+
 
     /* save a graph */
     sprintf(filename,"%stemp_graph.png",DEEPLEARN_TEMP_DIRECTORY);
