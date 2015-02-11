@@ -90,7 +90,65 @@ static void test_data_add()
 
 static void test_data_training_test()
 {
+    deeplearn learner;
+    int no_of_inputs=10;
+    int no_of_hiddens=4;
+    int hidden_layers=2;
+    int no_of_outputs=2;
+    float error_threshold[] = { 0.01f, 0.01f, 0.01f };
+    unsigned int random_seed = 123;
+
     printf("test_data_training_test...");
+
+    /* create the learner */
+    deeplearn_init(&learner,
+                   no_of_inputs, no_of_hiddens,
+                   hidden_layers,
+                   no_of_outputs,
+                   error_threshold,
+                   &random_seed);
+
+    assert((&learner)->net!=0);
+    assert((&learner)->autocoder!=0);
+
+    /* add some data samples */
+    for (int i = 0; i < 100; i++) {
+        float * inputs = (float*)malloc(no_of_inputs*sizeof(float));
+        float * outputs = (float*)malloc(no_of_outputs*sizeof(float));
+        for (int j = 0; j < no_of_inputs; j++) {
+            inputs[j] = i;
+        }
+        for (int j = 0; j < no_of_outputs; j++) {
+            outputs[j] = j;
+        }
+        assert(deeplearndata_add(&learner, inputs, outputs) == 0);
+        free(inputs);
+        free(outputs);
+    }
+    assert(learner.data_samples == 100);
+
+    assert(learner.training_data_samples == 0);
+    assert(learner.test_data_samples == 0);
+    assert(deeplearndata_create_datasets(&learner, 20) == 0);
+    assert(learner.training_data_samples == 80);
+    assert(learner.test_data_samples == 20);
+
+    deeplearndata * training_sample =
+      deeplearndata_get_training(&learner, 24);
+    assert(training_sample != 0);
+    for (int j = 0; j < no_of_outputs; j++) {
+        assert(training_sample->outputs[j] == j);
+    }
+    deeplearndata * test_sample =
+      deeplearndata_get_test(&learner, 11);
+    assert(test_sample != 0);
+    for (int j = 0; j < no_of_outputs; j++) {
+        assert(test_sample->outputs[j] == j);
+    }
+
+    /* free memory */
+    deeplearn_free(&learner);
+
     printf("Ok\n");
 }
 
