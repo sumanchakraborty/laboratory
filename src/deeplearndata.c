@@ -351,7 +351,7 @@ int deeplearndata_read_csv(char * filename,
     char line[2000],valuestr[256],*retval;
     float value;
     int data_set_index = 0;
-    float inputs[1024], outputs[1024];
+    float inputs[2048], outputs[1024];
     int fields_per_example = 0;
 
     fp = fopen(filename,"r");
@@ -391,7 +391,7 @@ int deeplearndata_read_csv(char * filename,
                                     }
                                 }
                             }
-                            if ((j == no_of_outputs) && (input_index < 1023)) {
+                            if ((j == no_of_outputs) && (input_index < 2047)) {
                                 inputs[input_index++] = value;
                             }
                                                        
