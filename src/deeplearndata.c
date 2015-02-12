@@ -40,6 +40,7 @@ int deeplearndata_add(deeplearn * learner,
                       float * inputs,
                       float * outputs)
 {
+    int i;
     deeplearndata * data;
     data = (deeplearndata*)malloc(sizeof(deeplearndata));
     if (!data) {
@@ -62,6 +63,24 @@ int deeplearndata_add(deeplearn * learner,
     memcpy((void*)data->inputs, inputs, learner->net->NoOfInputs*sizeof(float));
     memcpy((void*)data->outputs, outputs, learner->net->NoOfOutputs*sizeof(float));
 
+    /* update the data range */
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        if (inputs[i] < learner->input_range_min[i]) {
+            learner->input_range_min[i] = inputs[i];
+        }
+        if (inputs[i] > learner->input_range_max[i]) {
+            learner->input_range_max[i] = inputs[i];
+        }
+    }
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        if (outputs[i] < learner->output_range_min[i]) {
+            learner->output_range_min[i] = outputs[i];
+        }
+        if (outputs[i] > learner->output_range_max[i]) {
+            learner->output_range_max[i] = outputs[i];
+        }
+    }
+    
     data->flags = 0;
     
     /* change the current head of the list */
@@ -305,5 +324,190 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
         sample = (deeplearndata*)sample->next;
     }
 
+    return 0;
+}
+
+/**
+* @brief Loads a data set from a csv file and creates a deep learner
+* @param filename csv filename
+* @param learner Deep learner object
+* @param no_of_hiddens The number of hidden units per layer
+* @param hidden layers The number of hidden layers
+* @param no_of_outputs The number of outputs
+* @param output_field_index Field numbers for the outputs within the csv file
+* @param error_threshold Training error thresholds for each hidden layer
+* @param random_seed Random number seed
+* @returns The number of data samples loaded
+*/
+int deeplearndata_read_csv(char * filename,
+                           deeplearn * learner,
+                           int no_of_hiddens, int hidden_layers,
+                           int no_of_outputs, int * output_field_index,
+                           float error_threshold[],
+                           unsigned int * random_seed)
+{
+    int i, j, field_number, input_index, ctr, samples_loaded = 0;
+    FILE * fp;
+    char line[2000],valuestr[256],*retval;
+    float value;
+    int data_set_index = 0;
+    float inputs[1024], outputs[1024];
+    int fields_per_example = 0;
+
+    fp = fopen(filename,"r");
+    if (!fp) return -1;
+
+    while (!feof(fp)) {
+        retval = fgets(line,1999,fp);
+        if (retval) {
+            if (strlen(line)>0) {
+                if ((line[0]!='"') && (line[0]!='#')) {
+                    field_number = 0;
+                    input_index = 0;
+                    ctr = 0;
+                    for (i = 0; i < strlen(line); i++) {
+                        if ((line[i]==',') || (line[i]==';') ||
+                            (i==strlen(line)-1)) {
+                            if (i==strlen(line)-1) {
+                                valuestr[ctr++]=line[i];
+                            }
+                            valuestr[ctr]=0;
+                            ctr=0;
+
+                            /* get the value from the string */
+                            value = 0;
+                            if (valuestr[0]!='?') {
+                                if ((valuestr[0]>='0') &&
+                                    (valuestr[0]<='9')) {
+                                    value = atof(valuestr);
+                                }
+                            }
+
+                            for (j = 0; j < no_of_outputs; j++) {
+                                if (field_number == output_field_index[j]) {
+                                    if (j < 1023) {
+                                        outputs[j] = value;
+                                        break;
+                                    }
+                                }
+                            }
+                            if ((j == no_of_outputs) && (input_index < 1023)) {
+                                inputs[input_index++] = value;
+                            }
+                                                       
+                            field_number++;
+                            data_set_index++;
+                        }
+                        else {
+                            /* update the value string */
+                            valuestr[ctr++] = line[i];
+                        }
+                    }
+                    if (fields_per_example == 0) {
+                        fields_per_example = field_number;
+                    }
+                    if (samples_loaded == 0) {
+                        /* create the deep learner */
+                        deeplearn_init(learner,
+                                       input_index, no_of_hiddens,
+                                       hidden_layers, no_of_outputs,
+                                       error_threshold, random_seed);
+                    }
+                    /* add a data sample */
+                    if (deeplearndata_add(learner, inputs, outputs) != 0) {
+                        fclose(fp);
+                        return -2;
+                    }
+                    samples_loaded++;
+                }
+            }
+        }
+    }
+
+    fclose(fp);
+
+    /* create training and test data sets */
+    if (deeplearndata_create_datasets(learner, 20) != 0) {
+        return -3;
+    }
+
+    return samples_loaded;
+}
+
+/**
+* @brief Performs a single training step
+* @param learner Deep learner object
+* @returns 1=pretraining,2=final training,0=training complete,-1=no training data
+*/
+int deeplearndata_training(deeplearn * learner)
+{
+    if (learner->training_data_samples == 0) {
+        return -1;
+    }
+
+    /* plot a graph showing training progress */
+    if (learner->training_ctr % learner->history_plot_interval) {
+        if (strlen(learner->history_plot_filename) > 0) {
+            deeplearn_plot_history(learner,
+                                   learner->history_plot_filename,
+                                   learner->history_plot_title,
+                                   1024, 480);
+        }
+    }
+    learner->training_ctr++;
+
+    /* index number of a random training sample */
+    int index = rand_num(&learner->net->random_seed)%learner->training_data_samples;
+    /* get the sample */
+    deeplearndata * sample = deeplearndata_get_training(learner, index);
+
+    if (learner->current_hidden_layer < learner->net->HiddenLayers) {
+        deeplearn_set_inputs(learner, sample);
+        deeplearn_update(learner);
+        return 1;
+    }
+    if (learner->training_complete == 0) {
+        deeplearn_set_inputs(learner, sample);
+        deeplearn_set_outputs(learner, sample);
+        deeplearn_update(learner);
+        return 2;
+    }
+    return 0;
+}
+
+/**
+* @brief Returns the performance on the test data set as a percentage value
+* @param learner Deep learner object
+* @param data_set An array containing all the data
+* @param data_set_size The number of entries in the data set
+* @return Training or test performance on the given data, in the range 0 to 100%
+*/
+float deeplearndata_get_performance(deeplearn * learner)
+{
+    int index,i,hits=0;
+    float error_percent, total_error=0, average_error;
+    float * outputs = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+
+    for (index = 0; index < learner->test_data_samples; index++) {
+        deeplearndata * sample = deeplearndata_get_training(learner, index);
+        deeplearn_set_inputs(learner, sample);
+        deeplearn_feed_forward(learner);
+        deeplearn_get_outputs(learner, outputs);
+
+        for (i = 0; i < learner->net->NoOfOutputs; i++) {
+            if (sample->outputs[i] != 0) {
+                error_percent = (sample->outputs[i] - outputs[i]) / sample->outputs[i];
+                total_error += error_percent*error_percent;
+                hits++;
+            }
+        }
+    }
+    if (hits > 0) {
+        average_error = (float)sqrt(total_error / hits) * 100;
+        if (average_error > 100) average_error = 100;
+        free(outputs);
+        return 100 - average_error;
+    }
+    free(outputs);
     return 0;
 }

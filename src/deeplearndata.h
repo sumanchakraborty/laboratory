@@ -45,5 +45,13 @@ deeplearndata * deeplearndata_get_test(deeplearn * learner, int index);
 int deeplearndata_add_training_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_add_test_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage);
+int deeplearndata_read_csv(char * filename,
+                           deeplearn * learner,
+                           int no_of_hiddens, int hidden_layers,
+                           int no_of_outputs, int * output_field_index,
+                           float error_threshold[],
+                           unsigned int * random_seed);
+int deeplearndata_training(deeplearn * learner);
+float deeplearndata_get_performance(deeplearn * learner);
 
 #endif
