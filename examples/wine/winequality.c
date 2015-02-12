@@ -68,6 +68,8 @@ int main(int argc, char* argv[])
     deeplearn_set_dropouts(&learner, 0.001f);
     
     learner.history_plot_interval = 50000;
+
+    sprintf(learner.history_plot_title,"%s",TITLE);
     
     while (deeplearndata_training(&learner) != 0) {
     }
