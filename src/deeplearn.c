@@ -80,7 +80,7 @@ void deeplearn_init(deeplearn * learner,
                     unsigned int * random_seed)
 {
     int i;
-	
+        
     /* no training/test data yet */
     learner->data = 0;
     learner->data_samples = 0;
@@ -90,24 +90,24 @@ void deeplearn_init(deeplearn * learner,
     learner->test_data_samples = 0;
 
     learner->training_ctr = 0;
-	learner->history_plot_interval = 10000;
-	sprintf(learner->history_plot_filename,"%s","training.png");
-	sprintf(learner->history_plot_title,"%s","Training History");
-	
-	learner->input_range_min = (float*)malloc(no_of_inputs*sizeof(float));
-	learner->input_range_max = (float*)malloc(no_of_inputs*sizeof(float));
-	learner->output_range_min = (float*)malloc(no_of_outputs*sizeof(float));
-	learner->output_range_max = (float*)malloc(no_of_outputs*sizeof(float));
+    learner->history_plot_interval = 100000;
+    sprintf(learner->history_plot_filename,"%s","training.png");
+    sprintf(learner->history_plot_title,"%s","Training History");
+        
+    learner->input_range_min = (float*)malloc(no_of_inputs*sizeof(float));
+    learner->input_range_max = (float*)malloc(no_of_inputs*sizeof(float));
+    learner->output_range_min = (float*)malloc(no_of_outputs*sizeof(float));
+    learner->output_range_max = (float*)malloc(no_of_outputs*sizeof(float));
 
     for (i = 0; i < no_of_inputs; i++) {
-		learner->input_range_min[i] = 99999;
-		learner->input_range_max[i] = -99999;
-	}
+        learner->input_range_min[i] = 99999;
+        learner->input_range_max[i] = -99999;
+    }
     for (i = 0; i < no_of_outputs; i++) {
-		learner->output_range_min[i] = 99999;
-		learner->output_range_max[i] = -99999;
-	}
-	
+        learner->output_range_min[i] = 99999;
+        learner->output_range_max[i] = -99999;
+    }
+        
     /* has not been trained */
     learner->training_complete = 0;
 
@@ -252,11 +252,11 @@ void deeplearn_free(deeplearn * learner)
     deeplearndata * sample = learner->data;
     deeplearndata * prev_sample;
 
-	free(learner->input_range_min);
-	free(learner->input_range_max);
-	free(learner->output_range_min);
-	free(learner->output_range_max);
-	
+        free(learner->input_range_min);
+        free(learner->input_range_max);
+        free(learner->output_range_min);
+        free(learner->output_range_max);
+        
     while (sample != 0) {
         prev_sample = sample;
         sample = (deeplearndata *)sample->next;
@@ -319,12 +319,12 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
 {
     for (int i = 0; i < learner->net->NoOfInputs; i++) {
-		float value = sample->inputs[i];
-		float range = learner->input_range_max[i] - learner->input_range_min[i];
-		if (range > 0) {
-			float normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
-			deeplearn_set_input(learner, i, normalised);
-		}
+                float value = sample->inputs[i];
+                float range = learner->input_range_max[i] - learner->input_range_min[i];
+                if (range > 0) {
+                        float normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
+                        deeplearn_set_input(learner, i, normalised);
+                }
     }
 }
 
@@ -348,12 +348,12 @@ void deeplearn_set_output(deeplearn * learner, int index, float value)
 void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
 {
     for (int i = 0; i < learner->net->NoOfOutputs; i++) {
-		float value = sample->outputs[i];
-		float range = learner->output_range_max[i] - learner->output_range_min[i];
-		if (range > 0) {
-			float normalised = (((value - learner->output_range_min[i])/range)*0.5) + 0.25;
-			deeplearn_set_output(learner, i, normalised);
-		}
+                float value = sample->outputs[i];
+                float range = learner->output_range_max[i] - learner->output_range_min[i];
+                if (range > 0) {
+                        float normalised = (((value - learner->output_range_min[i])/range)*0.5) + 0.25;
+                        deeplearn_set_output(learner, i, normalised);
+                }
     }
 }
 
@@ -365,12 +365,12 @@ void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
 void deeplearn_get_outputs(deeplearn * learner, float * outputs)
 {
     for (int i = 0; i < learner->net->NoOfOutputs; i++) {
-		float value = deeplearn_get_output(learner, i);
-		float range = learner->output_range_max[i] - learner->output_range_min[i];
-		if (range > 0) {
-			outputs[i] =
-				(((value - 0.25f)/0.5f)*range) + learner->output_range_min[i];			
-		}
+                float value = deeplearn_get_output(learner, i);
+                float range = learner->output_range_max[i] - learner->output_range_min[i];
+                if (range > 0) {
+                        outputs[i] =
+                                (((value - 0.25f)/0.5f)*range) + learner->output_range_min[i];                  
+                }
     }
 }
 

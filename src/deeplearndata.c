@@ -446,13 +446,14 @@ int deeplearndata_training(deeplearn * learner)
     }
 
     /* plot a graph showing training progress */
-    if (learner->training_ctr % learner->history_plot_interval) {
+    if (learner->training_ctr > learner->history_plot_interval) {
         if (strlen(learner->history_plot_filename) > 0) {
             deeplearn_plot_history(learner,
                                    learner->history_plot_filename,
                                    learner->history_plot_title,
                                    1024, 480);
         }
+	learner->training_ctr = 0;
     }
     learner->training_ctr++;
 

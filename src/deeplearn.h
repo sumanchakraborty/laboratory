@@ -66,16 +66,16 @@ struct deepl {
     deeplearndata_meta * test_data;
     int test_data_samples;
 
-	float * input_range_min;
-	float * input_range_max;
-	float * output_range_min;
-	float * output_range_max;
+    float * input_range_min;
+    float * input_range_max;
+    float * output_range_min;
+    float * output_range_max;
 
     unsigned int training_ctr;
-	unsigned int history_plot_interval;
-	char history_plot_filename[256];
-	char history_plot_title[256];	
-	
+    unsigned int history_plot_interval;
+    char history_plot_filename[256];
+    char history_plot_title[256];       
+        
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
 };
