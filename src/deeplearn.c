@@ -80,7 +80,7 @@ void deeplearn_init(deeplearn * learner,
                     unsigned int * random_seed)
 {
     int i;
-        
+
     /* no training/test data yet */
     learner->data = 0;
     learner->data_samples = 0;
@@ -93,7 +93,7 @@ void deeplearn_init(deeplearn * learner,
     learner->history_plot_interval = 100000;
     sprintf(learner->history_plot_filename,"%s","training.png");
     sprintf(learner->history_plot_title,"%s","Training History");
-        
+
     learner->input_range_min = (float*)malloc(no_of_inputs*sizeof(float));
     learner->input_range_max = (float*)malloc(no_of_inputs*sizeof(float));
     learner->output_range_min = (float*)malloc(no_of_outputs*sizeof(float));
@@ -107,7 +107,7 @@ void deeplearn_init(deeplearn * learner,
         learner->output_range_min[i] = 99999;
         learner->output_range_max[i] = -99999;
     }
-        
+
     /* has not been trained */
     learner->training_complete = 0;
 
@@ -252,11 +252,11 @@ void deeplearn_free(deeplearn * learner)
     deeplearndata * sample = learner->data;
     deeplearndata * prev_sample;
 
-        free(learner->input_range_min);
-        free(learner->input_range_max);
-        free(learner->output_range_min);
-        free(learner->output_range_max);
-        
+    free(learner->input_range_min);
+    free(learner->input_range_max);
+    free(learner->output_range_min);
+    free(learner->output_range_max);
+
     while (sample != 0) {
         prev_sample = sample;
         sample = (deeplearndata *)sample->next;
@@ -319,12 +319,12 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
 {
     for (int i = 0; i < learner->net->NoOfInputs; i++) {
-                float value = sample->inputs[i];
-                float range = learner->input_range_max[i] - learner->input_range_min[i];
-                if (range > 0) {
-                        float normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
-                        deeplearn_set_input(learner, i, normalised);
-                }
+        float value = sample->inputs[i];
+        float range = learner->input_range_max[i] - learner->input_range_min[i];
+        if (range > 0) {
+            float normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
+            deeplearn_set_input(learner, i, normalised);
+        }
     }
 }
 
@@ -348,12 +348,12 @@ void deeplearn_set_output(deeplearn * learner, int index, float value)
 void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
 {
     for (int i = 0; i < learner->net->NoOfOutputs; i++) {
-                float value = sample->outputs[i];
-                float range = learner->output_range_max[i] - learner->output_range_min[i];
-                if (range > 0) {
-                        float normalised = (((value - learner->output_range_min[i])/range)*0.5) + 0.25;
-                        deeplearn_set_output(learner, i, normalised);
-                }
+        float value = sample->outputs[i];
+        float range = learner->output_range_max[i] - learner->output_range_min[i];
+        if (range > 0) {
+            float normalised = (((value - learner->output_range_min[i])/range)*0.5) + 0.25;
+            deeplearn_set_output(learner, i, normalised);
+        }
     }
 }
 
@@ -365,12 +365,12 @@ void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
 void deeplearn_get_outputs(deeplearn * learner, float * outputs)
 {
     for (int i = 0; i < learner->net->NoOfOutputs; i++) {
-                float value = deeplearn_get_output(learner, i);
-                float range = learner->output_range_max[i] - learner->output_range_min[i];
-                if (range > 0) {
-                        outputs[i] =
-                                (((value - 0.25f)/0.5f)*range) + learner->output_range_min[i];                  
-                }
+        float value = deeplearn_get_output(learner, i);
+        float range = learner->output_range_max[i] - learner->output_range_min[i];
+        if (range > 0) {
+            outputs[i] =
+                (((value - 0.25f)/0.5f)*range) + learner->output_range_min[i];
+        }
     }
 }
 
@@ -427,7 +427,7 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
     retval = fwrite(&learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
     retval = fwrite(&learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
     retval = fwrite(&learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
-    
+
     return retval;
 }
 
@@ -466,7 +466,7 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     else {
         learner->autocoder = 0;
     }
-	
+
     /* load error thresholds */
     learner->error_threshold =
         (float*)malloc((learner->net->HiddenLayers+1)*
@@ -490,7 +490,7 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     retval = fread(&learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
     retval = fread(&learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
     retval = fread(&learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
-    
+
     return retval;
 }
 
@@ -548,25 +548,25 @@ int deeplearn_compare(deeplearn * learner1,
         }
     }
     for (i = 0; i < learner1->net->NoOfInputs; i++) {
-		if (learner1->input_range_min[i] !=
-			learner2->input_range_min[i]) {
-			return -11;
-		}
-		if (learner1->input_range_max[i] !=
-			learner2->input_range_max[i]) {
-			return -12;
-		}
-	}	
+        if (learner1->input_range_min[i] !=
+            learner2->input_range_min[i]) {
+            return -11;
+        }
+        if (learner1->input_range_max[i] !=
+            learner2->input_range_max[i]) {
+            return -12;
+        }
+    }
     for (i = 0; i < learner1->net->NoOfOutputs; i++) {
-		if (learner1->output_range_min[i] !=
-			learner2->output_range_min[i]) {
-			return -13;
-		}
-		if (learner1->output_range_max[i] !=
-			learner2->output_range_max[i]) {
-			return -14;
-		}
-	}	
+        if (learner1->output_range_min[i] !=
+            learner2->output_range_min[i]) {
+            return -13;
+        }
+        if (learner1->output_range_max[i] !=
+            learner2->output_range_max[i]) {
+            return -14;
+        }
+    }
     return 1;
 }
 
@@ -706,134 +706,134 @@ void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent)
  */
 int deeplearn_export(deeplearn * learner, char * filename)
 {
-	FILE * fp;
-	int i, j, k, no_of_weights;
+    FILE * fp;
+    int i, j, k, no_of_weights;
 
-	fp = fopen(filename,"w");
-	if (!fp) {
-		return -1;
-	}
+    fp = fopen(filename,"w");
+    if (!fp) {
+        return -1;
+    }
 
-	fprintf(fp,"%s\n","#include <stdio.h>");
-	fprintf(fp,"%s\n","#include <stdlib.h>");
-	fprintf(fp,"%s\n","#include <math.h>");
-	fprintf(fp,"\n");
-	fprintf(fp, "const int no_of_inputs = %d;\n",
-			learner->net->NoOfInputs);
-	fprintf(fp, "const int no_of_hiddens = %d;\n",
-			learner->net->NoOfHiddens);
-	fprintf(fp, "const int no_of_outputs = %d;\n",
-			learner->net->NoOfOutputs);
-	fprintf(fp, "const int hidden_layers = %d;\n",
-			learner->net->HiddenLayers);
+    fprintf(fp,"%s\n","#include <stdio.h>");
+    fprintf(fp,"%s\n","#include <stdlib.h>");
+    fprintf(fp,"%s\n","#include <math.h>");
+    fprintf(fp,"\n");
+    fprintf(fp, "const int no_of_inputs = %d;\n",
+            learner->net->NoOfInputs);
+    fprintf(fp, "const int no_of_hiddens = %d;\n",
+            learner->net->NoOfHiddens);
+    fprintf(fp, "const int no_of_outputs = %d;\n",
+            learner->net->NoOfOutputs);
+    fprintf(fp, "const int hidden_layers = %d;\n",
+            learner->net->HiddenLayers);
 
     /* ranges */
-	fprintf(fp, "float input_range_min[] = {\n");
-	fprintf(fp, "  ");
-	for (i = 0; i < learner->net->NoOfInputs; i++) {
-		fprintf(fp, "%f", learner->input_range_min[i]);
-		if (i < learner->net->NoOfInputs-1) {
-			fprintf(fp, ",");
-		}
-	}
-	fprintf(fp, "\n}\n");
-	fprintf(fp, "float input_range_max[] = {\n");
-	fprintf(fp, "  ");
-	for (i = 0; i < learner->net->NoOfInputs; i++) {
-		fprintf(fp, "%f", learner->input_range_max[i]);
-		if (i < learner->net->NoOfInputs-1) {
-			fprintf(fp, ",");
-		}
-	}
-	fprintf(fp, "\n}\n");
-	fprintf(fp, "float output_range_min[] = {\n");
-	fprintf(fp, "  ");
-	for (i = 0; i < learner->net->NoOfInputs; i++) {
-		fprintf(fp, "%f", learner->output_range_min[i]);
-		if (i < learner->net->NoOfInputs-1) {
-			fprintf(fp, ",");
-		}
-	}
-	fprintf(fp, "\n}\n");
-	fprintf(fp, "float output_range_max[] = {\n");
-	fprintf(fp, "  ");
-	for (i = 0; i < learner->net->NoOfInputs; i++) {
-		fprintf(fp, "%f", learner->output_range_max[i]);
-		if (i < learner->net->NoOfInputs-1) {
-			fprintf(fp, ",");
-		}
-	}
-	fprintf(fp, "\n}\n");	
+    fprintf(fp, "float input_range_min[] = {\n");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->input_range_min[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n}\n");
+    fprintf(fp, "float input_range_max[] = {\n");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->input_range_max[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n}\n");
+    fprintf(fp, "float output_range_min[] = {\n");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->output_range_min[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n}\n");
+    fprintf(fp, "float output_range_max[] = {\n");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->output_range_max[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n}\n");
 
-	/* hidden unit weights */
+    /* hidden unit weights */
     for (i = 0; i < learner->net->HiddenLayers; i++) {
-		fprintf(fp,
-				"float hidden_layer_%d_weights[] = {\n  ", i);
-		if (i == 0) {
-			no_of_weights = learner->net->NoOfInputs;
-		}
-		else {
-			no_of_weights = learner->net->NoOfHiddens;
-		}
-		for (j = 0; j < learner->net->NoOfHiddens; j++) {
-			for (k = 0; k < no_of_weights; k++) {
-				fprintf(fp, "%f",
-						learner->net->hiddens[i][j]->weights[k]);
-				if (!((j == learner->net->NoOfHiddens-1) &&
-					  (k == no_of_weights-1))) {
-					fprintf(fp, ",");
-				}
-			}
-		}
-		fprintf(fp, "\n}\n");
-	}
+        fprintf(fp,
+                "float hidden_layer_%d_weights[] = {\n  ", i);
+        if (i == 0) {
+            no_of_weights = learner->net->NoOfInputs;
+        }
+        else {
+            no_of_weights = learner->net->NoOfHiddens;
+        }
+        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+            for (k = 0; k < no_of_weights; k++) {
+                fprintf(fp, "%f",
+                        learner->net->hiddens[i][j]->weights[k]);
+                if (!((j == learner->net->NoOfHiddens-1) &&
+                      (k == no_of_weights-1))) {
+                    fprintf(fp, ",");
+                }
+            }
+        }
+        fprintf(fp, "\n}\n");
+    }
 
-	/* hidden unit biases */
+    /* hidden unit biases */
     for (i = 0; i < learner->net->HiddenLayers; i++) {
-		fprintf(fp,
-				"float hidden_layer_%d_bias[] = {\n  ", i);
-		for (j = 0; j < learner->net->NoOfHiddens; j++) {
-			fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
-			if (j < learner->net->NoOfHiddens-1) {
-				fprintf(fp, ",");				
-			}
-		}
-		fprintf(fp, "\n}\n");
-	}
+        fprintf(fp,
+                "float hidden_layer_%d_bias[] = {\n  ", i);
+        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+            fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
+            if (j < learner->net->NoOfHiddens-1) {
+                fprintf(fp, ",");
+            }
+        }
+        fprintf(fp, "\n}\n");
+    }
 
     /* output unit weights */
-	fprintf(fp,
-			"float output_layer_weights[] = {\n  ");
-	for (i = 0; i < learner->net->NoOfOutputs; i++) {
-		for (j = 0; j < learner->net->NoOfHiddens; j++) {
-			fprintf(fp, "%f",
-					learner->net->outputs[i]->weights[j]);
-			if (j < learner->net->NoOfOutputs-1) {
-				fprintf(fp, ",");				
-			}
-		}
-	}
-	fprintf(fp, "\n}\n");
-		
-	/* output unit biases */
-	fprintf(fp,
-			"float output_layer_bias[] = {\n  ");
-	for (i = 0; i < learner->net->NoOfOutputs; i++) {
-		fprintf(fp, "%f",
-				learner->net->outputs[i]->bias);
-		if (i < learner->net->NoOfOutputs-1) {
-			fprintf(fp, ",");				
-		}
-	}
-	fprintf(fp, "\n}\n");
-	
-	fprintf(fp, "\n");
-	fprintf(fp, "\n");
-			
-	fprintf(fp, "int main(int argc, char* argv[])\n");
-	fprintf(fp, "{\n");
-	fprintf(fp, "  return 0;\n");
-	fprintf(fp, "}\n");
-	fclose(fp);
-	return 0;
+    fprintf(fp,
+            "float output_layer_weights[] = {\n  ");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+            fprintf(fp, "%f",
+                    learner->net->outputs[i]->weights[j]);
+            if (j < learner->net->NoOfOutputs-1) {
+                fprintf(fp, ",");
+            }
+        }
+    }
+    fprintf(fp, "\n}\n");
+
+    /* output unit biases */
+    fprintf(fp,
+            "float output_layer_bias[] = {\n  ");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        fprintf(fp, "%f",
+                learner->net->outputs[i]->bias);
+        if (i < learner->net->NoOfOutputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n}\n");
+
+    fprintf(fp, "\n");
+    fprintf(fp, "\n");
+
+    fprintf(fp, "int main(int argc, char* argv[])\n");
+    fprintf(fp, "{\n");
+    fprintf(fp, "  return 0;\n");
+    fprintf(fp, "}\n");
+    fclose(fp);
+    return 0;
 }
