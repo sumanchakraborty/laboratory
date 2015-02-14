@@ -37,6 +37,7 @@
 * @param hidden_layers The number of hidden layers
 * @param no_of_inputs The number of output units
 * @param random_seed The random number generator seed
+* @returns zero on success
 */
 int bp_init(bp * net,
             int no_of_inputs,
@@ -862,6 +863,7 @@ int bp_save(FILE * fp, bp * net)
 * @brief fp File pointer
 * @param net Backprop neural net object
 * @param random_seed Random number generator seed
+* @returns zero on success
 */
 int bp_load(FILE * fp, bp * net,
             unsigned int * random_seed)
@@ -874,26 +876,59 @@ int bp_load(FILE * fp, bp * net,
     unsigned int itterations=0;
 
     retval = fread(&itterations, sizeof(unsigned int), 1, fp);
+    if (retval == 0) {
+        return -1;
+    }
     retval = fread(&no_of_inputs, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -2;
+    }
     retval = fread(&no_of_hiddens, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -3;
+    }
     retval = fread(&no_of_outputs, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -4;
+    }
     retval = fread(&hidden_layers, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -5;
+    }
     retval = fread(&learning_rate, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -6;
+    }
     retval = fread(&noise, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -7;
+    }
     retval = fread(&BPerrorAverage, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -8;
+    }
     retval = fread(&DropoutPercent, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -9;
+    }
 
-    bp_init(net, no_of_inputs, no_of_hiddens,
-            hidden_layers, no_of_outputs,
-            random_seed);
+    if (bp_init(net, no_of_inputs, no_of_hiddens,
+                hidden_layers, no_of_outputs,
+                random_seed) != 0) {
+        return -10;
+    }
 
     for (l = 0; l < net->HiddenLayers; l++) {
         for (i = 0; i < net->NoOfHiddens; i++) {
-            bp_neuron_load(fp,net->hiddens[l][i]);
+            if (bp_neuron_load(fp,net->hiddens[l][i]) != 0) {
+                return -11;
+            }
         }
     }
     for (i = 0; i < net->NoOfOutputs; i++) {
-        bp_neuron_load(fp,net->outputs[i]);
+        if (bp_neuron_load(fp,net->outputs[i]) != 0) {
+            return -12;
+        }
     }
 
     net->learningRate = learning_rate;
@@ -904,7 +939,7 @@ int bp_load(FILE * fp, bp * net,
     net->itterations = itterations;
     net->DropoutPercent = DropoutPercent;
 
-    return retval;
+    return 0;
 }
 
 /**

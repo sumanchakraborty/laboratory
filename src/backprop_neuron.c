@@ -138,6 +138,7 @@ int bp_neuron_init(bp_neuron * n,
         return -3;
     }
     memset(n->inputs,'\0',no_of_inputs*sizeof(struct bp_n *));
+    return 0;
 }
 
 /**
@@ -352,29 +353,53 @@ int bp_neuron_save(FILE * fp, bp_neuron * n)
 * @brief Load neuron parameters from file
 * @param fp File pointer
 * @param n Backprop neuron object
-* @return Non zero value if loading is successful
+* @return zero value on success
 */
 int bp_neuron_load(FILE * fp, bp_neuron * n)
 {
     int retval;
 
     retval = fread(&n->NoOfInputs, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -1;
+    }
 
     retval = fread(n->weights, sizeof(float),
                    n->NoOfInputs, fp);
+    if (retval == 0) {
+        return -2;
+    }
     retval = fread(n->lastWeightChange, sizeof(float),
                    n->NoOfInputs, fp);
+    if (retval == 0) {
+        return -3;
+    }
 
     retval = fread(&n->min_weight, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -4;
+    }
     retval = fread(&n->max_weight, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -5;
+    }
 
     retval = fread(&n->bias, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -6;
+    }
     retval = fread(&n->lastBiasChange, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -7;
+    }
     retval = fread(&n->desiredValue, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -8;
+    }
 
     n->value = 0;
     n->BPerror = 0;
     n->excluded = 0;
 
-    return retval;
+    return 0;
 }

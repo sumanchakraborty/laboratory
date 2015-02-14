@@ -460,7 +460,7 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
 * @param fp File pointer
 * @param learner Deep learner object
 * @param random_seed Random number generator seed
-* @return Non-zero value on success
+* @return zero value on success
 */
 int deeplearn_load(FILE * fp, deeplearn * learner,
                    unsigned int * random_seed)
@@ -476,16 +476,35 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     learner->test_data_samples = 0;
 
     retval = fread(&learner->training_complete, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -1;
+    }
     retval = fread(&learner->itterations, sizeof(unsigned int), 1, fp);
+    if (retval == 0) {
+        return -2;
+    }
     retval = fread(&learner->current_hidden_layer, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -3;
+    }
     retval = fread(&learner->BPerror, sizeof(float), 1, fp);
+    if (retval == 0) {
+        return -4;
+    }
 
     learner->net = (bp*)malloc(sizeof(bp));
-    retval = bp_load(fp, learner->net, random_seed);
+    if (bp_load(fp, learner->net, random_seed) != 0) {
+        return -5;
+    }
     retval = fread(&val, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -6;
+    }
     if (val == 1) {
         learner->autocoder = (bp*)malloc(sizeof(bp));
-        retval = bp_load(fp, learner->autocoder, random_seed);
+        if (bp_load(fp, learner->autocoder, random_seed) != 0) {
+            return -7;
+        }
     }
     else {
         learner->autocoder = 0;
@@ -497,25 +516,64 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
                        sizeof(float));
     retval = fread(learner->error_threshold, sizeof(float),
                    learner->net->HiddenLayers+1, fp);
+    if (retval == 0) {
+        return -8;
+    }
 
     /* load the history */
     retval = fread(&learner->history_index, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -9;
+    }
     retval = fread(&learner->history_ctr, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -10;
+    }
     retval = fread(&learner->history_step, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -11;
+    }
     retval = fread(learner->history, sizeof(float),
                    learner->history_index, fp);
+    if (retval == 0) {
+        return -12;
+    }
 
     /* load ranges */
     learner->input_range_min = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
+    if (!learner->input_range_min) {
+        return -13;
+    }
     learner->input_range_max = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
+    if (!learner->input_range_max) {
+        return -14;
+    }
     learner->output_range_min = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+    if (!learner->output_range_min) {
+        return -15;
+    }
     learner->output_range_max = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+    if (!learner->output_range_max) {
+        return -16;
+    }
     retval = fread(&learner->input_range_min, sizeof(float), learner->net->NoOfInputs, fp);
+    if (retval == 0) {
+        return -17;
+    }
     retval = fread(&learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
+    if (retval == 0) {
+        return -18;
+    }
     retval = fread(&learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
+    if (retval == 0) {
+        return -19;
+    }
     retval = fread(&learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
+    if (retval == 0) {
+        return -20;
+    }
 
-    return retval;
+    return 0;
 }
 
 /**
