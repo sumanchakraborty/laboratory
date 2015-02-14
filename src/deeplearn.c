@@ -33,7 +33,7 @@
 * @brief Update the learning history
 * @param learner Deep learner object
 */
-static void deeplean_update_history(deeplearn * learner)
+static void deeplearn_update_history(deeplearn * learner)
 {
     int i;
     float error_value;
@@ -234,7 +234,7 @@ void deeplearn_update(deeplearn * learner)
     }
 
     /* record the history of error values */
-    deeplean_update_history(learner);
+    deeplearn_update_history(learner);
 
     /* increment the number of itterations */
     if (learner->net->itterations < UINT_MAX) {
