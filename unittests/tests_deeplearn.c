@@ -229,7 +229,7 @@ static void test_deeplearn_save_load()
     /* compare the two */
     retval = deeplearn_compare(&learner1, &learner2);
     if (retval<1) {
-        printf("\nretval = %d\n",retval);
+        printf("\ncompare retval = %d\n",retval);
     }
     assert(retval==1);
 
