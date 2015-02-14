@@ -103,7 +103,7 @@ static void test_deeplearn_update()
             break;
         }
     }
-    
+
     if (learner.current_hidden_layer < hidden_layers) {
         printf("\nDidn't finish training (at layer %d)\nBPerror %.5f\n",
                learner.current_hidden_layer,learner.BPerror);
@@ -154,7 +154,7 @@ static void test_deeplearn_update()
 		learner.output_range_min[0] = i+1;
 		learner.output_range_max[0] = i+5;
 	}
-	
+
     sprintf(filename,"%stemp_deep.dat",DEEPLEARN_TEMP_DIRECTORY);
 
     /* save the first learner */
@@ -272,7 +272,7 @@ static void test_deeplearn_export()
 
     /* free memory */
     deeplearn_free(&learner);
-	
+
     printf("Ok\n");
 }
 
@@ -283,6 +283,7 @@ int run_tests_deeplearn()
     test_deeplearn_init();
     test_deeplearn_save_load();
     test_deeplearn_update();
+	test_deeplearn_export();
 
     printf("All deeplearn tests completed\n");
     return 1;
