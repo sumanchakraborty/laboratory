@@ -57,9 +57,9 @@ struct bp_n {
 };
 typedef struct bp_n bp_neuron;
 
-void bp_neuron_init(bp_neuron * n,
-                    int no_of_inputs,
-                    unsigned int * random_seed);
+int bp_neuron_init(bp_neuron * n,
+                   int no_of_inputs,
+                   unsigned int * random_seed);
 void bp_neuron_add_connection(bp_neuron * dest,
                               int index, bp_neuron * source);
 void bp_neuron_feedForward(bp_neuron * n,

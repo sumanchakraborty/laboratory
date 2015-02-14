@@ -1,4 +1,4 @@
-/*
+ /*
  Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,12 @@ static void test_deeplearn_init()
     printf("test_deeplearn_init...");
 
     /* create the learner */
-    deeplearn_init(&learner,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers,
-                   no_of_outputs,
-                   error_threshold,
-                   &random_seed);
+    assert(deeplearn_init(&learner,
+                          no_of_inputs, no_of_hiddens,
+                          hidden_layers,
+                          no_of_outputs,
+                          error_threshold,
+                          &random_seed) == 0);
 
     assert((&learner)->net!=0);
     assert((&learner)->autocoder!=0);
@@ -79,12 +79,12 @@ static void test_deeplearn_update()
     itterations[2] = 0;
 
     /* create the learner */
-    deeplearn_init(&learner,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers,
-                   no_of_outputs,
-                   error_threshold,
-                   &random_seed);
+    assert(deeplearn_init(&learner,
+                          no_of_inputs, no_of_hiddens,
+                          hidden_layers,
+                          no_of_outputs,
+                          error_threshold,
+                          &random_seed) == 0);
 
     assert((&learner)->net!=0);
     assert((&learner)->autocoder!=0);
@@ -147,13 +147,13 @@ static void test_deeplearn_update()
     }
 
     for (i = 0; i < no_of_inputs; i++) {
-		learner.input_range_min[0] = i+100;
-		learner.input_range_max[0] = i+109;
-	}
+        learner.input_range_min[0] = i+100;
+        learner.input_range_max[0] = i+109;
+    }
     for (i = 0; i < no_of_outputs; i++) {
-		learner.output_range_min[0] = i+1;
-		learner.output_range_max[0] = i+5;
-	}
+        learner.output_range_min[0] = i+1;
+        learner.output_range_max[0] = i+5;
+    }
 
     sprintf(filename,"%stemp_deep.dat",DEEPLEARN_TEMP_DIRECTORY);
 
@@ -206,11 +206,11 @@ static void test_deeplearn_save_load()
     printf("test_deeplearn_save_load...");
 
     /* create network */
-    deeplearn_init(&learner1,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers, no_of_outputs,
-                   error_threshold,
-                   &random_seed);
+    assert(deeplearn_init(&learner1,
+                          no_of_inputs, no_of_hiddens,
+                          hidden_layers, no_of_outputs,
+                          error_threshold,
+                          &random_seed) == 0);
 
     sprintf(filename,"%stemp_deep.dat",DEEPLEARN_TEMP_DIRECTORY);
 
@@ -242,7 +242,7 @@ static void test_deeplearn_save_load()
 
 static void test_deeplearn_export()
 {
-	char * filename = "/tmp/libdeep_export.txt";
+    char * filename = "/tmp/libdeep_export.txt";
     deeplearn learner;
     int no_of_inputs=10;
     int no_of_hiddens=4;
@@ -250,25 +250,25 @@ static void test_deeplearn_export()
     int no_of_outputs=2;
     float error_threshold[] = { 0.01f, 0.01f, 0.01f };
     unsigned int random_seed = 123;
-	FILE * fp;
+    FILE * fp;
 
-	printf("test_deeplearn_export...");
+    printf("test_deeplearn_export...");
 
     /* create the learner */
-    deeplearn_init(&learner,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers,
-                   no_of_outputs,
-                   error_threshold,
-                   &random_seed);
+    assert(deeplearn_init(&learner,
+                          no_of_inputs, no_of_hiddens,
+                          hidden_layers,
+                          no_of_outputs,
+                          error_threshold,
+                          &random_seed) == 0);
 
     assert((&learner)->net!=0);
     assert((&learner)->autocoder!=0);
 
-	assert(deeplearn_export(&learner, filename) == 0);
-	fp = fopen(filename,"r");
-	assert(fp);
-	fclose(fp);
+    assert(deeplearn_export(&learner, filename) == 0);
+    fp = fopen(filename,"r");
+    assert(fp);
+    fclose(fp);
 
     /* free memory */
     deeplearn_free(&learner);
@@ -283,7 +283,7 @@ int run_tests_deeplearn()
     test_deeplearn_init();
     test_deeplearn_save_load();
     test_deeplearn_update();
-	test_deeplearn_export();
+    test_deeplearn_export();
 
     printf("All deeplearn tests completed\n");
     return 1;

@@ -55,12 +55,12 @@ struct backprop {
 };
 typedef struct backprop bp;
 
-void bp_init(bp * net,
-             int no_of_inputs,
-             int no_of_hiddens,
-             int hidden_layers,
-             int no_of_outputs,
-             unsigned int * random_seed);
+int bp_init(bp * net,
+            int no_of_inputs,
+            int no_of_hiddens,
+            int hidden_layers,
+            int no_of_outputs,
+            unsigned int * random_seed);
 void bp_free(bp * net);
 void bp_feed_forward(bp * net);
 void bp_feed_forward_layers(bp * net, int layers);
@@ -70,7 +70,7 @@ void bp_set_input(bp * net, int index, float value);
 void bp_set_output(bp * net, int index, float value);
 float bp_get_output(bp * net, int index);
 void bp_update(bp * net, int current_hidden_layer);
-void bp_create_autocoder(bp * net, int hidden_layer, bp * autocoder);
+int bp_create_autocoder(bp * net, int hidden_layer, bp * autocoder);
 void bp_pretrain(bp * net, bp * autocoder, int hidden_layer);
 void bp_update_from_autocoder(bp * net, bp * autocoder, int hidden_layer);
 int bp_save(FILE * fp, bp * net);
@@ -84,14 +84,14 @@ void bp_inputs_from_image_patch(bp * net,
 void bp_inputs_from_image(bp * net,
                           unsigned char * img,
                           int image_width, int image_height);
-void bp_plot_weights(bp * net,
-                     char * filename,
-                     int image_width, int image_height,
-                     int input_image_width);
+int bp_plot_weights(bp * net,
+                    char * filename,
+                    int image_width, int image_height,
+                    int input_image_width);
 void bp_get_classification_from_filename(char * filename,
                                          char * classification);
-void bp_classifications_to_numbers(int no_of_instances,
-                                   char ** instance_classification,
-                                   int * numbers);
+int bp_classifications_to_numbers(int no_of_instances,
+                                  char ** instance_classification,
+                                  int * numbers);
 
 #endif

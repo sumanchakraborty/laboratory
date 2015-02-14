@@ -38,12 +38,12 @@
 * @param no_of_inputs The number of output units
 * @param random_seed The random number generator seed
 */
-void bp_init(bp * net,
-             int no_of_inputs,
-             int no_of_hiddens,
-             int hidden_layers,
-             int no_of_outputs,
-             unsigned int * random_seed)
+int bp_init(bp * net,
+            int no_of_inputs,
+            int no_of_hiddens,
+            int hidden_layers,
+            int no_of_outputs,
+            unsigned int * random_seed)
 {
     int i, j, l;
     bp_neuron * n;
@@ -59,23 +59,40 @@ void bp_init(bp * net,
 
     net->NoOfInputs = no_of_inputs;
     net->inputs = (bp_neuron**)malloc(no_of_inputs*sizeof(bp_neuron*));
+    if (!net->inputs) {
+        return -1;
+    }
 
     net->NoOfHiddens = no_of_hiddens;
     net->HiddenLayers = hidden_layers;
     net->hiddens =
         (bp_neuron***)malloc(hidden_layers*sizeof(bp_neuron**));
+    if (!net->hiddens) {
+        return -2;
+    }
     for (l = 0; l < hidden_layers; l++) {
         net->hiddens[l] =
             (bp_neuron**)malloc(no_of_hiddens*sizeof(bp_neuron*));
+        if (!net->hiddens[l]) {
+            return -3;
+        }
     }
 
     net->NoOfOutputs = no_of_outputs;
     net->outputs = (bp_neuron**)malloc(no_of_outputs*sizeof(bp_neuron*));
+    if (!net->outputs) {
+        return -4;
+    }
 
     /* create inputs */
     for (i = 0; i < net->NoOfInputs; i++) {
         net->inputs[i] = (bp_neuron*)malloc(sizeof(struct bp_n));
-        bp_neuron_init(net->inputs[i], 1, random_seed);
+        if (!net->inputs[i]) {
+            return -5;
+        }
+        if (bp_neuron_init(net->inputs[i], 1, random_seed) != 0) {
+            return -6;
+        }
     }
 
     /* create hiddens */
@@ -83,16 +100,23 @@ void bp_init(bp * net,
         for (i = 0; i < net->NoOfHiddens; i++) {
             net->hiddens[l][i] =
                 (bp_neuron*)malloc(sizeof(bp_neuron));
+            if (!net->hiddens[l][i]) {
+                return -7;
+            }
             n = net->hiddens[l][i];
             if (l == 0) {
-                bp_neuron_init(n, no_of_inputs, random_seed);
+                if (bp_neuron_init(n, no_of_inputs, random_seed) != 0) {
+                    return -8;
+                }
                 /* connect to input layer */
                 for (j = 0; j < net->NoOfInputs; j++) {
                     bp_neuron_add_connection(n, j, net->inputs[j]);
                 }
             }
             else {
-                bp_neuron_init(n, no_of_hiddens, random_seed);
+                if (bp_neuron_init(n, no_of_hiddens, random_seed) != 0) {
+                    return -9;
+                }
                 /* connect to previous hidden layer */
                 for (j = 0; j < net->NoOfHiddens; j++) {
                     bp_neuron_add_connection(n, j, net->hiddens[l-1][j]);
@@ -104,13 +128,19 @@ void bp_init(bp * net,
     /* create outputs */
     for (i = 0; i < net->NoOfOutputs; i++) {
         net->outputs[i] = (bp_neuron*)malloc(sizeof(bp_neuron));
+        if (!net->outputs[i]) {
+            return -10;
+        }
         n = net->outputs[i];
-        bp_neuron_init(n, no_of_hiddens, random_seed);
+        if (bp_neuron_init(n, no_of_hiddens, random_seed) != 0) {
+            return -11;
+        }
         for (j = 0; j < net->NoOfHiddens; j++) {
             bp_neuron_add_connection(n, j,
                                      net->hiddens[hidden_layers-1][j]);
         }
     }
+    return 0;
 }
 
 /**
@@ -421,10 +451,10 @@ void bp_inputs_from_image(bp * net,
          is the number of inputs across.  Set this to zero for the
          inputs image to be square.
 */
-void bp_plot_weights(bp * net,
-                     char * filename,
-                     int image_width, int image_height,
-                     int input_image_width)
+int bp_plot_weights(bp * net,
+                    char * filename,
+                    int image_width, int image_height,
+                    int input_image_width)
 {
     int layer, neurons_x, neurons_y, ty, by, h, x, y, ix, iy;
     int wx, wy, inputs_x, inputs_y, n, i, unit, no_of_neurons;
@@ -435,6 +465,9 @@ void bp_plot_weights(bp * net,
 
     /* allocate memory for the image */
     img = (unsigned char*)malloc(image_width*image_height*3);
+    if (!img) {
+        return -1;
+    }
 
     /* clear the image with a white background */
     memset((void*)img,'\255',image_width*image_height*3);
@@ -566,6 +599,7 @@ void bp_plot_weights(bp * net,
 
     /* free the image memory */
     free(img);
+    return 0;
 }
 
 /**
@@ -719,9 +753,9 @@ void bp_update_from_autocoder(bp * net,
 * @param hidden_layer The layer within the neural net to be autocoded
 * @param autocoder Autocoder neural net object
 */
-void bp_create_autocoder(bp * net,
-                         int hidden_layer,
-                         bp * autocoder)
+int bp_create_autocoder(bp * net,
+                        int hidden_layer,
+                        bp * autocoder)
 {
     /* number of inputs for the autocoder is the same as
         the number of hidden units */
@@ -735,15 +769,18 @@ void bp_create_autocoder(bp * net,
     }
 
     /* create the autocoder */
-    bp_init(autocoder,
-            no_of_inputs,
-            net->NoOfHiddens,1,
-            no_of_inputs,
-            &net->random_seed);
+    if (bp_init(autocoder,
+                no_of_inputs,
+                net->NoOfHiddens,1,
+                no_of_inputs,
+                &net->random_seed) != 0) {
+        return -1;
+    }
 
     /* assign parameters to the autocoder */
     autocoder->DropoutPercent = net->DropoutPercent;
     autocoder->learningRate = net->learningRate;
+    return 0;
 }
 
 /**
@@ -963,9 +1000,9 @@ void bp_get_classification_from_filename(char * filename,
 * @param instance_classification Text Description for each instance
 * @param numbers Array of numbers corresponding to each instance
 */
-void bp_classifications_to_numbers(int no_of_instances,
-                                   char ** instance_classification,
-                                   int * numbers)
+int bp_classifications_to_numbers(int no_of_instances,
+                                  char ** instance_classification,
+                                  int * numbers)
 {
     int i,j;
     int unique_ctr = 0;
@@ -974,6 +1011,9 @@ void bp_classifications_to_numbers(int no_of_instances,
     /* allocate memory for a list of unique descriptions (labels) */
     unique_classification =
         (char**)malloc(no_of_instances * sizeof(char*));
+    if (!unique_classification) {
+        return -1;
+    }
 
     /* create a list of unique classification names */
     for (i = 0; i < no_of_instances; i++) {
@@ -994,6 +1034,9 @@ void bp_classifications_to_numbers(int no_of_instances,
             unique_classification[unique_ctr] =
                 (char*)malloc((1+strlen(instance_classification[i]))*
                               sizeof(char));
+            if (!unique_classification[unique_ctr]) {
+                return -2;
+            }
             sprintf(unique_classification[unique_ctr],
                     "%s", instance_classification[i]);
             /* store the classification number */
@@ -1008,4 +1051,5 @@ void bp_classifications_to_numbers(int no_of_instances,
         free(unique_classification[i]);
     }
     free(unique_classification);
+    return 0;
 }

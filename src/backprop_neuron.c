@@ -106,9 +106,9 @@ void bp_neuron_copy(bp_neuron * source,
 * @param no_of_inputs The number of input connections
 * @param random_seed Random number generator seed
 */
-void bp_neuron_init(bp_neuron * n,
-                    int no_of_inputs,
-                    unsigned int * random_seed)
+int bp_neuron_init(bp_neuron * n,
+                   int no_of_inputs,
+                   unsigned int * random_seed)
 {
     /* should have more than zero inpyts */
     assert(no_of_inputs > 0);
@@ -117,7 +117,13 @@ void bp_neuron_init(bp_neuron * n,
 
     /* create some weights */
     n->weights = (float*)malloc(no_of_inputs*sizeof(float));
+    if (!n->weights) {
+        return -1;
+    }
     n->lastWeightChange = (float*)malloc(no_of_inputs*sizeof(float));
+    if (!n->lastWeightChange) {
+        return -2;
+    }
 
     bp_neuron_init_weights(n, -0.1f, 0.1f, random_seed);
     n->desiredValue = -1;
@@ -128,6 +134,9 @@ void bp_neuron_init(bp_neuron * n,
     /* pointers to input neurons */
     n->inputs = (struct bp_n **)malloc(no_of_inputs*
                                        sizeof(struct bp_n *));
+    if (!n->inputs) {
+        return -3;
+    }
     memset(n->inputs,'\0',no_of_inputs*sizeof(struct bp_n *));
 }
 

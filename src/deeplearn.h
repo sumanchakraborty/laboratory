@@ -74,20 +74,20 @@ struct deepl {
     unsigned int training_ctr;
     unsigned int history_plot_interval;
     char history_plot_filename[256];
-    char history_plot_title[256];       
-        
+    char history_plot_title[256];
+
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
 };
 typedef struct deepl deeplearn;
 
-void deeplearn_init(deeplearn * learner,
-                    int no_of_inputs,
-                    int no_of_hiddens,
-                    int hidden_layers,
-                    int no_of_outputs,
-                    float error_threshold[],
-                    unsigned int * random_seed);
+int deeplearn_init(deeplearn * learner,
+                   int no_of_inputs,
+                   int no_of_hiddens,
+                   int hidden_layers,
+                   int no_of_outputs,
+                   float error_threshold[],
+                   unsigned int * random_seed);
 void deeplearn_feed_forward(deeplearn * learner);
 void deeplearn_update(deeplearn * learner);
 void deeplearn_free(deeplearn * learner);

@@ -71,13 +71,13 @@ static void deeplearn_update_history(deeplearn * learner)
 *        the output layer
 * @param random_seed Random number generator seed
 */
-void deeplearn_init(deeplearn * learner,
-                    int no_of_inputs,
-                    int no_of_hiddens,
-                    int hidden_layers,
-                    int no_of_outputs,
-                    float error_threshold[],
-                    unsigned int * random_seed)
+int deeplearn_init(deeplearn * learner,
+                   int no_of_inputs,
+                   int no_of_hiddens,
+                   int hidden_layers,
+                   int no_of_outputs,
+                   float error_threshold[],
+                   unsigned int * random_seed)
 {
     int i;
 
@@ -95,9 +95,21 @@ void deeplearn_init(deeplearn * learner,
     sprintf(learner->history_plot_title,"%s","Training History");
 
     learner->input_range_min = (float*)malloc(no_of_inputs*sizeof(float));
+    if (!learner->input_range_min) {
+        return -1;
+    }
     learner->input_range_max = (float*)malloc(no_of_inputs*sizeof(float));
+    if (!learner->input_range_max) {
+        return -2;
+    }
     learner->output_range_min = (float*)malloc(no_of_outputs*sizeof(float));
+    if (!learner->output_range_min) {
+        return -3;
+    }
     learner->output_range_max = (float*)malloc(no_of_outputs*sizeof(float));
+    if (!learner->output_range_max) {
+        return -4;
+    }
 
     for (i = 0; i < no_of_inputs; i++) {
         learner->input_range_min[i] = 99999;
@@ -114,6 +126,9 @@ void deeplearn_init(deeplearn * learner,
     /* create the error thresholds for each layer */
     learner->error_threshold =
         (float*)malloc((hidden_layers+1)*sizeof(float));
+    if (!learner->error_threshold) {
+        return -5;
+    }
     memcpy((void*)learner->error_threshold,
            (void*)error_threshold,
            (hidden_layers+1)*sizeof(float));
@@ -131,20 +146,29 @@ void deeplearn_init(deeplearn * learner,
 
     /* create the network */
     learner->net = (bp*)malloc(sizeof(bp));
+    if (!learner->net) {
+        return -6;
+    }
 
     /* initialise the network */
-    bp_init(learner->net,
-            no_of_inputs, no_of_hiddens,
-            hidden_layers, no_of_outputs,
-            random_seed);
+    if (bp_init(learner->net,
+                no_of_inputs, no_of_hiddens,
+                hidden_layers, no_of_outputs,
+                random_seed) != 0) {
+        return -7;
+    }
 
     /* create the autocoder */
     learner->autocoder = (bp*)malloc(sizeof(bp));
+    if (!learner->autocoder) {
+        return -8;
+    }
     bp_create_autocoder(learner->net,
                         learner->current_hidden_layer,
                         learner->autocoder);
 
     learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
+    return 0;
 }
 
 /**
