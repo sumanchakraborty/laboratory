@@ -808,6 +808,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             learner->net->NoOfOutputs);
     fprintf(fp, "const int hidden_layers = %d;\n",
             learner->net->HiddenLayers);
+    fprintf(fp,"\n");
 
     /* ranges */
     fprintf(fp, "float input_range_min[] = {\n");
@@ -818,7 +819,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
     fprintf(fp, "float input_range_max[] = {\n");
     fprintf(fp, "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
@@ -827,7 +828,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
     fprintf(fp, "float output_range_min[] = {\n");
     fprintf(fp, "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
@@ -836,7 +837,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
     fprintf(fp, "float output_range_max[] = {\n");
     fprintf(fp, "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
@@ -845,7 +846,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
 
     /* hidden unit weights */
     for (i = 0; i < learner->net->HiddenLayers; i++) {
@@ -867,7 +868,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
                 }
             }
         }
-        fprintf(fp, "\n}\n");
+        fprintf(fp, "\n};\n\n");
     }
 
     /* hidden unit biases */
@@ -880,7 +881,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
                 fprintf(fp, ",");
             }
         }
-        fprintf(fp, "\n}\n");
+        fprintf(fp, "\n};\n\n");
     }
 
     /* output unit weights */
@@ -895,7 +896,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             }
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
 
     /* output unit biases */
     fprintf(fp,
@@ -907,7 +908,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n}\n");
+    fprintf(fp, "\n};\n\n");
 
     fprintf(fp, "\n");
     fprintf(fp, "\n");
