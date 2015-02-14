@@ -422,6 +422,12 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
     retval = fwrite(learner->history, sizeof(float),
                     learner->history_index, fp);
 
+    /* save ranges */
+    retval = fwrite(&learner->input_range_min, sizeof(float), learner->net->NoOfInputs, fp);
+    retval = fwrite(&learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
+    retval = fwrite(&learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
+    retval = fwrite(&learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
+    
     return retval;
 }
 
@@ -460,7 +466,7 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     else {
         learner->autocoder = 0;
     }
-
+	
     /* load error thresholds */
     learner->error_threshold =
         (float*)malloc((learner->net->HiddenLayers+1)*
@@ -475,6 +481,16 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     retval = fread(learner->history, sizeof(float),
                    learner->history_index, fp);
 
+    /* load ranges */
+    learner->input_range_min = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
+    learner->input_range_max = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
+    learner->output_range_min = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+    learner->output_range_max = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+    retval = fread(&learner->input_range_min, sizeof(float), learner->net->NoOfInputs, fp);
+    retval = fread(&learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
+    retval = fread(&learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
+    retval = fread(&learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
+    
     return retval;
 }
 
@@ -531,6 +547,26 @@ int deeplearn_compare(deeplearn * learner1,
             return -10;
         }
     }
+    for (i = 0; i < learner1->net->NoOfInputs; i++) {
+		if (learner1->input_range_min[i] !=
+			learner2->input_range_min[i]) {
+			return -11;
+		}
+		if (learner1->input_range_max[i] !=
+			learner2->input_range_max[i]) {
+			return -12;
+		}
+	}	
+    for (i = 0; i < learner1->net->NoOfOutputs; i++) {
+		if (learner1->output_range_min[i] !=
+			learner2->output_range_min[i]) {
+			return -13;
+		}
+		if (learner1->output_range_max[i] !=
+			learner2->output_range_max[i]) {
+			return -14;
+		}
+	}	
     return 1;
 }
 
@@ -663,4 +699,141 @@ void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent)
     if (learner->autocoder != 0) {
         learner->autocoder->DropoutPercent = dropout_percent;
     }
+}
+
+/**
+ * @brief Exports a trained network as a standalone C program
+ */
+int deeplearn_export(deeplearn * learner, char * filename)
+{
+	FILE * fp;
+	int i, j, k, no_of_weights;
+
+	fp = fopen(filename,"w");
+	if (!fp) {
+		return -1;
+	}
+
+	fprintf(fp,"%s\n","#include <stdio.h>");
+	fprintf(fp,"%s\n","#include <stdlib.h>");
+	fprintf(fp,"%s\n","#include <math.h>");
+	fprintf(fp,"\n");
+	fprintf(fp, "const int no_of_inputs = %d;\n",
+			learner->net->NoOfInputs);
+	fprintf(fp, "const int no_of_hiddens = %d;\n",
+			learner->net->NoOfHiddens);
+	fprintf(fp, "const int no_of_outputs = %d;\n",
+			learner->net->NoOfOutputs);
+	fprintf(fp, "const int hidden_layers = %d;\n",
+			learner->net->HiddenLayers);
+
+    /* ranges */
+	fprintf(fp, "float input_range_min[] = {\n");
+	fprintf(fp, "  ");
+	for (i = 0; i < learner->net->NoOfInputs; i++) {
+		fprintf(fp, "%f", learner->input_range_min[i]);
+		if (i < learner->net->NoOfInputs-1) {
+			fprintf(fp, ",");
+		}
+	}
+	fprintf(fp, "\n}\n");
+	fprintf(fp, "float input_range_max[] = {\n");
+	fprintf(fp, "  ");
+	for (i = 0; i < learner->net->NoOfInputs; i++) {
+		fprintf(fp, "%f", learner->input_range_max[i]);
+		if (i < learner->net->NoOfInputs-1) {
+			fprintf(fp, ",");
+		}
+	}
+	fprintf(fp, "\n}\n");
+	fprintf(fp, "float output_range_min[] = {\n");
+	fprintf(fp, "  ");
+	for (i = 0; i < learner->net->NoOfInputs; i++) {
+		fprintf(fp, "%f", learner->output_range_min[i]);
+		if (i < learner->net->NoOfInputs-1) {
+			fprintf(fp, ",");
+		}
+	}
+	fprintf(fp, "\n}\n");
+	fprintf(fp, "float output_range_max[] = {\n");
+	fprintf(fp, "  ");
+	for (i = 0; i < learner->net->NoOfInputs; i++) {
+		fprintf(fp, "%f", learner->output_range_max[i]);
+		if (i < learner->net->NoOfInputs-1) {
+			fprintf(fp, ",");
+		}
+	}
+	fprintf(fp, "\n}\n");	
+
+	/* hidden unit weights */
+    for (i = 0; i < learner->net->HiddenLayers; i++) {
+		fprintf(fp,
+				"float hidden_layer_%d_weights[] = {\n  ", i);
+		if (i == 0) {
+			no_of_weights = learner->net->NoOfInputs;
+		}
+		else {
+			no_of_weights = learner->net->NoOfHiddens;
+		}
+		for (j = 0; j < learner->net->NoOfHiddens; j++) {
+			for (k = 0; k < no_of_weights; k++) {
+				fprintf(fp, "%f",
+						learner->net->hiddens[i][j]->weights[k]);
+				if (!((j == learner->net->NoOfHiddens-1) &&
+					  (k == no_of_weights-1))) {
+					fprintf(fp, ",");
+				}
+			}
+		}
+		fprintf(fp, "\n}\n");
+	}
+
+	/* hidden unit biases */
+    for (i = 0; i < learner->net->HiddenLayers; i++) {
+		fprintf(fp,
+				"float hidden_layer_%d_bias[] = {\n  ", i);
+		for (j = 0; j < learner->net->NoOfHiddens; j++) {
+			fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
+			if (j < learner->net->NoOfHiddens-1) {
+				fprintf(fp, ",");				
+			}
+		}
+		fprintf(fp, "\n}\n");
+	}
+
+    /* output unit weights */
+	fprintf(fp,
+			"float output_layer_weights[] = {\n  ");
+	for (i = 0; i < learner->net->NoOfOutputs; i++) {
+		for (j = 0; j < learner->net->NoOfHiddens; j++) {
+			fprintf(fp, "%f",
+					learner->net->outputs[i]->weights[j]);
+			if (j < learner->net->NoOfOutputs-1) {
+				fprintf(fp, ",");				
+			}
+		}
+	}
+	fprintf(fp, "\n}\n");
+		
+	/* output unit biases */
+	fprintf(fp,
+			"float output_layer_bias[] = {\n  ");
+	for (i = 0; i < learner->net->NoOfOutputs; i++) {
+		fprintf(fp, "%f",
+				learner->net->outputs[i]->bias);
+		if (i < learner->net->NoOfOutputs-1) {
+			fprintf(fp, ",");				
+		}
+	}
+	fprintf(fp, "\n}\n");
+	
+	fprintf(fp, "\n");
+	fprintf(fp, "\n");
+			
+	fprintf(fp, "int main(int argc, char* argv[])\n");
+	fprintf(fp, "{\n");
+	fprintf(fp, "  return 0;\n");
+	fprintf(fp, "}\n");
+	fclose(fp);
+	return 0;
 }

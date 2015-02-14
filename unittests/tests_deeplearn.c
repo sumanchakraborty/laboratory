@@ -146,6 +146,15 @@ static void test_deeplearn_update()
         assert(diff > 0);
     }
 
+    for (i = 0; i < no_of_inputs; i++) {
+		learner.input_range_min[0] = i+100;
+		learner.input_range_max[0] = i+109;
+	}
+    for (i = 0; i < no_of_outputs; i++) {
+		learner.output_range_min[0] = i+1;
+		learner.output_range_max[0] = i+5;
+	}
+	
     sprintf(filename,"%stemp_deep.dat",DEEPLEARN_TEMP_DIRECTORY);
 
     /* save the first learner */
@@ -228,6 +237,42 @@ static void test_deeplearn_save_load()
     deeplearn_free(&learner1);
     deeplearn_free(&learner2);
 
+    printf("Ok\n");
+}
+
+static void test_deeplearn_export()
+{
+	char * filename = "/tmp/libdeep_export.txt";
+    deeplearn learner;
+    int no_of_inputs=10;
+    int no_of_hiddens=4;
+    int hidden_layers=2;
+    int no_of_outputs=2;
+    float error_threshold[] = { 0.01f, 0.01f, 0.01f };
+    unsigned int random_seed = 123;
+	FILE * fp;
+
+	printf("test_deeplearn_export...");
+
+    /* create the learner */
+    deeplearn_init(&learner,
+                   no_of_inputs, no_of_hiddens,
+                   hidden_layers,
+                   no_of_outputs,
+                   error_threshold,
+                   &random_seed);
+
+    assert((&learner)->net!=0);
+    assert((&learner)->autocoder!=0);
+
+	assert(deeplearn_export(&learner, filename) == 0);
+	fp = fopen(filename,"r");
+	assert(fp);
+	fclose(fp);
+
+    /* free memory */
+    deeplearn_free(&learner);
+	
     printf("Ok\n");
 }
 
