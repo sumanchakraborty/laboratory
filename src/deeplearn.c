@@ -909,13 +909,67 @@ int deeplearn_export(deeplearn * learner, char * filename)
         }
     }
     fprintf(fp, "\n};\n\n");
-
-    fprintf(fp, "\n");
+    fprintf(fp, "float inputs[%d];\n",learner->net->NoOfInputs);
+    fprintf(fp, "float prev_hiddens[%d];\n",learner->net->NoOfHiddens);
+    fprintf(fp, "float hiddens[%d];\n",learner->net->NoOfHiddens);
+    fprintf(fp, "float outputs[%d];\n",learner->net->NoOfOutputs);
     fprintf(fp, "\n");
 
     fprintf(fp, "int main(int argc, char* argv[])\n");
     fprintf(fp, "{\n");
-    fprintf(fp, "  return 0;\n");
+
+    fprintf(fp, "	int i,j;\n");
+    fprintf(fp, "	float sum;\n\n");
+    fprintf(fp, "	for (i = 1; i < argc; i++) {\n");
+    fprintf(fp, "		if (argc >= no_of_inputs) break;\n");
+    fprintf(fp, "		inputs[i-1] = atof(argv[i]);\n");
+    fprintf(fp, "	}\n\n");
+
+	fprintf(fp, "	for (i = 0; i < no_of_inputs; i++) {\n");
+    fprintf(fp, "       inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
+    fprintf(fp, "   }\n\n");
+
+    fprintf(fp, "	for (i = 0; i < no_of_hiddens; i++) {\n");
+    fprintf(fp, "       sum = hidden_layer_0_bias[i];\n");
+    fprintf(fp, "	    for (j = 0; j < no_of_inputs; j++) {\n");
+    fprintf(fp, "           sum += hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j];\n");
+    fprintf(fp, "       }\n");
+    fprintf(fp, "       hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
+    fprintf(fp, "   }\n");
+    fprintf(fp, "	for (i = 0; i < no_of_hiddens; i++) {\n");
+    fprintf(fp, "       prev_hiddens[i] = hiddens[i];\n");
+    fprintf(fp, "   }\n\n");
+	for (i = 1; i < learner->net->HiddenLayers; i++) {
+        fprintf(fp, "	for (i = 0; i < no_of_hiddens; i++) {\n");
+		fprintf(fp, "       sum = hidden_layer_%d_bias[i];\n",i);	
+		fprintf(fp, "	    for (j = 0; j < no_of_hiddens; j++) {\n");
+		fprintf(fp, "           sum += hidden_layer_%d_weights[i*no_of_hiddens+j]*prev_hiddens[j];\n",i);
+		fprintf(fp, "       }\n");
+		fprintf(fp, "       hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
+		fprintf(fp, "   }\n");
+		fprintf(fp, "	for (i = 0; i < no_of_hiddens; i++) {\n");
+		fprintf(fp, "       prev_hiddens[i] = hiddens[i];\n");
+		fprintf(fp, "   }\n\n");
+    }
+    fprintf(fp, "	for (i = 0; i < no_of_outputs; i++) {\n");
+    fprintf(fp, "       sum = output_layer_bias[i];\n");	
+    fprintf(fp, "	    for (j = 0; j < no_of_hiddens; j++) {\n");	
+    fprintf(fp, "           sum += output_layer_weights[i*no_of_hiddens+j]*prev_hiddens[j];\n");
+    fprintf(fp, "       }\n");
+    fprintf(fp, "       outputs[i] = 1.0f / (1.0f + exp(-sum));\n");
+    fprintf(fp, "   }\n");
+    fprintf(fp, "\n");
+	fprintf(fp, "	for (i = 0; i < no_of_outputs; i++) {\n");
+	fprintf(fp, "       outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f)\n");
+	fprintf(fp, "       printf(\"%f\",outputs[i]);\n");
+	fprintf(fp, "       if (i < no_of_outputs-1) {\n");
+	fprintf(fp, "           printf(" ");\n");
+	fprintf(fp, "       }\n");
+	fprintf(fp, "   }\n\n");
+	fprintf(fp, "   printf(\"\n\");");
+    fprintf(fp, "\n");
+	
+	fprintf(fp, "  return 0;\n");
     fprintf(fp, "}\n");
     fclose(fp);
     return 0;
