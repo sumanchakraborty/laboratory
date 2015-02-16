@@ -891,7 +891,8 @@ int deeplearn_export(deeplearn * learner, char * filename)
         for (j = 0; j < learner->net->NoOfHiddens; j++) {
             fprintf(fp, "%f",
                     learner->net->outputs[i]->weights[j]);
-            if (j < learner->net->NoOfOutputs-1) {
+            if (!((i == learner->net->NoOfOutputs-1) &&
+		  (j == learner->net->NoOfHiddens-1))) {
                 fprintf(fp, ",");
             }
         }
@@ -960,12 +961,12 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "  }\n");
     fprintf(fp, "\n");
     fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
-    fprintf(fp, "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f)\n");
+    fprintf(fp, "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f);\n");
     fprintf(fp, "    printf(\"%%f\",outputs[i]);\n");
-    fprintf(fp, "       if (i < no_of_outputs-1) {\n");
-    fprintf(fp, "           printf(" ");\n");
-    fprintf(fp, "       }\n");
-    fprintf(fp, "   }\n\n");
+    fprintf(fp, "    if (i < no_of_outputs-1) {\n");
+    fprintf(fp, "      printf(\" \");\n");
+    fprintf(fp, "    }\n");
+    fprintf(fp, "  }\n\n");
     fprintf(fp, "\n");  
     fprintf(fp, "  return 0;\n");
     fprintf(fp, "}\n");
