@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
     printf("Test data set performance is %.1f%%\n", deeplearndata_get_performance(&learner));
 
-	deeplearn_export(&learner, "wine_classifier.c");
+    deeplearn_export(&learner, "wine_classifier.c");
 
     deeplearn_free(&learner);
     
