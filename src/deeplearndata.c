@@ -353,7 +353,7 @@ int deeplearndata_read_csv(char * filename,
     int data_set_index = 0;
     float inputs[2048], outputs[1024];
     int fields_per_example = 0;
-
+    
     fp = fopen(filename,"r");
     if (!fp) return -1;
 
@@ -453,7 +453,7 @@ int deeplearndata_training(deeplearn * learner)
                                    learner->history_plot_title,
                                    1024, 480);
         }
-	learner->training_ctr = 0;
+        learner->training_ctr = 0;
     }
     learner->training_ctr++;
 

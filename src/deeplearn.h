@@ -115,5 +115,7 @@ void deeplearn_inputs_from_image(deeplearn * learner,
 void deeplearn_set_learning_rate(deeplearn * learner, float rate);
 void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent);
 int deeplearn_export(deeplearn * learner, char * filename);
+float deeplearn_get_error_threshold(deeplearn * learner, int index);
+void deeplearn_set_error_threshold(deeplearn * learner, int index, float value);
 
 #endif

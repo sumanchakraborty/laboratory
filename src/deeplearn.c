@@ -30,6 +30,28 @@
 #include "deeplearn.h"
 
 /**
+* @brief Returns a training error threshold for the given layer
+* @param learner Deep learner object
+* @param index Layer index
+* @returns Training error threshold (percentage value)
+*/
+float deeplearn_get_error_threshold(deeplearn * learner, int index)
+{
+    return(learner->error_threshold[index]);
+}
+
+/**
+* @brief Sets a training error threshold
+* @param learner Deep learner object
+* @param index Layer index
+* @param value Threshold value as a percentage
+*/
+void deeplearn_set_error_threshold(deeplearn * learner, int index, float value)
+{
+    learner->error_threshold[index] = value;
+}
+
+/**
 * @brief Update the learning history
 * @param learner Deep learner object
 */
@@ -892,7 +914,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
             fprintf(fp, "%f",
                     learner->net->outputs[i]->weights[j]);
             if (!((i == learner->net->NoOfOutputs-1) &&
-		  (j == learner->net->NoOfHiddens-1))) {
+                  (j == learner->net->NoOfHiddens-1))) {
                 fprintf(fp, ",");
             }
         }
