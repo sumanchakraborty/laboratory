@@ -1,4 +1,4 @@
- /*
+/*
  Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without

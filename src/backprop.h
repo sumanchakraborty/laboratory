@@ -93,5 +93,6 @@ void bp_get_classification_from_filename(char * filename,
 int bp_classifications_to_numbers(int no_of_instances,
                                   char ** instance_classification,
                                   int * numbers);
+int bp_hiddens_in_layer(bp * net, int layer);
 
 #endif

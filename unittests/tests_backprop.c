@@ -211,7 +211,7 @@ static void test_backprop()
         (&net)->inputs[i]->BPerror = 999;
     }
     for (l = 0; l < hidden_layers; l++) {
-        for (i = 0; i < no_of_hiddens; i++) {
+        for (i = 0; i < bp_hiddens_in_layer(&net,l); i++) {
             (&net)->hiddens[l][i]->BPerror = 999;
         }
     }
@@ -230,7 +230,7 @@ static void test_backprop()
         assert((&net)->inputs[i]->BPerror != 999);
     }
     for (l = 0; l < hidden_layers; l++) {
-        for (i = 0; i < no_of_hiddens; i++) {
+        for (i = 0; i < bp_hiddens_in_layer(&net,l); i++) {
             assert((&net)->hiddens[l][i]->BPerror != 999);
         }
     }

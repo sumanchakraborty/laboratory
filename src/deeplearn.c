@@ -878,13 +878,13 @@ int deeplearn_export(deeplearn * learner, char * filename)
             no_of_weights = learner->net->NoOfInputs;
         }
         else {
-            no_of_weights = learner->net->NoOfHiddens;
+            no_of_weights = bp_hiddens_in_layer(learner->net, i-1);
         }
-        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
             for (k = 0; k < no_of_weights; k++) {
                 fprintf(fp, "%f",
                         learner->net->hiddens[i][j]->weights[k]);
-                if (!((j == learner->net->NoOfHiddens-1) &&
+                if (!((j == bp_hiddens_in_layer(learner->net, i)-1) &&
                       (k == no_of_weights-1))) {
                     fprintf(fp, ",");
                 }
@@ -897,9 +897,9 @@ int deeplearn_export(deeplearn * learner, char * filename)
     for (i = 0; i < learner->net->HiddenLayers; i++) {
         fprintf(fp,
                 "float hidden_layer_%d_bias[] = {\n  ", i);
-        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
             fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
-            if (j < learner->net->NoOfHiddens-1) {
+            if (j < bp_hiddens_in_layer(learner->net, i)-1) {
                 fprintf(fp, ",");
             }
         }
@@ -910,11 +910,11 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp,
             "float output_layer_weights[] = {\n  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        for (j = 0; j < learner->net->NoOfHiddens; j++) {
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1); j++) {
             fprintf(fp, "%f",
                     learner->net->outputs[i]->weights[j]);
             if (!((i == learner->net->NoOfOutputs-1) &&
-                  (j == learner->net->NoOfHiddens-1))) {
+                  (j == bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1)-1))) {
                 fprintf(fp, ",");
             }
         }
@@ -963,21 +963,21 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
     fprintf(fp, "  }\n\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
-        fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
+        fprintf(fp, "  for (i = 0; i < %d; i++) {\n", bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "    sum = hidden_layer_%d_bias[i];\n",i);  
-        fprintf(fp, "    for (j = 0; j < no_of_hiddens; j++) {\n");
-        fprintf(fp, "      sum += hidden_layer_%d_weights[i*no_of_hiddens+j]*prev_hiddens[j];\n",i);
+        fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,i-1));
+        fprintf(fp, "      sum += hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j];\n",i,bp_hiddens_in_layer(learner->net,i-1));
         fprintf(fp, "    }\n");
         fprintf(fp, "    hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
         fprintf(fp, "  }\n");
-        fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
+        fprintf(fp, "  for (i = 0; i < %d; i++) {\n",bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
         fprintf(fp, "  }\n\n");
     }
     fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
     fprintf(fp, "    sum = output_layer_bias[i];\n");   
-    fprintf(fp, "    for (j = 0; j < no_of_hiddens; j++) {\n"); 
-    fprintf(fp, "      sum += output_layer_weights[i*no_of_hiddens+j]*prev_hiddens[j];\n");
+    fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1)); 
+    fprintf(fp, "      sum += output_layer_weights[i*%d+j]*prev_hiddens[j];\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "    }\n");
     fprintf(fp, "    outputs[i] = 1.0f / (1.0f + exp(-sum));\n");
     fprintf(fp, "  }\n");
