@@ -64,7 +64,7 @@ static void test_deeplearn_update()
     int no_of_hiddens=4;
     int hidden_layers=2;
     int no_of_outputs=2;
-    float error_threshold[] = { 0.1f, 0.1f, 0.1f };
+    float error_threshold[] = { 0.2f, 0.2f, 0.2f };
     int itt,i,retval;
     unsigned int random_seed = 123;
     float v,diff;
