@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
     int no_of_outputs = 1;
     int output_field_index[] = { 1 };
-    float error_threshold_percent[] = { 1.6f, 0.6f, 0.6f, 3.0f };
+    float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
     unsigned int random_seed = 123;
   
     /* load the data */
