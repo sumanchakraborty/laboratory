@@ -124,8 +124,8 @@ static void test_backprop_init()
 {
     bp net;
     int no_of_inputs=10;
-    int no_of_hiddens=4;
-    int hidden_layers=2;
+    int no_of_hiddens=16;
+    int hidden_layers=3;
     int no_of_outputs=2;
     unsigned int random_seed = 123;
 
@@ -138,6 +138,8 @@ static void test_backprop_init()
     assert((&net)->inputs!=0);
     assert((&net)->hiddens!=0);
     assert((&net)->outputs!=0);
+    assert(bp_hiddens_in_layer(&net,1) < bp_hiddens_in_layer(&net,0));
+    assert(bp_hiddens_in_layer(&net,2) < bp_hiddens_in_layer(&net,1));
     bp_free(&net);
 
     printf("Ok\n");
