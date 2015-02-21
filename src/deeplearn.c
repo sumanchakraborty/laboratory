@@ -432,6 +432,42 @@ float deeplearn_get_output(deeplearn * learner, int index)
 }
 
 /**
+* @brief Gets the output class as an integer value
+* @param learner Deep learner object
+* @return output class
+*/
+int deeplearn_get_class(deeplearn * learner)
+{
+    int i, class = -9999;
+    float max = -1;
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        if (bp_get_output(learner->net, i) > max) {
+            max = bp_get_output(learner->net, i);
+            class = i;
+        }
+    }
+    return class;
+}
+
+/**
+* @brief Sets the output class
+* @param learner Deep learner object
+* @param class The class number
+*/
+void deeplearn_set_class(deeplearn * learner, int class)
+{
+    int i;
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        if (i != class) {
+            bp_set_output(learner->net, i, 0.25f);
+        }
+        else {
+            bp_set_output(learner->net, i, 0.75f);
+        }
+    }
+}
+
+/**
 * @brief Saves the given deep learner object to a file
 * @param fp File pointer
 * @param learner Deep learner object
