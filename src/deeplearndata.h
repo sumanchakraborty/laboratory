@@ -49,6 +49,7 @@ int deeplearndata_read_csv(char * filename,
                            deeplearn * learner,
                            int no_of_hiddens, int hidden_layers,
                            int no_of_outputs, int * output_field_index,
+                           int output_classes,
                            float error_threshold[],
                            unsigned int * random_seed);
 int deeplearndata_training(deeplearn * learner);

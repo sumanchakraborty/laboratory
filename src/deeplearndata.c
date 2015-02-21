@@ -335,6 +335,8 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
 * @param hidden layers The number of hidden layers
 * @param no_of_outputs The number of outputs
 * @param output_field_index Field numbers for the outputs within the csv file
+* @param output_classes The number of output classes if the output in the 
+*        data set is a single integer value
 * @param error_threshold Training error thresholds for each hidden layer
 * @param random_seed Random number seed
 * @returns The number of data samples loaded
@@ -343,16 +345,22 @@ int deeplearndata_read_csv(char * filename,
                            deeplearn * learner,
                            int no_of_hiddens, int hidden_layers,
                            int no_of_outputs, int * output_field_index,
+                           int output_classes,
                            float error_threshold[],
                            unsigned int * random_seed)
 {
-    int i, j, field_number, input_index, ctr, samples_loaded = 0;
+    int i, j, k, field_number, input_index, ctr, samples_loaded = 0;
     FILE * fp;
     char line[2000],valuestr[256],*retval;
     float value;
     int data_set_index = 0;
     float inputs[2048], outputs[1024];
     int fields_per_example = 0;
+    int network_outputs = no_of_outputs;
+
+    if (output_classes > 0) {
+        network_outputs = output_classes;
+    }
     
     fp = fopen(filename,"r");
     if (!fp) return -1;
@@ -386,7 +394,20 @@ int deeplearndata_read_csv(char * filename,
                             for (j = 0; j < no_of_outputs; j++) {
                                 if (field_number == output_field_index[j]) {
                                     if (j < 1023) {
-                                        outputs[j] = value;
+                                        if (output_classes <= 0) {
+                                            outputs[j] = value;
+                                        }
+                                        else {
+                                            /* for a class number */
+                                            for (k = 0; k < network_outputs; k++) {
+                                                if (k != (int)value) {
+                                                    outputs[k] = 0.25f;
+                                                }
+                                                else {
+                                                    outputs[k] = 0.75f;
+                                                }
+                                            }
+                                        }
                                         break;
                                     }
                                 }
@@ -410,7 +431,7 @@ int deeplearndata_read_csv(char * filename,
                         /* create the deep learner */
                         deeplearn_init(learner,
                                        input_index, no_of_hiddens,
-                                       hidden_layers, no_of_outputs,
+                                       hidden_layers, network_outputs,
                                        error_threshold, random_seed);
                     }
                     /* add a data sample */

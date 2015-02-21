@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
                            &learner,
                            4*4, 3,
                            no_of_outputs,
-                           output_field_index,
+                           output_field_index, 0,
                            error_threshold_percent,
                            &random_seed);
 
