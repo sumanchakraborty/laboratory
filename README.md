@@ -2,18 +2,21 @@
 
 This is a C library which can be used in deep learning applications.  It allows multiple layers to be trained and also includes the dropouts technique to avoid overfitting the data.
 
+A Python API for libdeep can be found at https://github.com/bashrc/libdeep-python
+
 Installation
 ============
 
 On Debian based systems:
 
 ```bash
-sudo apt-get install gnuplot doxygen
+sudo apt-get install build-essential gnuplot doxygen
 ```
 
 On Fedora based systems:
 
 ```bash
+sudo yum groupinstall "Development Tools"
 sudo yum install gnuplot doxygen
 ```
 
