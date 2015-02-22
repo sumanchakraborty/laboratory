@@ -991,7 +991,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "  int i,j;\n");
     fprintf(fp, "  float sum;\n\n");
     fprintf(fp, "  for (i = 1; i < argc; i++) {\n");
-    fprintf(fp, "    if (argc >= no_of_inputs) break;\n");
+    fprintf(fp, "    if (i > no_of_inputs) break;\n");
     fprintf(fp, "    inputs[i-1] = atof(argv[i]);\n");
     fprintf(fp, "  }\n\n");
 
