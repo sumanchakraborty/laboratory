@@ -990,13 +990,16 @@ int deeplearn_export(deeplearn * learner, char * filename)
 
     fprintf(fp, "  int i,j;\n");
     fprintf(fp, "  float sum;\n\n");
+    fprintf(fp, "  if (argc <= 1) return -1;\n");
     fprintf(fp, "  for (i = 1; i < argc; i++) {\n");
-    fprintf(fp, "    if (i > no_of_inputs) break;\n");
+    fprintf(fp, "    if (i > no_of_inputs) return -2;\n");
     fprintf(fp, "    inputs[i-1] = atof(argv[i]);\n");
     fprintf(fp, "  }\n\n");
 
     fprintf(fp, "  for (i = 0; i < no_of_inputs; i++) {\n");
     fprintf(fp, "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
+    fprintf(fp, "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
+    fprintf(fp, "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
     fprintf(fp, "  }\n\n");
 
     fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
