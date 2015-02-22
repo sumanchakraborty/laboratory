@@ -902,7 +902,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_min[i]);
-        if (i < learner->net->NoOfInputs-1) {
+        if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
     }
@@ -911,7 +911,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_max[i]);
-        if (i < learner->net->NoOfInputs-1) {
+        if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
     }
@@ -1036,7 +1036,7 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "      printf(\" \");\n");
     fprintf(fp, "    }\n");
     fprintf(fp, "  }\n\n");
-    fprintf(fp, "  printf(\"\n\");");
+    fprintf(fp, "  printf(\"\\n\");");
     fprintf(fp, "\n");  
     fprintf(fp, "  return 0;\n");
     fprintf(fp, "}\n");
