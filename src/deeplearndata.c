@@ -72,12 +72,18 @@ int deeplearndata_add(deeplearn * learner,
             learner->input_range_max[i] = inputs[i];
         }
     }
+    data->labeled = 1;
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        if (outputs[i] < learner->output_range_min[i]) {
-            learner->output_range_min[i] = outputs[i];
+        if ((int)outputs[i] != DEEPLEARN_UNKNOWN_VALUE) {
+            if (outputs[i] < learner->output_range_min[i]) {
+                learner->output_range_min[i] = outputs[i];
+            }
+            if (outputs[i] > learner->output_range_max[i]) {
+                learner->output_range_max[i] = outputs[i];
+            }
         }
-        if (outputs[i] > learner->output_range_max[i]) {
-            learner->output_range_max[i] = outputs[i];
+        else {
+            data->labeled = 0;
         }
     }
     
@@ -127,6 +133,23 @@ deeplearndata * deeplearndata_get_training(deeplearn * learner, int index)
         return 0;
     }
     deeplearndata_meta * meta = deeplearndata_get_meta(learner->training_data, index);
+    if (meta == 0) {
+        return 0;
+    }
+    return meta->sample;
+}
+
+/**
+* @brief Returns a labeled training data sample
+* @param learner Deep learner object
+* @returns deeplearndata object
+*/
+deeplearndata * deeplearndata_get_training_labeled(deeplearn * learner, int index)
+{
+    if ((index < 0) || (index >= learner->training_data_labeled_samples)) {
+        return 0;
+    }
+    deeplearndata_meta * meta = deeplearndata_get_meta(learner->training_data_labeled, index);
     if (meta == 0) {
         return 0;
     }
@@ -204,6 +227,17 @@ static void deeplearndata_free_datasets(deeplearn * learner)
     learner->training_data = 0;
     learner->training_data_samples = 0;
 
+    /* free labeled training samples */
+    deeplearndata_meta * training_sample_labeled = learner->training_data_labeled;
+    deeplearndata_meta * prev_training_sample_labeled;
+    while (training_sample_labeled != 0) {
+        prev_training_sample_labeled = training_sample_labeled;
+        training_sample_labeled = (deeplearndata_meta *)training_sample_labeled->next;
+        free(prev_training_sample_labeled);
+    }
+    learner->training_data_labeled = 0;
+    learner->training_data_labeled_samples = 0;
+
     /* free test samples */
     deeplearndata_meta * test_sample = learner->test_data;
     deeplearndata_meta * prev_test_sample;
@@ -244,6 +278,37 @@ int deeplearndata_add_training_sample(deeplearn * learner, deeplearndata * sampl
     }
     learner->training_data = data;
     learner->training_data_samples++;
+    return 0;
+}
+
+/**
+* @brief Adds a labeled sample to the training set
+* @param learner Deep learner object
+* @param sample The data sample to be added
+* @returns zero on success
+*/
+int deeplearndata_add_labeled_training_sample(deeplearn * learner, deeplearndata * sample)
+{
+    deeplearndata_meta * data;
+
+    if (sample == 0) {
+        return -1;
+    }
+
+    data = (deeplearndata_meta*)malloc(sizeof(deeplearndata_meta));
+    if (!data) {
+        return -2;
+    }
+
+    data->sample = sample;
+    data->prev = 0;
+    data->next = 0;
+    if (learner->training_data_labeled) {
+        learner->training_data_labeled->prev = (struct deeplearndata_meta *)data;
+        data->next = (struct deeplearndata_meta *)learner->training_data_labeled;
+    }
+    learner->training_data_labeled = data;
+    learner->training_data_labeled_samples++;
     return 0;
 }
 
@@ -308,6 +373,13 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
             if (retval != 0) {
                 return -200 + retval;
             }
+            if (sample->labeled != 0) {
+                retval =
+                    deeplearndata_add_labeled_training_sample(learner, sample);
+                if (retval != 0) {
+                    return -300 + retval;
+                }
+            }
         }
     }
 
@@ -315,10 +387,19 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
     sample = learner->data;
     while (sample != 0) {
         if (sample->flags == 0) {
-            retval =
-              deeplearndata_add_test_sample(learner, sample);
-            if (retval != 0) {
-                return -300 + retval;
+            if (sample->labeled != 0) {
+                retval =
+                    deeplearndata_add_test_sample(learner, sample);
+                if (retval != 0) {
+                    return -400 + retval;
+                }
+            }
+            else {
+                retval =
+                    deeplearndata_add_training_sample(learner, sample);
+                if (retval != 0) {
+                    return -500 + retval;
+                }
             }
         }
         sample = (deeplearndata*)sample->next;
@@ -360,6 +441,9 @@ int deeplearndata_read_csv(char * filename,
 
     if (output_classes > 0) {
         network_outputs = output_classes;
+    }
+    for (i = 0; i < network_outputs; i++) {
+        outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
     }
     
     fp = fopen(filename,"r");
@@ -439,6 +523,9 @@ int deeplearndata_read_csv(char * filename,
                         fclose(fp);
                         return -2;
                     }
+                    for (i = 0; i < network_outputs; i++) {
+                        outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
+                    }
                     samples_loaded++;
                 }
             }
@@ -478,17 +565,20 @@ int deeplearndata_training(deeplearn * learner)
     }
     learner->training_ctr++;
 
-    /* index number of a random training sample */
-    int index = rand_num(&learner->net->random_seed)%learner->training_data_samples;
-    /* get the sample */
-    deeplearndata * sample = deeplearndata_get_training(learner, index);
-
     if (learner->current_hidden_layer < learner->net->HiddenLayers) {
+        /* index number of a random training sample */
+        int index = rand_num(&learner->net->random_seed)%learner->training_data_samples;
+        /* get the sample */
+        deeplearndata * sample = deeplearndata_get_training(learner, index);
         deeplearn_set_inputs(learner, sample);
         deeplearn_update(learner);
         return 1;
     }
     if (learner->training_complete == 0) {
+        /* index number of a random training sample */
+        int index = rand_num(&learner->net->random_seed)%learner->training_data_labeled_samples;
+        /* get the sample */
+        deeplearndata * sample = deeplearndata_get_training_labeled(learner, index);
         deeplearn_set_inputs(learner, sample);
         deeplearn_set_outputs(learner, sample);
         deeplearn_update(learner);

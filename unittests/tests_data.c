@@ -118,8 +118,17 @@ static void test_data_training_test()
         for (int j = 0; j < no_of_inputs; j++) {
             inputs[j] = i;
         }
-        for (int j = 0; j < no_of_outputs; j++) {
-            outputs[j] = j;
+        if ((i != 54) && (i != 79) && (i != 23)) {
+            /* labeled sample */
+            for (int j = 0; j < no_of_outputs; j++) {
+                outputs[j] = j;
+            }
+        }
+        else {
+            /* unlabeled sample */
+            for (int j = 0; j < no_of_outputs; j++) {
+                outputs[j] = DEEPLEARN_UNKNOWN_VALUE;
+            }
         }
         assert(deeplearndata_add(&learner, inputs, outputs) == 0);
         free(inputs);
@@ -128,16 +137,38 @@ static void test_data_training_test()
     assert(learner.data_samples == 100);
 
     assert(learner.training_data_samples == 0);
+    assert(learner.training_data_labeled_samples == 0);
     assert(learner.test_data_samples == 0);
     assert(deeplearndata_create_datasets(&learner, 20) == 0);
-    assert(learner.training_data_samples == 80);
-    assert(learner.test_data_samples == 20);
+    assert(learner.training_data_samples == 81);
+    assert(learner.training_data_labeled_samples == 78);
+    assert(learner.test_data_samples == 19);
 
+    /* check that all test samples are labeled */
+    for (int i = 0; i < learner.test_data_samples; i++) {
+        deeplearndata * test_sample_labeled =
+            deeplearndata_get_test(&learner, i);
+        assert(test_sample_labeled->labeled == 1);
+    }
+
+    /* check that all labeled training samples are labeled */
+    for (int i = 0; i < learner.training_data_labeled_samples; i++) {
+        deeplearndata * training_sample_labeled2 =
+            deeplearndata_get_training_labeled(&learner, i);
+        assert(training_sample_labeled2->labeled == 1);
+    }
+    
     deeplearndata * training_sample =
       deeplearndata_get_training(&learner, 24);
     assert(training_sample != 0);
     for (int j = 0; j < no_of_outputs; j++) {
         assert(training_sample->outputs[j] == j);
+    }
+    deeplearndata * training_sample_labeled =
+      deeplearndata_get_training_labeled(&learner, 22);
+    assert(training_sample_labeled != 0);
+    for (int j = 0; j < no_of_outputs; j++) {
+        assert(training_sample_labeled->outputs[j] == j);
     }
     deeplearndata * test_sample =
       deeplearndata_get_test(&learner, 11);

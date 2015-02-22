@@ -40,6 +40,7 @@ typedef struct {
     float * inputs;
     float * outputs;
     unsigned int flags;
+    unsigned int labeled;
     struct deeplearndata * prev;
     struct deeplearndata * next;
 } deeplearndata;
@@ -63,6 +64,8 @@ struct deepl {
     int data_samples;
     deeplearndata_meta * training_data;
     int training_data_samples;
+    deeplearndata_meta * training_data_labeled;
+    int training_data_labeled_samples;
     deeplearndata_meta * test_data;
     int test_data_samples;
 

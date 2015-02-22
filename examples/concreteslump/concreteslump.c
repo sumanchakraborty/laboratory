@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
                            &random_seed);
 
     printf("Number of training examples: %d\n",learner.training_data_samples);
+    printf("Number of labeled training examples: %d\n",learner.training_data_labeled_samples);
     printf("Number of test examples: %d\n",learner.test_data_samples);
     printf("Number of Inputs: %d\n",learner.net->NoOfInputs);
 

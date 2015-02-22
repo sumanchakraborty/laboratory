@@ -108,6 +108,8 @@ int deeplearn_init(deeplearn * learner,
     learner->data_samples = 0;
     learner->training_data = 0;
     learner->training_data_samples = 0;
+    learner->training_data_labeled = 0;
+    learner->training_data_labeled_samples = 0;
     learner->test_data = 0;
     learner->test_data_samples = 0;
 
@@ -320,6 +322,15 @@ void deeplearn_free(deeplearn * learner)
         prev_training_sample = training_sample;
         training_sample = (deeplearndata_meta *)training_sample->next;
         free(prev_training_sample);
+    }
+
+    /* free labeled training samples */
+    deeplearndata_meta * training_sample_labeled = learner->training_data_labeled;
+    deeplearndata_meta * prev_training_sample_labeled;
+    while (training_sample_labeled != 0) {
+        prev_training_sample_labeled = training_sample_labeled;
+        training_sample_labeled = (deeplearndata_meta *)training_sample_labeled->next;
+        free(prev_training_sample_labeled);
     }
 
     /* free test samples */
