@@ -35,7 +35,8 @@ Unit Tests
 You can run the unit tests to check that the system is working as expected:
 
 ```bash
-make tests
+cd unittests
+make
 ./tests
 ```
 
