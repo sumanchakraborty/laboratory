@@ -53,7 +53,7 @@ typedef struct {
 
 struct deepl {
     bp * net;
-    bp * autocoder;
+    bp ** autocoder;
     int current_hidden_layer;
     float BPerror;
     unsigned int itterations;
@@ -122,5 +122,6 @@ void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent);
 int deeplearn_export(deeplearn * learner, char * filename);
 float deeplearn_get_error_threshold(deeplearn * learner, int index);
 void deeplearn_set_error_threshold(deeplearn * learner, int index, float value);
+void deeplearn_update_continuous(deeplearn * learner);
 
 #endif
