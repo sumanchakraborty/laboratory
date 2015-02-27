@@ -216,6 +216,7 @@ void deeplearn_feed_forward(deeplearn * learner)
 void deeplearn_update(deeplearn * learner)
 {
     float minimum_error_percent = 0;
+    int current_layer = learner->current_hidden_layer;
 
     /* only continue if training is not complete */
     if (learner->training_complete == 1) return;
@@ -223,31 +224,30 @@ void deeplearn_update(deeplearn * learner)
     /* get the maximum backprop error after which a layer
         will be considered to have been trained */
     minimum_error_percent =
-        learner->error_threshold[learner->current_hidden_layer];
+        learner->error_threshold[current_layer];
 
     /* pretraining of autocoders */
-    if (learner->current_hidden_layer <
-        learner->net->HiddenLayers) {
+    if (current_layer < learner->net->HiddenLayers) {
 
         /* train the autocoder */
-        bp_pretrain(learner->net, learner->autocoder[learner->current_hidden_layer],
-                    learner->current_hidden_layer);
+        bp_pretrain(learner->net, learner->autocoder[current_layer],
+                    current_layer);
 
         /* update the backprop error value */
         /*learner->BPerror = learner->autocoder->BPerrorAverage;*/
-        learner->BPerror = learner->autocoder[learner->current_hidden_layer]->BPerrorPercent;
+        learner->BPerror = learner->autocoder[current_layer]->BPerrorPercent;
 
         /* If below the error threshold.
             Only do this after a minimum number of itterations
             in order to allow the running average to stabilise */
         if ((learner->BPerror != DEEPLEARN_UNKNOWN_ERROR) &&
             (learner->BPerror < minimum_error_percent) &&
-            (learner->autocoder[learner->current_hidden_layer]->itterations > 100)) {
+            (learner->autocoder[current_layer]->itterations > 100)) {
 
             /* copy the hidden units */
             bp_update_from_autocoder(learner->net,
-                                     learner->autocoder[learner->current_hidden_layer],
-                                     learner->current_hidden_layer);
+                                     learner->autocoder[current_layer],
+                                     current_layer);
 
             /* advance to the next hidden layer */
             learner->current_hidden_layer++;
@@ -324,7 +324,7 @@ void deeplearn_free(deeplearn * learner)
     while (sample != 0) {
         prev_sample = sample;
         sample = (deeplearndata *)sample->next;
-        if (sample != 0) {
+        if (prev_sample != 0) {
             free(prev_sample->inputs);
             free(prev_sample->outputs);
             free(prev_sample);
@@ -554,6 +554,8 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     learner->data_samples = 0;
     learner->training_data = 0;
     learner->training_data_samples = 0;
+    learner->training_data_labeled = 0;
+    learner->training_data_labeled_samples = 0;
     learner->test_data = 0;
     learner->test_data_samples = 0;
 
@@ -580,6 +582,9 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     }
 
     learner->autocoder = (bp**)malloc(sizeof(bp*)*learner->net->HiddenLayers);
+    if (!learner->autocoder) {
+        return -6;
+    }
     for (i = 0; i < learner->net->HiddenLayers; i++) {
         learner->autocoder[i] = (bp*)malloc(sizeof(bp));
         if (bp_load(fp, learner->autocoder[i], random_seed) != 0) {

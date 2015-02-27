@@ -81,7 +81,7 @@ static void test_data_add()
             assert((int)sample->outputs[j] == j);
         }
     }
-    
+
     /* free memory */
     deeplearn_free(&learner);
 
@@ -140,9 +140,9 @@ static void test_data_training_test()
     assert(learner.training_data_labeled_samples == 0);
     assert(learner.test_data_samples == 0);
     assert(deeplearndata_create_datasets(&learner, 20) == 0);
-    assert(learner.training_data_samples == 81);
-    assert(learner.training_data_labeled_samples == 78);
-    assert(learner.test_data_samples == 19);
+    assert(learner.training_data_samples == 80);
+    assert(learner.training_data_labeled_samples == 77);
+    assert(learner.test_data_samples == 20);
 
     /* check that all test samples are labeled */
     for (int i = 0; i < learner.test_data_samples; i++) {
@@ -157,7 +157,7 @@ static void test_data_training_test()
             deeplearndata_get_training_labeled(&learner, i);
         assert(training_sample_labeled2->labeled == 1);
     }
-    
+
     deeplearndata * training_sample =
       deeplearndata_get_training(&learner, 24);
     assert(training_sample != 0);
