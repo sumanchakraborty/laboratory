@@ -186,13 +186,18 @@ int deeplearn_init(deeplearn * learner,
 
     /* create the autocoder */
     learner->autocoder = (bp**)malloc(sizeof(bp*)*hidden_layers);
+	if (!learner->autocoder) {
+		return -8;
+	}
     for (i = 0; i < hidden_layers; i++) {
         learner->autocoder[i] = (bp*)malloc(sizeof(bp));
         if (!learner->autocoder[i]) {
-            return -8;
+            return -9;
         }
-        bp_create_autocoder(learner->net, i,
-                            learner->autocoder[i]);
+        if (bp_create_autocoder(learner->net, i,
+								learner->autocoder[i]) != 0) {
+			return -10;
+		}
     }
 
     learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
@@ -234,12 +239,11 @@ void deeplearn_update(deeplearn * learner)
                     current_layer);
 
         /* update the backprop error value */
-        /*learner->BPerror = learner->autocoder->BPerrorAverage;*/
         learner->BPerror = learner->autocoder[current_layer]->BPerrorPercent;
 
         /* If below the error threshold.
-            Only do this after a minimum number of itterations
-            in order to allow the running average to stabilise */
+           Only do this after a minimum number of itterations
+           in order to allow the running average to stabilise */
         if ((learner->BPerror != DEEPLEARN_UNKNOWN_ERROR) &&
             (learner->BPerror < minimum_error_percent) &&
             (learner->autocoder[current_layer]->itterations > 100)) {

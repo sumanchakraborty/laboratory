@@ -32,7 +32,7 @@ static void test_deeplearn_init()
 {
     deeplearn learner;
     int no_of_inputs=10;
-    int no_of_hiddens=4;
+    int no_of_hiddens=16;
     int hidden_layers=2;
     int no_of_outputs=2;
     float error_threshold[] = { 0.01f, 0.01f, 0.01f };
@@ -50,6 +50,14 @@ static void test_deeplearn_init()
 
     assert((&learner)->net!=0);
     assert((&learner)->autocoder!=0);
+
+    assert((&learner)->autocoder[0]->NoOfInputs==no_of_inputs);
+    assert((&learner)->autocoder[0]->NoOfOutputs==no_of_inputs);
+    assert((&learner)->autocoder[0]->NoOfHiddens==no_of_hiddens);
+
+    assert((&learner)->autocoder[1]->NoOfInputs==no_of_hiddens);
+    assert((&learner)->autocoder[1]->NoOfOutputs==no_of_hiddens);
+    assert((&learner)->autocoder[1]->NoOfHiddens==9);
 
     /* free memory */
     deeplearn_free(&learner);

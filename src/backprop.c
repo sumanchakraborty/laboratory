@@ -708,7 +708,7 @@ static void bp_dropouts(bp * net)
 	for (l = 0; l < net->HiddenLayers; l++) {
         hidden_units += bp_hiddens_in_layer(net,l);
 	}
-	
+
     /* total number of dropouts */
     no_of_dropouts = net->DropoutPercent*hidden_units/100;
 
