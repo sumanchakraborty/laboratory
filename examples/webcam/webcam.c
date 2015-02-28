@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2012 by Tomasz Moń <desowin@gmail.com>
+ * Copyright (C) 2015 Bob Mottram <bob@robotics.uk.to>
+ * Original video4linux code by Tomasz Moń <desowin@gmail.com>
  *
  * compile with:
+ *   sudo apt-get install libsdl-dev
  *   gcc -o webcam webcam.c -lSDL
  *
  * Based on V4L2 video capture example
- *
- * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any purpose
  * with or without fee is hereby granted, provided that the above copyright
