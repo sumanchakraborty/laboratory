@@ -739,14 +739,9 @@ void bp_update(bp * net, int current_hidden_layer)
 */
 static void bp_update_autocoder(bp * net)
 {
-    int i;
-
-    /* number of input and output units should be the same */
-    assert(net->NoOfInputs == net->NoOfOutputs);
-
     /* set the target outputs to be the same as the inputs */
-    for (i = 0; i < net->NoOfInputs; i++) {
-        bp_set_output(net,i,net->inputs[i]->value);
+    for (int i = 0; i < net->NoOfInputs; i++) {
+        bp_set_output(net, i, net->inputs[i]->value);
     }
 
     /* run the autocoder */
@@ -830,25 +825,18 @@ void bp_pretrain(bp * net,
     bp_feed_forward_layers(net, hidden_layer);
 
     if (hidden_layer > 0) {
-        /* check that the number of inputs is valid */
-        assert(bp_hiddens_in_layer(net,hidden_layer-1) == autocoder->NoOfInputs);
-
         /* copy the hidden unit values to the inputs
             of the autocoder */
         for (i = 0; i < bp_hiddens_in_layer(net,hidden_layer-1); i++) {
             hidden_value = bp_get_hidden(net, hidden_layer-1, i);
-            bp_set_input(autocoder,i, hidden_value);
+            bp_set_input(autocoder, i, hidden_value);
         }
     }
     else {
-        /* check that the number of inputs is valid */
-        assert(autocoder->NoOfInputs == net->NoOfInputs);
-
         /* copy the input unit values to the inputs
             of the autocoder */
         for (i = 0; i < net->NoOfInputs; i++) {
-            bp_set_input(autocoder, i,
-                         bp_get_input(net, i));
+            bp_set_input(autocoder, i, bp_get_input(net, i));
         }
     }
 

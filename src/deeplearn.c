@@ -847,8 +847,9 @@ void deeplearn_inputs_from_image(deeplearn * learner,
 void deeplearn_set_learning_rate(deeplearn * learner, float rate)
 {
     learner->net->learningRate = rate;
-    if (learner->current_hidden_layer < learner->net->HiddenLayers) {
-        learner->autocoder[learner->current_hidden_layer]->learningRate = rate;
+
+	for (int i = 0; i < learner->net->HiddenLayers; i++) {
+        learner->autocoder[i]->learningRate = rate;
     }
 }
 
@@ -860,8 +861,9 @@ void deeplearn_set_learning_rate(deeplearn * learner, float rate)
 void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent)
 {
     learner->net->DropoutPercent = dropout_percent;
-    if (learner->current_hidden_layer < learner->net->HiddenLayers) {
-        learner->autocoder[learner->current_hidden_layer]->DropoutPercent = dropout_percent;
+
+	for (int i = 0; i < learner->net->HiddenLayers; i++) {
+        learner->autocoder[i]->DropoutPercent = dropout_percent;
     }
 }
 
