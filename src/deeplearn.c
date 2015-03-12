@@ -1097,7 +1097,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp,"\n");
 
     /* ranges */
-    fprintf(fp, "  input_range_min = [\n");
+    fprintf(fp, "  input_range_min = [");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
         fprintf(fp, "%f", learner->input_range_min[i]);
         if (i < learner->net->NoOfInputs-1) {
@@ -1215,7 +1215,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "      for j in range(no_of_inputs):\n");
     fprintf(fp, "        adder = adder + hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j]\n");
     fprintf(fp, "      hiddens[i] = 1.0 / (1.0f + math.exp(-adder))\n");
-    fprintf(fp, "    for i in tange(no_of_hiddens):\n");
+    fprintf(fp, "    for i in range(no_of_hiddens):\n");
     fprintf(fp, "      prev_hiddens[i] = hiddens[i]\n");
     fprintf(fp, "\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
