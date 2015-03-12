@@ -250,7 +250,8 @@ static void test_deeplearn_save_load()
 
 static void test_deeplearn_export()
 {
-    char * filename = "/tmp/libdeep_export.txt";
+    char * filename1 = "/tmp/libdeep_export.c";
+    char * filename2 = "/tmp/libdeep_export.py";
     deeplearn learner;
     int no_of_inputs=10;
     int no_of_hiddens=4;
@@ -273,8 +274,13 @@ static void test_deeplearn_export()
     assert((&learner)->net!=0);
     assert((&learner)->autocoder!=0);
 
-    assert(deeplearn_export(&learner, filename) == 0);
-    fp = fopen(filename,"r");
+    assert(deeplearn_export(&learner, filename1) == 0);
+    fp = fopen(filename1,"r");
+    assert(fp);
+    fclose(fp);
+
+    assert(deeplearn_export(&learner, filename2) == 0);
+    fp = fopen(filename2,"r");
     assert(fp);
     fclose(fp);
 
