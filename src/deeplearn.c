@@ -1200,7 +1200,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "    hiddens = []\n");
     fprintf(fp, "%s", "    outputs = []\n\n");
     fprintf(fp, "    if len(inputs) < %d:\n", learner->net->NoOfInputs);
-    fprintf(fp, "        return -1\n\n");
+    fprintf(fp, "        return []\n\n");
 
     fprintf(fp, "    # Normalise inputs into a 0.25 - 0.75 range\n");
     fprintf(fp, "    for i in range (no_of_inputs):\n");
@@ -1240,7 +1240,12 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n");
     fprintf(fp, "\n");
     fprintf(fp, "    # Return the output unit values as a list\n");
-    fprintf(fp, "    return outputs\n");
+    fprintf(fp, "    return outputs\n\n\n");
+
+    fprintf(fp, "# Create an instance of the class\n");
+    fprintf(fp, "net = NeuralNet()\n\n");
+    fprintf(fp, "# Use the commandline arguments as input values\n");
+    fprintf(fp, "print net.update(sys.argv[1:])\n");
     fclose(fp);
     return 0;
 }
