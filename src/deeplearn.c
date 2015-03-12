@@ -1235,9 +1235,11 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "        adder = adder + output_layer_weights[i*%d+j]*prev_hiddens[j]\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "      outputs[i] = 1.0 / (1.0 + math.exp(-adder))\n\n");
+    fprintf(fp, "    # Convert outputs from 0.25 - 0.75 back to their original range\n");
     fprintf(fp, "    for i in range(no_of_outputs):\n");
     fprintf(fp, "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n");
     fprintf(fp, "\n");
+    fprintf(fp, "    # Return the output unit values as a list\n");
     fprintf(fp, "    return outputs\n");
     fclose(fp);
     return 0;
