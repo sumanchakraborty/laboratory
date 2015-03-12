@@ -1008,7 +1008,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
 
     fprintf(fp, "  int i,j;\n");
     fprintf(fp, "  float sum;\n\n");
-    fprintf(fp, "  if (argc <= 1) return -1;\n");
+    fprintf(fp, "  if (argc < %d) return -1;\n\n", learner->net->NoOfInputs);
     fprintf(fp, "  for (i = 1; i < argc; i++) {\n");
     fprintf(fp, "    if (i > no_of_inputs) return -2;\n");
     fprintf(fp, "    inputs[i-1] = atof(argv[i]);\n");
@@ -1199,8 +1199,8 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "    prev_hiddens = []\n");
     fprintf(fp, "%s", "    hiddens = []\n");
     fprintf(fp, "%s", "    outputs = []\n\n");
-    fprintf(fp, "    if len(inputs) <= 1:\n");
-    fprintf(fp, "        return -1\n");
+    fprintf(fp, "    if len(inputs) < %d:\n", learner->net->NoOfInputs);
+    fprintf(fp, "        return -1\n\n");
 
     fprintf(fp, "    # Normalise inputs into a 0.25 - 0.75 range\n");
     fprintf(fp, "    for i in range (no_of_inputs):\n");
