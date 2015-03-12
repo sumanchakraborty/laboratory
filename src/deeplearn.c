@@ -186,18 +186,18 @@ int deeplearn_init(deeplearn * learner,
 
     /* create the autocoder */
     learner->autocoder = (bp**)malloc(sizeof(bp*)*hidden_layers);
-	if (!learner->autocoder) {
-		return -8;
-	}
+    if (!learner->autocoder) {
+        return -8;
+    }
     for (i = 0; i < hidden_layers; i++) {
         learner->autocoder[i] = (bp*)malloc(sizeof(bp));
         if (!learner->autocoder[i]) {
             return -9;
         }
         if (bp_create_autocoder(learner->net, i,
-								learner->autocoder[i]) != 0) {
-			return -10;
-		}
+                                learner->autocoder[i]) != 0) {
+            return -10;
+        }
     }
 
     learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
@@ -848,7 +848,7 @@ void deeplearn_set_learning_rate(deeplearn * learner, float rate)
 {
     learner->net->learningRate = rate;
 
-	for (int i = 0; i < learner->net->HiddenLayers; i++) {
+    for (int i = 0; i < learner->net->HiddenLayers; i++) {
         learner->autocoder[i]->learningRate = rate;
     }
 }
@@ -862,15 +862,18 @@ void deeplearn_set_dropouts(deeplearn * learner, float dropout_percent)
 {
     learner->net->DropoutPercent = dropout_percent;
 
-	for (int i = 0; i < learner->net->HiddenLayers; i++) {
+    for (int i = 0; i < learner->net->HiddenLayers; i++) {
         learner->autocoder[i]->DropoutPercent = dropout_percent;
     }
 }
 
 /**
- * @brief Exports a trained network as a standalone C program
- */
-int deeplearn_export(deeplearn * learner, char * filename)
+* @brief Exports a trained network as a standalone C program
+* @param learner Deep learner object
+* @param filename The C source file to be produced
+* @returns zero on success
+*/
+static int deeplearn_export_c(deeplearn * learner, char * filename)
 {
     FILE * fp;
     int i, j, k, no_of_weights;
@@ -1060,4 +1063,206 @@ int deeplearn_export(deeplearn * learner, char * filename)
     fprintf(fp, "}\n");
     fclose(fp);
     return 0;
+}
+
+/**
+* @brief Exports a trained network as a standalone python class
+* @param learner Deep learner object
+* @param filename The python source file to be produced
+* @returns zero on success
+*/
+static int deeplearn_export_python(deeplearn * learner, char * filename)
+{
+    FILE * fp;
+    int i, j, k, no_of_weights;
+
+    fp = fopen(filename,"w");
+    if (!fp) {
+        return -1;
+    }
+
+    fprintf(fp, "import sys\n");
+    fprintf(fp, "import math\n\n");
+
+    fprintf(fp,"%s\n","class NeuralNet:");
+    fprintf(fp,"\n");
+    fprintf(fp, "  no_of_inputs = %d\n",
+            learner->net->NoOfInputs);
+    fprintf(fp, "  no_of_hiddens = %d\n",
+            learner->net->NoOfHiddens);
+    fprintf(fp, "  no_of_outputs = %d\n",
+            learner->net->NoOfOutputs);
+    fprintf(fp, "  hidden_layers = %d\n",
+            learner->net->HiddenLayers);
+    fprintf(fp,"\n");
+
+    /* ranges */
+    fprintf(fp, "  input_range_min = [\n");
+    fprintf(fp, "    ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->input_range_min[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "\n  ]\n\n");
+    fprintf(fp, "  input_range_max = [");
+    fprintf(fp, "    ");
+    for (i = 0; i < learner->net->NoOfInputs; i++) {
+        fprintf(fp, "%f", learner->input_range_max[i]);
+        if (i < learner->net->NoOfInputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "]\n\n");
+    fprintf(fp, "output_range_min = [");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        fprintf(fp, "%f", learner->output_range_min[i]);
+        if (i < learner->net->NoOfOutputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "]\n\n");
+    fprintf(fp, "  output_range_max = [");
+    fprintf(fp, "  ");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        fprintf(fp, "%f", learner->output_range_max[i]);
+        if (i < learner->net->NoOfOutputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "]\n\n");
+
+    /* hidden unit weights */
+    for (i = 0; i < learner->net->HiddenLayers; i++) {
+        fprintf(fp,
+                "  hidden_layer_%d_weights = [", i);
+        if (i == 0) {
+            no_of_weights = learner->net->NoOfInputs;
+        }
+        else {
+            no_of_weights = bp_hiddens_in_layer(learner->net, i-1);
+        }
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
+            for (k = 0; k < no_of_weights; k++) {
+                fprintf(fp, "%f",
+                        learner->net->hiddens[i][j]->weights[k]);
+                if (!((j == bp_hiddens_in_layer(learner->net, i)-1) &&
+                      (k == no_of_weights-1))) {
+                    fprintf(fp, ",");
+                }
+            }
+        }
+        fprintf(fp, "]\n\n");
+    }
+
+    /* hidden unit biases */
+    for (i = 0; i < learner->net->HiddenLayers; i++) {
+        fprintf(fp,
+                "  hidden_layer_%d_bias = [", i);
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
+            fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
+            if (j < bp_hiddens_in_layer(learner->net, i)-1) {
+                fprintf(fp, ",");
+            }
+        }
+        fprintf(fp, "]\n\n");
+    }
+
+    /* output unit weights */
+    fprintf(fp,
+            "  output_layer_weights = [");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        for (j = 0; j < bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1); j++) {
+            fprintf(fp, "%f",
+                    learner->net->outputs[i]->weights[j]);
+            if (!((i == learner->net->NoOfOutputs-1) &&
+                  (j == bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1)-1))) {
+                fprintf(fp, ",");
+            }
+        }
+    }
+    fprintf(fp, "]\n\n");
+
+    /* output unit biases */
+    fprintf(fp,
+            "  output_layer_bias = [");
+    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+        fprintf(fp, "%f",
+                learner->net->outputs[i]->bias);
+        if (i < learner->net->NoOfOutputs-1) {
+            fprintf(fp, ",");
+        }
+    }
+    fprintf(fp, "]\n\n");
+    fprintf(fp, "\n");
+
+    fprintf(fp, "  def update(inputs):\n\n");
+
+    fprintf(fp, "    prev_hiddens = []\n",learner->net->NoOfHiddens);
+    fprintf(fp, "    hiddens = []\n",learner->net->NoOfHiddens);
+    fprintf(fp, "    outputs = []\n\n",learner->net->NoOfOutputs);
+    fprintf(fp, "    if len(inputs) <= 1:\n");
+    fprintf(fp, "        return -1\n");
+
+    fprintf(fp, "    for i in range (len(inputs)):\n");
+    fprintf(fp, "      inputs[i] = 0.25 + ((inputs[i] - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i]))\n");
+    fprintf(fp, "      if inputs[i] < 0.25:\n");
+    fprintf(fp, "        inputs[i] = 0.25\n");
+    fprintf(fp, "      if inputs[i] > 0.75:");
+    fprintf(fp, "        inputs[i] = 0.75\n");
+    fprintf(fp, "\n");
+
+    fprintf(fp, "    for i in range(no_of_hiddens):\n");
+    fprintf(fp, "      sum = hidden_layer_0_bias[i]\n");
+    fprintf(fp, "      for j in range(len(inputs)):\n");
+    fprintf(fp, "        sum = sum + hidden_layer_0_weights[i*len(inputs)+j]*inputs[j]\n");
+    fprintf(fp, "      hiddens[i] = 1.0 / (1.0f + math.exp(-sum))\n");
+    fprintf(fp, "    for i in tange(no_of_hiddens):\n");
+    fprintf(fp, "      prev_hiddens[i] = hiddens[i]\n");
+    fprintf(fp, "\n");
+    for (i = 1; i < learner->net->HiddenLayers; i++) {
+        fprintf(fp, "    for i in range(%d):\n", bp_hiddens_in_layer(learner->net,i));
+        fprintf(fp, "      sum = hidden_layer_%d_bias[i]\n",i);
+        fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,i-1));
+        fprintf(fp, "        sum = sum + hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j]\n",i,bp_hiddens_in_layer(learner->net,i-1));
+        fprintf(fp, "      hiddens[i] = 1.0 / (1.0 + math.exp(-sum))\n");
+        fprintf(fp, "    for i in range(%d):\n",bp_hiddens_in_layer(learner->net,i));
+        fprintf(fp, "      prev_hiddens[i] = hiddens[i]\n");
+        fprintf(fp, "\n");
+    }
+    fprintf(fp, "    for i in range(no_of_outputs):\n");
+    fprintf(fp, "      sum = output_layer_bias[i]\n");
+    fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
+    fprintf(fp, "        sum = sum + output_layer_weights[i*%d+j]*prev_hiddens[j]\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
+    fprintf(fp, "      outputs[i] = 1.0 / (1.0 + math.exp(-sum))\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "    for i in range(no_of_outputs):\n");
+    fprintf(fp, "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "    return outputs\n");
+    fclose(fp);
+    return 0;
+}
+
+/**
+* @brief Exports a trained network as a standalone program
+*        file types supported are .c and .py
+* @param learner Deep learner object
+* @param filename The source file to be produced
+* @returns zero on success
+*/
+int deeplearn_export(deeplearn * learner, char * filename)
+{
+    int length = strlen(filename);
+
+    if (length > 3) {
+        if ((filename[length-3] == '.') &&
+            (filename[length-2] == 'p') &&
+            (filename[length-1] == 'y')) {
+            return deeplearn_export_python(learner, filename);
+        }
+    }
+    return deeplearn_export_c(learner, filename);
 }
