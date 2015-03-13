@@ -884,57 +884,56 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         return -1;
     }
 
-    fprintf(fp,"%s\n","#include <stdio.h>");
-    fprintf(fp,"%s\n","#include <stdlib.h>");
-    fprintf(fp,"%s\n","#include <math.h>");
-    fprintf(fp,"\n");
+    fprintf(fp,"%s\n", "#include <stdio.h>");
+    fprintf(fp,"%s\n", "#include <stdlib.h>");
+    fprintf(fp,"%s\n\n", "#include <math.h>");
+
     fprintf(fp, "const int no_of_inputs = %d;\n",
             learner->net->NoOfInputs);
     fprintf(fp, "const int no_of_hiddens = %d;\n",
             learner->net->NoOfHiddens);
     fprintf(fp, "const int no_of_outputs = %d;\n",
             learner->net->NoOfOutputs);
-    fprintf(fp, "const int hidden_layers = %d;\n",
+    fprintf(fp, "const int hidden_layers = %d;\n\n",
             learner->net->HiddenLayers);
-    fprintf(fp,"\n");
 
     /* ranges */
-    fprintf(fp, "float input_range_min[] = {\n");
-    fprintf(fp, "  ");
+    fprintf(fp, "%s", "float input_range_min[] = {\n");
+    fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
         fprintf(fp, "%f", learner->input_range_min[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n};\n\n");
-    fprintf(fp, "float input_range_max[] = {\n");
-    fprintf(fp, "  ");
+    fprintf(fp, "%s", "\n};\n\n");
+    fprintf(fp, "%s", "float input_range_max[] = {\n");
+    fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
         fprintf(fp, "%f", learner->input_range_max[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n};\n\n");
-    fprintf(fp, "float output_range_min[] = {\n");
-    fprintf(fp, "  ");
+    fprintf(fp, "%s", "\n};\n\n");
+    fprintf(fp, "%s", "float output_range_min[] = {\n");
+    fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_min[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n};\n\n");
-    fprintf(fp, "float output_range_max[] = {\n");
-    fprintf(fp, "  ");
+    fprintf(fp, "%s", "\n};\n\n");
+    fprintf(fp, "%s", "float output_range_max[] = {\n");
+    fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_max[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n};\n\n");
+    fprintf(fp, "%s", "\n};\n\n");
 
     /* hidden unit weights */
     for (i = 0; i < learner->net->HiddenLayers; i++) {
@@ -956,7 +955,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
                 }
             }
         }
-        fprintf(fp, "\n};\n\n");
+        fprintf(fp, "%s", "\n};\n\n");
     }
 
     /* hidden unit biases */
@@ -973,7 +972,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     }
 
     /* output unit weights */
-    fprintf(fp,
+    fprintf(fp, "%s",
             "float output_layer_weights[] = {\n  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         for (j = 0; j < bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1); j++) {
@@ -985,10 +984,10 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
             }
         }
     }
-    fprintf(fp, "\n};\n\n");
+    fprintf(fp, "%s", "\n};\n\n");
 
     /* output unit biases */
-    fprintf(fp,
+    fprintf(fp, "%s",
             "float output_layer_bias[] = {\n  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f",
@@ -997,76 +996,76 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "\n};\n\n");
+    fprintf(fp, "%s", "\n};\n\n");
     fprintf(fp, "float inputs[%d];\n",learner->net->NoOfInputs);
     fprintf(fp, "float prev_hiddens[%d];\n",learner->net->NoOfHiddens);
     fprintf(fp, "float hiddens[%d];\n",learner->net->NoOfHiddens);
     fprintf(fp, "float outputs[%d];\n\n",learner->net->NoOfOutputs);
 
-    fprintf(fp, "int main(int argc, char* argv[])\n");
-    fprintf(fp, "{\n");
+    fprintf(fp, "%s", "int main(int argc, char* argv[])\n");
+    fprintf(fp, "%s", "{\n");
 
-    fprintf(fp, "  int i,j;\n");
-    fprintf(fp, "  float sum;\n\n");
+    fprintf(fp, "%s", "  int i,j;\n");
+    fprintf(fp, "%s", "  float sum;\n\n");
     fprintf(fp, "  if (argc < %d) return -1;\n\n", learner->net->NoOfInputs);
-    fprintf(fp, "  for (i = 1; i < argc; i++) {\n");
-    fprintf(fp, "    if (i > no_of_inputs) return -2;\n");
-    fprintf(fp, "    inputs[i-1] = atof(argv[i]);\n");
-    fprintf(fp, "  }\n\n");
+    fprintf(fp, "%s", "  for (i = 1; i < argc; i++) {\n");
+    fprintf(fp, "%s", "    if (i > no_of_inputs) return -2;\n");
+    fprintf(fp, "%s", "    inputs[i-1] = atof(argv[i]);\n");
+    fprintf(fp, "%s", "  }\n\n");
 
-    fprintf(fp, "  /* Normalise inputs into a 0.25 - 0.75 range */\n");
-    fprintf(fp, "  for (i = 0; i < no_of_inputs; i++) {\n");
-    fprintf(fp, "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
-    fprintf(fp, "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
-    fprintf(fp, "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
-    fprintf(fp, "  }\n\n");
+    fprintf(fp, "%s", "  /* Normalise inputs into a 0.25 - 0.75 range */\n");
+    fprintf(fp, "%s", "  for (i = 0; i < no_of_inputs; i++) {\n");
+    fprintf(fp, "%s", "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
+    fprintf(fp, "%s", "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
+    fprintf(fp, "%s", "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
+    fprintf(fp, "%s", "  }\n\n");
 
-    fprintf(fp, "  /* Hidden layer 1 */\n");
-    fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
-    fprintf(fp, "    sum = hidden_layer_0_bias[i];\n");
-    fprintf(fp, "    for (j = 0; j < no_of_inputs; j++) {\n");
-    fprintf(fp, "      sum += hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j];\n");
-    fprintf(fp, "    }\n");
-    fprintf(fp, "    hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
-    fprintf(fp, "  }\n");
-    fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
-    fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
-    fprintf(fp, "  }\n\n");
+    fprintf(fp, "%s", "  /* Hidden layer 1 */\n");
+    fprintf(fp, "%s", "  for (i = 0; i < no_of_hiddens; i++) {\n");
+    fprintf(fp, "%s", "    sum = hidden_layer_0_bias[i];\n");
+    fprintf(fp, "%s", "    for (j = 0; j < no_of_inputs; j++) {\n");
+    fprintf(fp, "%s", "      sum += hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j];\n");
+    fprintf(fp, "%s", "    }\n");
+    fprintf(fp, "%s", "    hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
+    fprintf(fp, "%s", "  }\n");
+    fprintf(fp, "%s", "  for (i = 0; i < no_of_hiddens; i++) {\n");
+    fprintf(fp, "%s", "    prev_hiddens[i] = hiddens[i];\n");
+    fprintf(fp, "%s", "  }\n\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
         fprintf(fp, "  /* Hidden layer %d */\n", i+1);
         fprintf(fp, "  for (i = 0; i < %d; i++) {\n", bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "    sum = hidden_layer_%d_bias[i];\n",i);
         fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,i-1));
         fprintf(fp, "      sum += hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j];\n",i,bp_hiddens_in_layer(learner->net,i-1));
-        fprintf(fp, "    }\n");
-        fprintf(fp, "    hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
-        fprintf(fp, "  }\n");
+        fprintf(fp, "%s", "    }\n");
+        fprintf(fp, "%s", "    hiddens[i] = 1.0f / (1.0f + exp(-sum));\n");
+        fprintf(fp, "%s", "  }\n");
         fprintf(fp, "  for (i = 0; i < %d; i++) {\n",bp_hiddens_in_layer(learner->net,i));
-        fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
-        fprintf(fp, "  }\n\n");
+        fprintf(fp, "%s", "    prev_hiddens[i] = hiddens[i];\n");
+        fprintf(fp, "%s", "  }\n\n");
     }
-    fprintf(fp, "  /* Output layer */\n");
-    fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
-    fprintf(fp, "    sum = output_layer_bias[i];\n");
+    fprintf(fp, "%s", "  /* Output layer */\n");
+    fprintf(fp, "%s", "  for (i = 0; i < no_of_outputs; i++) {\n");
+    fprintf(fp, "%s", "    sum = output_layer_bias[i];\n");
     fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "      sum += output_layer_weights[i*%d+j]*prev_hiddens[j];\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
-    fprintf(fp, "    }\n");
-    fprintf(fp, "    outputs[i] = 1.0f / (1.0f + exp(-sum));\n");
-    fprintf(fp, "  }\n\n");
+    fprintf(fp, "%s", "    }\n");
+    fprintf(fp, "%s", "    outputs[i] = 1.0f / (1.0f + exp(-sum));\n");
+    fprintf(fp, "%s", "  }\n\n");
 
-    fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
-    fprintf(fp, "    /* Convert outputs from 0.25 - 0.75 back to their original range */\n");
-    fprintf(fp, "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f);\n");
-    fprintf(fp, "    /* Send the outputs to stdout */\n");
-    fprintf(fp, "    printf(\"%%f\",outputs[i]);\n");
-    fprintf(fp, "    if (i < no_of_outputs-1) {\n");
-    fprintf(fp, "      printf(\" \");\n");
-    fprintf(fp, "    }\n");
-    fprintf(fp, "  }\n\n");
-    fprintf(fp, "  printf(\"\\n\");");
-    fprintf(fp, "\n");
-    fprintf(fp, "  return 0;\n");
-    fprintf(fp, "}\n");
+    fprintf(fp, "%s", "  for (i = 0; i < no_of_outputs; i++) {\n");
+    fprintf(fp, "%s", "    /* Convert outputs from 0.25 - 0.75 back to their original range */\n");
+    fprintf(fp, "%s", "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f);\n");
+    fprintf(fp, "%s", "    /* Send the outputs to stdout */\n");
+    fprintf(fp, "%s", "    printf(\"%%f\",outputs[i]);\n");
+    fprintf(fp, "%s", "    if (i < no_of_outputs-1) {\n");
+    fprintf(fp, "%s", "      printf(\" \");\n");
+    fprintf(fp, "%s", "    }\n");
+    fprintf(fp, "%s", "  }\n\n");
+    fprintf(fp, "%s", "  printf(\"\\n\");");
+    fprintf(fp, "%s", "\n");
+    fprintf(fp, "%s", "  return 0;\n");
+    fprintf(fp, "%s", "}\n");
     fclose(fp);
     return 0;
 }
@@ -1087,47 +1086,47 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         return -1;
     }
 
-    fprintf(fp, "import sys\n");
-    fprintf(fp, "import math\n\n");
+    fprintf(fp, "%s", "#!/usr/bin/python\n\n");
+    fprintf(fp, "%s", "import sys\n");
+    fprintf(fp, "%s", "import math\n\n");
 
-    fprintf(fp,"%s\n","class NeuralNet:");
-    fprintf(fp,"\n");
+    fprintf(fp,"%s\n\n","class NeuralNet:");
+
     fprintf(fp, "  no_of_inputs = %d\n",
             learner->net->NoOfInputs);
     fprintf(fp, "  no_of_hiddens = %d\n",
             learner->net->NoOfHiddens);
     fprintf(fp, "  no_of_outputs = %d\n",
             learner->net->NoOfOutputs);
-    fprintf(fp, "  hidden_layers = %d\n",
+    fprintf(fp, "  hidden_layers = %d\n\n",
             learner->net->HiddenLayers);
-    fprintf(fp,"\n");
 
     /* ranges */
-    fprintf(fp, "  input_range_min = [");
+    fprintf(fp, "%s", "  input_range_min = [");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
         fprintf(fp, "%f", learner->input_range_min[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "]\n\n");
-    fprintf(fp, "  input_range_max = [");
+    fprintf(fp, "%s", "]\n\n");
+    fprintf(fp, "%s", "  input_range_max = [");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
         fprintf(fp, "%f", learner->input_range_max[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "]\n\n");
-    fprintf(fp, "  output_range_min = [");
+    fprintf(fp, "%s", "]\n\n");
+    fprintf(fp, "%s", "  output_range_min = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_min[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "]\n\n");
-    fprintf(fp, "  output_range_max = [");
+    fprintf(fp, "%s", "]\n\n");
+    fprintf(fp, "%s", "  output_range_max = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f", learner->output_range_max[i]);
         if (i < learner->net->NoOfOutputs-1) {
@@ -1188,7 +1187,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "]\n\n");
 
     /* output unit biases */
-    fprintf(fp,
+    fprintf(fp, "%s",
             "  output_layer_bias = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         fprintf(fp, "%f",
@@ -1197,60 +1196,59 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
             fprintf(fp, ",");
         }
     }
-    fprintf(fp, "]\n\n");
-    fprintf(fp, "\n");
+    fprintf(fp, "%s", "]\n\n\n");
 
-    fprintf(fp, "  def update(inputs):\n\n");
+    fprintf(fp, "%s", "  def update(inputs):\n\n");
 
     fprintf(fp, "%s", "    prev_hiddens = []\n");
     fprintf(fp, "%s", "    hiddens = []\n");
     fprintf(fp, "%s", "    outputs = []\n\n");
     fprintf(fp, "    if len(inputs) < %d:\n", learner->net->NoOfInputs);
-    fprintf(fp, "        return []\n\n");
+    fprintf(fp, "%s", "        return []\n\n");
 
-    fprintf(fp, "    # Normalise inputs into a 0.25 - 0.75 range\n");
-    fprintf(fp, "    for i in range (no_of_inputs):\n");
-    fprintf(fp, "      inputs[i] = 0.25 + ((inputs[i] - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i]))\n");
-    fprintf(fp, "      if inputs[i] < 0.25:\n");
-    fprintf(fp, "        inputs[i] = 0.25\n");
-    fprintf(fp, "      if inputs[i] > 0.75:\n");
-    fprintf(fp, "        inputs[i] = 0.75\n\n");
+    fprintf(fp, "%s", "    # Normalise inputs into a 0.25 - 0.75 range\n");
+    fprintf(fp, "%s", "    for i in range (no_of_inputs):\n");
+    fprintf(fp, "%s", "      inputs[i] = 0.25 + ((inputs[i] - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i]))\n");
+    fprintf(fp, "%s", "      if inputs[i] < 0.25:\n");
+    fprintf(fp, "%s", "        inputs[i] = 0.25\n");
+    fprintf(fp, "%s", "      if inputs[i] > 0.75:\n");
+    fprintf(fp, "%s", "        inputs[i] = 0.75\n\n");
 
-    fprintf(fp, "    # Hidden layer 1\n");
-    fprintf(fp, "    for i in range(no_of_hiddens):\n");
-    fprintf(fp, "      adder = hidden_layer_0_bias[i]\n");
-    fprintf(fp, "      for j in range(no_of_inputs):\n");
-    fprintf(fp, "        adder = adder + hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j]\n");
-    fprintf(fp, "      hiddens[i] = 1.0 / (1.0f + math.exp(-adder))\n");
-    fprintf(fp, "    for i in range(no_of_hiddens):\n");
-    fprintf(fp, "      prev_hiddens[i] = hiddens[i]\n\n");
+    fprintf(fp, "%s", "    # Hidden layer 1\n");
+    fprintf(fp, "%s", "    for i in range(no_of_hiddens):\n");
+    fprintf(fp, "%s", "      adder = hidden_layer_0_bias[i]\n");
+    fprintf(fp, "%s", "      for j in range(no_of_inputs):\n");
+    fprintf(fp, "%s", "        adder = adder + hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j]\n");
+    fprintf(fp, "%s", "      hiddens[i] = 1.0 / (1.0f + math.exp(-adder))\n");
+    fprintf(fp, "%s", "    for i in range(no_of_hiddens):\n");
+    fprintf(fp, "%s", "      prev_hiddens[i] = hiddens[i]\n\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
         fprintf(fp, "    # Hidden layer %d\n", i+1);
         fprintf(fp, "    for i in range(%d):\n", bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "      adder = hidden_layer_%d_bias[i]\n",i);
         fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,i-1));
         fprintf(fp, "        adder = adder + hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j]\n",i,bp_hiddens_in_layer(learner->net,i-1));
-        fprintf(fp, "      hiddens[i] = 1.0 / (1.0 + math.exp(-adder))\n");
+        fprintf(fp, "%s", "      hiddens[i] = 1.0 / (1.0 + math.exp(-adder))\n");
         fprintf(fp, "    for i in range(%d):\n",bp_hiddens_in_layer(learner->net,i));
-        fprintf(fp, "      prev_hiddens[i] = hiddens[i]\n\n");
+        fprintf(fp, "%s", "      prev_hiddens[i] = hiddens[i]\n\n");
     }
-    fprintf(fp, "    # Output layer\n");
-    fprintf(fp, "    for i in range(no_of_outputs):\n");
-    fprintf(fp, "      adder = output_layer_bias[i]\n");
+    fprintf(fp, "%s", "    # Output layer\n");
+    fprintf(fp, "%s", "    for i in range(no_of_outputs):\n");
+    fprintf(fp, "%s", "      adder = output_layer_bias[i]\n");
     fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "        adder = adder + output_layer_weights[i*%d+j]*prev_hiddens[j]\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
-    fprintf(fp, "      outputs[i] = 1.0 / (1.0 + math.exp(-adder))\n\n");
-    fprintf(fp, "    # Convert outputs from 0.25 - 0.75 back to their original range\n");
-    fprintf(fp, "    for i in range(no_of_outputs):\n");
-    fprintf(fp, "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n");
-    fprintf(fp, "\n");
-    fprintf(fp, "    # Return the output unit values as a list\n");
-    fprintf(fp, "    return outputs\n\n\n");
+    fprintf(fp, "%s", "      outputs[i] = 1.0 / (1.0 + math.exp(-adder))\n\n");
+    fprintf(fp, "%s", "    # Convert outputs from 0.25 - 0.75 back to their original range\n");
+    fprintf(fp, "%s", "    for i in range(no_of_outputs):\n");
+    fprintf(fp, "%s", "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n\n");
 
-    fprintf(fp, "# Create an instance of the class\n");
-    fprintf(fp, "net = NeuralNet()\n\n");
-    fprintf(fp, "# Use the commandline arguments as input values\n");
-    fprintf(fp, "print net.update(sys.argv[1:])\n");
+    fprintf(fp, "%s", "    # Return the output unit values as a list\n");
+    fprintf(fp, "%s", "    return outputs\n\n\n");
+
+    fprintf(fp, "%s", "# Create an instance of the class\n");
+    fprintf(fp, "%s", "net = NeuralNet()\n\n");
+    fprintf(fp, "%s", "# Use the commandline arguments as input values\n");
+    fprintf(fp, "%s", "print net.update(sys.argv[1:])\n");
     fclose(fp);
     return 0;
 }
