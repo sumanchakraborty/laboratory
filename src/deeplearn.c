@@ -1000,8 +1000,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "float inputs[%d];\n",learner->net->NoOfInputs);
     fprintf(fp, "float prev_hiddens[%d];\n",learner->net->NoOfHiddens);
     fprintf(fp, "float hiddens[%d];\n",learner->net->NoOfHiddens);
-    fprintf(fp, "float outputs[%d];\n",learner->net->NoOfOutputs);
-    fprintf(fp, "\n");
+    fprintf(fp, "float outputs[%d];\n\n",learner->net->NoOfOutputs);
 
     fprintf(fp, "int main(int argc, char* argv[])\n");
     fprintf(fp, "{\n");
@@ -1014,12 +1013,14 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "    inputs[i-1] = atof(argv[i]);\n");
     fprintf(fp, "  }\n\n");
 
+    fprintf(fp, "  /* Normalise inputs into a 0.25 - 0.75 range */\n");
     fprintf(fp, "  for (i = 0; i < no_of_inputs; i++) {\n");
     fprintf(fp, "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
     fprintf(fp, "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
     fprintf(fp, "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
     fprintf(fp, "  }\n\n");
 
+    fprintf(fp, "  /* Hidden layer 1 */\n");
     fprintf(fp, "  for (i = 0; i < no_of_hiddens; i++) {\n");
     fprintf(fp, "    sum = hidden_layer_0_bias[i];\n");
     fprintf(fp, "    for (j = 0; j < no_of_inputs; j++) {\n");
@@ -1031,6 +1032,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
     fprintf(fp, "  }\n\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
+        fprintf(fp, "  /* Hidden layer %d */\n", i+1);
         fprintf(fp, "  for (i = 0; i < %d; i++) {\n", bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "    sum = hidden_layer_%d_bias[i];\n",i);
         fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,i-1));
@@ -1042,16 +1044,19 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         fprintf(fp, "    prev_hiddens[i] = hiddens[i];\n");
         fprintf(fp, "  }\n\n");
     }
+    fprintf(fp, "  /* Output layer */\n");
     fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
     fprintf(fp, "    sum = output_layer_bias[i];\n");
     fprintf(fp, "    for (j = 0; j < %d; j++) {\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "      sum += output_layer_weights[i*%d+j]*prev_hiddens[j];\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "    }\n");
     fprintf(fp, "    outputs[i] = 1.0f / (1.0f + exp(-sum));\n");
-    fprintf(fp, "  }\n");
-    fprintf(fp, "\n");
+    fprintf(fp, "  }\n\n");
+
     fprintf(fp, "  for (i = 0; i < no_of_outputs; i++) {\n");
+    fprintf(fp, "    /* Convert outputs from 0.25 - 0.75 back to their original range */\n");
     fprintf(fp, "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f);\n");
+    fprintf(fp, "    /* Send the outputs to stdout */\n");
     fprintf(fp, "    printf(\"%%f\",outputs[i]);\n");
     fprintf(fp, "    if (i < no_of_outputs-1) {\n");
     fprintf(fp, "      printf(\" \");\n");
@@ -1208,8 +1213,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "      if inputs[i] < 0.25:\n");
     fprintf(fp, "        inputs[i] = 0.25\n");
     fprintf(fp, "      if inputs[i] > 0.75:\n");
-    fprintf(fp, "        inputs[i] = 0.75\n");
-    fprintf(fp, "\n");
+    fprintf(fp, "        inputs[i] = 0.75\n\n");
 
     fprintf(fp, "    # Hidden layer 1\n");
     fprintf(fp, "    for i in range(no_of_hiddens):\n");
