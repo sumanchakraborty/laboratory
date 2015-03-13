@@ -423,6 +423,7 @@ void deeplearn_set_output(deeplearn * learner, int index, float value)
 * The sample can contain arbitrary floating point values, so these
 * need to be normalised into a 0.25-0.75 range
 * @param learner Deep learner object
+* @param sample The data sample from which to obtain the output values
 */
 void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample)
 {
