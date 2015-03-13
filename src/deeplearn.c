@@ -1198,7 +1198,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     }
     fprintf(fp, "%s", "]\n\n\n");
 
-    fprintf(fp, "%s", "  def update(inputs):\n\n");
+    fprintf(fp, "%s", "  def update(this, inputs):\n\n");
 
     fprintf(fp, "%s", "    prev_hiddens = []\n");
     fprintf(fp, "%s", "    hiddens = []\n");
@@ -1207,40 +1207,40 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "        return []\n\n");
 
     fprintf(fp, "%s", "    # Normalise inputs into a 0.25 - 0.75 range\n");
-    fprintf(fp, "%s", "    for i in range (no_of_inputs):\n");
-    fprintf(fp, "%s", "      inputs[i] = 0.25 + ((inputs[i] - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i]))\n");
+    fprintf(fp, "%s", "    for i in range (this.no_of_inputs):\n");
+    fprintf(fp, "%s", "      inputs[i] = 0.25 + ((inputs[i] - this.input_range_min[i])*0.5/(this.input_range_max[i] - this.input_range_min[i]))\n");
     fprintf(fp, "%s", "      if inputs[i] < 0.25:\n");
     fprintf(fp, "%s", "        inputs[i] = 0.25\n");
     fprintf(fp, "%s", "      if inputs[i] > 0.75:\n");
     fprintf(fp, "%s", "        inputs[i] = 0.75\n\n");
 
     fprintf(fp, "%s", "    # Hidden layer 1\n");
-    fprintf(fp, "%s", "    for i in range(no_of_hiddens):\n");
-    fprintf(fp, "%s", "      adder = hidden_layer_0_bias[i]\n");
-    fprintf(fp, "%s", "      for j in range(no_of_inputs):\n");
-    fprintf(fp, "%s", "        adder = adder + hidden_layer_0_weights[i*no_of_inputs+j]*inputs[j]\n");
-    fprintf(fp, "%s", "      hiddens[i] = 1.0 / (1.0f + math.exp(-adder))\n");
-    fprintf(fp, "%s", "    for i in range(no_of_hiddens):\n");
+    fprintf(fp, "%s", "    for i in range(this.no_of_hiddens):\n");
+    fprintf(fp, "%s", "      adder = this.hidden_layer_0_bias[i]\n");
+    fprintf(fp, "%s", "      for j in range(this.no_of_inputs):\n");
+    fprintf(fp, "%s", "        adder = adder + this.hidden_layer_0_weights[i*this.no_of_inputs+j]*inputs[j]\n");
+    fprintf(fp, "%s", "      hiddens[i] = 1.0 / (1.0 + math.exp(-adder))\n");
+    fprintf(fp, "%s", "    for i in range(this.no_of_hiddens):\n");
     fprintf(fp, "%s", "      prev_hiddens[i] = hiddens[i]\n\n");
     for (i = 1; i < learner->net->HiddenLayers; i++) {
         fprintf(fp, "    # Hidden layer %d\n", i+1);
         fprintf(fp, "    for i in range(%d):\n", bp_hiddens_in_layer(learner->net,i));
-        fprintf(fp, "      adder = hidden_layer_%d_bias[i]\n",i);
+        fprintf(fp, "      adder = this.hidden_layer_%d_bias[i]\n",i);
         fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,i-1));
-        fprintf(fp, "        adder = adder + hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j]\n",i,bp_hiddens_in_layer(learner->net,i-1));
+        fprintf(fp, "        adder = adder + this.hidden_layer_%d_weights[i*%d+j]*prev_hiddens[j]\n",i,bp_hiddens_in_layer(learner->net,i-1));
         fprintf(fp, "%s", "      hiddens[i] = 1.0 / (1.0 + math.exp(-adder))\n");
         fprintf(fp, "    for i in range(%d):\n",bp_hiddens_in_layer(learner->net,i));
         fprintf(fp, "%s", "      prev_hiddens[i] = hiddens[i]\n\n");
     }
     fprintf(fp, "%s", "    # Output layer\n");
-    fprintf(fp, "%s", "    for i in range(no_of_outputs):\n");
-    fprintf(fp, "%s", "      adder = output_layer_bias[i]\n");
+    fprintf(fp, "%s", "    for i in range(this.no_of_outputs):\n");
+    fprintf(fp, "%s", "      adder = this.output_layer_bias[i]\n");
     fprintf(fp, "      for j in range(%d):\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
-    fprintf(fp, "        adder = adder + output_layer_weights[i*%d+j]*prev_hiddens[j]\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
+    fprintf(fp, "        adder = adder + this.output_layer_weights[i*%d+j]*prev_hiddens[j]\n",bp_hiddens_in_layer(learner->net,learner->net->HiddenLayers-1));
     fprintf(fp, "%s", "      outputs[i] = 1.0 / (1.0 + math.exp(-adder))\n\n");
     fprintf(fp, "%s", "    # Convert outputs from 0.25 - 0.75 back to their original range\n");
-    fprintf(fp, "%s", "    for i in range(no_of_outputs):\n");
-    fprintf(fp, "%s", "      outputs[i] = output_range_min[i] + ((outputs[i]-0.25)*(output_range_max[i] - output_range_min[i])/0.5)\n\n");
+    fprintf(fp, "%s", "    for i in range(this.no_of_outputs):\n");
+    fprintf(fp, "%s", "      outputs[i] = this.output_range_min[i] + ((outputs[i]-0.25)*(this.output_range_max[i] - this.output_range_min[i])/0.5)\n\n");
 
     fprintf(fp, "%s", "    # Return the output unit values as a list\n");
     fprintf(fp, "%s", "    return outputs\n\n\n");
