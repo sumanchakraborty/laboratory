@@ -290,7 +290,7 @@ static void test_deeplearn_export()
     printf("Ok\n");
 }
 
-static void test_deeplearn_csv()
+static void test_deeplearn_csv_with_text()
 {
     deeplearn learner;
     int no_of_hiddens=16;
@@ -299,23 +299,23 @@ static void test_deeplearn_csv()
     int output_field_index[] = { 2 };
     float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
     unsigned int random_seed = 123;
-	char * csv_filename = "/tmp/libdeep.csv";
-	FILE * fp;
+    char * csv_filename = "/tmp/libdeep.csv";
+    FILE * fp;
 
-    printf("test_deeplearn_csv...");
+    printf("test_deeplearn_csv_with_text...");
 
-	/* create a csv file */
-	fp = fopen(csv_filename,"w");
-	assert(fp);
-	fprintf(fp,"%f,%s,%f,%f\n",4.2,"one",62.1,1.0);
-	fprintf(fp,"%f,%s,%f,%f\n",8.1,"two",57.6,2.0);
-	fprintf(fp,"%f,%s,%f,%f\n",9.4,"three",63.2,3.0);
-	fprintf(fp,"%f,%s,%f,%f\n",1.7,"four",68.3,4.0);
-	fprintf(fp,"%f,%s,%f,%f\n",5.4,"five",91.9,5.0);
-	fprintf(fp,"%f,%s,%f,%f\n",7.5,"six",88.7,6.0);
-	fprintf(fp,"%f,%s,%f,%f\n",8.6,"seven",83.1,7.0);
-	fprintf(fp,"%f,%s,%f,%f\n",6.9,"eight",77.4,8.0);
-	fclose(fp);
+    /* create a csv file */
+    fp = fopen(csv_filename,"w");
+    assert(fp);
+    fprintf(fp,"%f,%s,%f,%f\n",4.2,"one",62.1,1.0);
+    fprintf(fp,"%f,%s,%f,%f\n",8.1,"two",57.6,2.0);
+    fprintf(fp,"%f,%s,%f,%f\n",9.4,"three",63.2,3.0);
+    fprintf(fp,"%f,%s,%f,%f\n",1.7,"four",68.3,4.0);
+    fprintf(fp,"%f,%s,%f,%f\n",5.4,"five",91.9,5.0);
+    fprintf(fp,"%f,%s,%f,%f\n",7.5,"six",88.7,6.0);
+    fprintf(fp,"%f,%s,%f,%f\n",8.6,"seven",83.1,7.0);
+    fprintf(fp,"%f,%s,%f,%f\n",6.9,"eight",77.4,8.0);
+    fclose(fp);
 
     /* load the data */
     deeplearndata_read_csv(csv_filename,
@@ -343,6 +343,59 @@ static void test_deeplearn_csv()
     printf("Ok\n");
 }
 
+static void test_deeplearn_csv_numeric()
+{
+    deeplearn learner;
+    int no_of_hiddens=16;
+    int hidden_layers=3;
+    int no_of_outputs = 1;
+    int output_field_index[] = { 3 };
+    float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
+    unsigned int random_seed = 123;
+    char * csv_filename = "/tmp/libdeep.csv";
+    FILE * fp;
+
+    printf("test_deeplearn_csv_numeric...");
+
+    /* create a csv file */
+    fp = fopen(csv_filename,"w");
+    assert(fp);
+    fprintf(fp,"%f,%f,%f,%f\n",4.2,6.8,62.1,1.0);
+    fprintf(fp,"%f,%f,%f,%f\n",8.1,7.2,57.6,2.0);
+    fprintf(fp,"%f,%f,%f,%f\n",9.4,8.24,63.2,3.0);
+    fprintf(fp,"%f,%f,%f,%f\n",1.7,3.83,68.3,4.0);
+    fprintf(fp,"%f,%f,%f,%f\n",5.4,2.63,91.9,5.0);
+    fprintf(fp,"%f,%f,%f,%f\n",7.5,8.24,88.7,6.0);
+    fprintf(fp,"%f,%f,%f,%f\n",8.6,7.13,83.1,7.0);
+    fprintf(fp,"%f,%f,%f,%f\n",6.9,72.7,77.4,8.0);
+    fclose(fp);
+
+    /* load the data */
+    deeplearndata_read_csv(csv_filename,
+                           &learner,
+                           no_of_hiddens, hidden_layers,
+                           no_of_outputs,
+                           output_field_index, 0,
+                           error_threshold_percent,
+                           &random_seed);
+
+    assert(learner.training_data_samples == 6);
+    assert(learner.training_data_labeled_samples == 6);
+    assert(learner.test_data_samples == 2);
+    assert(learner.net->NoOfInputs == 3);
+    assert(learner.no_of_input_fields == 3);
+
+    assert(learner.field_length != 0);
+    assert(learner.field_length[0] == 1);
+    assert(learner.field_length[1] == 1);
+    assert(learner.field_length[2] == 1);
+
+    /* free memory */
+    deeplearn_free(&learner);
+
+    printf("Ok\n");
+}
+
 int run_tests_deeplearn()
 {
     printf("\nRunning deeplearn tests\n");
@@ -351,7 +404,8 @@ int run_tests_deeplearn()
     test_deeplearn_save_load();
     test_deeplearn_update();
     test_deeplearn_export();
-    test_deeplearn_csv();
+    test_deeplearn_csv_with_text();
+    test_deeplearn_csv_numeric();
 
     printf("All deeplearn tests completed\n");
     return 1;
