@@ -622,8 +622,12 @@ int deeplearndata_read_csv(char * filename,
                    hidden_layers, network_outputs,
                    error_threshold, random_seed);
 
-	/* set the input fields */
+    /* set the input fields */
     learner->no_of_input_fields = no_of_input_fields;
+    learner->field_length = (int*)malloc(no_of_input_fields*sizeof(int));
+    for (i = 0; i < no_of_input_fields; i++) {
+        learner->field_length[i] = field_length[i];
+    }
 
     /* attach the data samples */
     learner->data = data;

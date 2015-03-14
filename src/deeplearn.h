@@ -62,7 +62,7 @@ struct deepl {
     float * error_threshold;
     int training_complete;
     int no_of_input_fields;
-	int * field_length;
+    int * field_length;
 
     deeplearndata * data;
     int data_samples;
