@@ -104,16 +104,16 @@ static void facerec_training()
                                    filename, title,
                                    1024, 480);
             /* plot the weights */
-            if ((&learner)->autocoder != 0) {
+            if ((&learner)->autocoder[learner.current_hidden_layer] != 0) {
                 if (learner.current_hidden_layer==0) {
-                    bp_plot_weights((&learner)->autocoder,
+                    bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
                                     weights_filename,
                                     weights_image_width,
                                     weights_image_height,
                                     image_width);
                 }
                 else {
-                    bp_plot_weights((&learner)->autocoder,
+                    bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
                                     weights_filename,
                                     weights_image_width,
                                     weights_image_height,
@@ -165,7 +165,7 @@ static void facerec_training()
                                    1024, 480);
             /* plot the weights */
             if ((&learner)->autocoder!=0) {
-                bp_plot_weights((&learner)->autocoder,
+                bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
                                 weights_filename,
                                 weights_image_width,
                                 weights_image_height,
