@@ -33,7 +33,7 @@
 * @brief Adds a training or test sample to the data set
 * @param learner Deep learner object
 * @param inputs Input data
-* @param outputs Output data 
+* @param outputs Output data
 * @returns 0 on success
 */
 int deeplearndata_add(deeplearn * learner,
@@ -86,9 +86,9 @@ int deeplearndata_add(deeplearn * learner,
             data->labeled = 0;
         }
     }
-    
+
     data->flags = 0;
-    
+
     /* change the current head of the list */
     data->prev = 0;
     data->next = 0;
@@ -98,7 +98,7 @@ int deeplearndata_add(deeplearn * learner,
     }
     learner->data = data;
     learner->data_samples++;
-    
+
     return 0;
 }
 
@@ -111,7 +111,7 @@ static deeplearndata_meta * deeplearndata_get_meta(deeplearndata_meta * list, in
 {
     int i = 0;
     deeplearndata_meta * ptr = list;
-  
+
     while (i < index) {
         if (ptr == 0) {
             break;
@@ -182,7 +182,7 @@ deeplearndata * deeplearndata_get(deeplearn * learner, int index)
 {
     int i = 0;
     deeplearndata * ptr = learner->data;
-  
+
     /* range checking of the index */
     if ((index < 0) || (index >= learner->data_samples)) {
       return 0;
@@ -354,7 +354,7 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
     int training_samples = learner->data_samples * (100-test_data_percentage) / 100;
     int index, retval;
     deeplearndata * sample;
-    
+
     if (learner->data == 0) {
         return -1;
     }
@@ -416,7 +416,7 @@ int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage)
 * @param hidden layers The number of hidden layers
 * @param no_of_outputs The number of outputs
 * @param output_field_index Field numbers for the outputs within the csv file
-* @param output_classes The number of output classes if the output in the 
+* @param output_classes The number of output classes if the output in the
 *        data set is a single integer value
 * @param error_threshold Training error thresholds for each hidden layer
 * @param random_seed Random number seed
@@ -432,12 +432,13 @@ int deeplearndata_read_csv(char * filename,
 {
     int i, j, k, field_number, input_index, ctr, samples_loaded = 0;
     FILE * fp;
-    char line[2000],valuestr[256],*retval;
+    char line[2000],valuestr[1024],*retval;
     float value;
     int data_set_index = 0;
     float inputs[2048], outputs[1024];
     int fields_per_example = 0;
     int network_outputs = no_of_outputs;
+    int is_text;
 
     if (output_classes > 0) {
         network_outputs = output_classes;
@@ -445,7 +446,7 @@ int deeplearndata_read_csv(char * filename,
     for (i = 0; i < network_outputs; i++) {
         outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
     }
-    
+
     fp = fopen(filename,"r");
     if (!fp) return -1;
 
@@ -468,10 +469,17 @@ int deeplearndata_read_csv(char * filename,
 
                             /* get the value from the string */
                             value = 0;
+                            is_text = 0;
                             if (valuestr[0]!='?') {
-                                if ((valuestr[0]>='0') &&
-                                    (valuestr[0]<='9')) {
+                                if (((valuestr[0]>='0') &&
+                                     (valuestr[0]<='9')) ||
+                                    ((valuestr[0]=='-') &&
+                                     ((valuestr[1]>='0') &&
+                                      (valuestr[1]<='9')))) {
                                     value = atof(valuestr);
+                                }
+                                else {
+                                    is_text = 1;
                                 }
                             }
 
@@ -498,8 +506,10 @@ int deeplearndata_read_csv(char * filename,
                             }
                             if ((j == no_of_outputs) && (input_index < 2047)) {
                                 inputs[input_index++] = value;
+                                if (is_text != 0) {
+                                }
                             }
-                                                       
+
                             field_number++;
                             data_set_index++;
                         }
