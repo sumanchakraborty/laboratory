@@ -474,11 +474,13 @@ int deeplearndata_read_csv(char * filename,
                             value = 0;
                             is_text = 0;
                             if (valuestr[0]!='?') {
+                                /* positive numbers*/
                                 if (((valuestr[0]>='0') &&
                                      (valuestr[0]<='9')) ||
+                                    /* negative numbers*/
                                     ((valuestr[0]=='-') &&
-                                     ((valuestr[1]>='0') &&
-                                      (valuestr[1]<='9')))) {
+                                     (valuestr[1]>='0') &&
+                                     (valuestr[1]<='9'))) {
                                     value = atof(valuestr);
                                 }
                                 else {
