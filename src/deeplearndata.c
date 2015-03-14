@@ -435,11 +435,13 @@ int deeplearndata_read_csv(char * filename,
     char line[2000],valuestr[DEEPLEARN_MAX_FIELD_LENGTH_CHARS],*retval;
     float value;
     int data_set_index = 0;
+    int no_of_inputs = 0;
     float inputs[DEEPLEARN_MAX_CSV_INPUTS];
+    char* inputs_text[DEEPLEARN_MAX_CSV_INPUTS];
     float outputs[DEEPLEARN_MAX_CSV_OUTPUTS];
     int fields_per_example = 0;
     int network_outputs = no_of_outputs;
-    int is_text;
+    int is_text, text_fields_exist = 0;
 
     if (output_classes > 0) {
         network_outputs = output_classes;
@@ -485,6 +487,7 @@ int deeplearndata_read_csv(char * filename,
                                 }
                                 else {
                                     is_text = 1;
+                                    text_fields_exist = 1;
                                 }
                             }
 
@@ -510,9 +513,15 @@ int deeplearndata_read_csv(char * filename,
                                 }
                             }
                             if ((j == no_of_outputs) && (input_index < DEEPLEARN_MAX_CSV_INPUTS-1)) {
-                                inputs[input_index++] = value;
+                                inputs_text[input_index] = 0;
                                 if (is_text != 0) {
+                                    /* allocate some memory for the string */
+                                    inputs_text[input_index] =
+                                        (char*)malloc((strlen(valuestr)+1)*sizeof(char));
+                                    /* copy it */
+                                    strcpy(inputs_text[input_index],(char*)valuestr);
                                 }
+                                inputs[input_index++] = value;
                             }
 
                             field_number++;
@@ -529,9 +538,13 @@ int deeplearndata_read_csv(char * filename,
                         fields_per_example = field_number;
                     }
                     if (samples_loaded == 0) {
+                        no_of_inputs = input_index;
+                        /* PROBLEM: is text strings are encoded the number
+                           of neural net inputs will not be the same as the
+                           number of input fields */
                         /* create the deep learner */
                         deeplearn_init(learner,
-                                       input_index, no_of_hiddens,
+                                       no_of_inputs, no_of_hiddens,
                                        hidden_layers, network_outputs,
                                        error_threshold, random_seed);
                     }
@@ -554,6 +567,15 @@ int deeplearndata_read_csv(char * filename,
     /* create training and test data sets */
     if (deeplearndata_create_datasets(learner, 20) != 0) {
         return -3;
+    }
+
+    /* free memory for any text strings */
+    if (text_fields_exist != 0) {
+        for (i = 0; i < no_of_inputs; i++) {
+            if (inputs_text[i] != 0) {
+                free(inputs_text[i]);
+            }
+        }
     }
 
     return samples_loaded;
