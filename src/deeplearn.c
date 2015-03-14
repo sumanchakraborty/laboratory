@@ -390,6 +390,16 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 }
 
 /**
+* @brief Sets the inputs to a text string
+* @param learner Deep learner object
+* @param text The text string
+*/
+void deeplearn_set_input_text(deeplearn * learner, char * text)
+{
+    bp_set_input_text(learner->net, text);
+}
+
+/**
 * @brief Sets inputs from the given data sample.
 * The sample can contain arbitrary floating point values, so these
 * need to be normalised into a 0.25-0.75 range

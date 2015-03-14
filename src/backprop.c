@@ -401,6 +401,16 @@ void bp_set_input(bp * net, int index, float value)
 }
 
 /**
+* @brief Sets the inputs to a text string
+* @param net Backprop neural net object
+* @param text The text string
+*/
+void bp_set_input_text(bp * net, char * text)
+{
+	enc_text_to_binary(text, net->inputs, net->NoOfInputs, 0, strlen(text));
+}
+
+/**
 * @brief Set the inputs of the network from a patch within an image.
 *        It is assumed that the image is mono (1 byte per pixel)
 * @param net Backprop neural net object

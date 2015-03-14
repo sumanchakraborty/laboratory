@@ -37,6 +37,7 @@
 #include "deeplearn_random.h"
 #include "deeplearn_images.h"
 #include "backprop_neuron.h"
+#include "encoding.h"
 
 struct backprop {
     int NoOfInputs,NoOfHiddens,NoOfOutputs;
@@ -66,6 +67,7 @@ void bp_feed_forward(bp * net);
 void bp_feed_forward_layers(bp * net, int layers);
 void bp_backprop(bp * net, int current_hidden_layer);
 void bp_learn(bp * net, int current_hidden_layer);
+void bp_set_input_text(bp * net, char * text);
 void bp_set_input(bp * net, int index, float value);
 void bp_set_output(bp * net, int index, float value);
 float bp_get_output(bp * net, int index);
