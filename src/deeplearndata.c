@@ -38,6 +38,7 @@
 */
 int deeplearndata_add(deeplearn * learner,
                       float * inputs,
+                      char ** inputs_text,
                       float * outputs)
 {
     int i;
@@ -539,7 +540,7 @@ int deeplearndata_read_csv(char * filename,
                     }
                     if (samples_loaded == 0) {
                         no_of_inputs = input_index;
-                        /* PROBLEM: is text strings are encoded the number
+                        /* PROBLEM: if text strings are encoded the number
                            of neural net inputs will not be the same as the
                            number of input fields */
                         /* create the deep learner */
@@ -549,7 +550,9 @@ int deeplearndata_read_csv(char * filename,
                                        error_threshold, random_seed);
                     }
                     /* add a data sample */
-                    if (deeplearndata_add(learner, inputs, outputs) != 0) {
+                    if (deeplearndata_add(learner,
+                                          inputs, inputs_text,
+                                          outputs) != 0) {
                         fclose(fp);
                         return -2;
                     }

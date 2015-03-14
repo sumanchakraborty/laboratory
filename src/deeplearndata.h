@@ -38,6 +38,7 @@
 
 int deeplearndata_add(deeplearn * learner,
                       float * inputs,
+                      char ** inputs_text,
                       float * outputs);
 deeplearndata * deeplearndata_get(deeplearn * learner, int index);
 deeplearndata * deeplearndata_get_training(deeplearn * learner, int index);

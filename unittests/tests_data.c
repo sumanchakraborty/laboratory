@@ -37,6 +37,7 @@ static void test_data_add()
     int no_of_outputs=2;
     float error_threshold[] = { 0.01f, 0.01f, 0.01f };
     unsigned int random_seed = 123;
+	char ** inputs_text = 0;
 
     printf("test_data_add...");
 
@@ -61,7 +62,7 @@ static void test_data_add()
         for (int j = 0; j < no_of_outputs; j++) {
             outputs[j] = j;
         }
-        assert(deeplearndata_add(&learner, inputs, outputs) == 0);
+        assert(deeplearndata_add(&learner, inputs, inputs_text, outputs) == 0);
         free(inputs);
         free(outputs);
     }
@@ -97,6 +98,7 @@ static void test_data_training_test()
     int no_of_outputs=2;
     float error_threshold[] = { 0.01f, 0.01f, 0.01f };
     unsigned int random_seed = 123;
+	char ** inputs_text = 0;
 
     printf("test_data_training_test...");
 
@@ -130,7 +132,7 @@ static void test_data_training_test()
                 outputs[j] = DEEPLEARN_UNKNOWN_VALUE;
             }
         }
-        assert(deeplearndata_add(&learner, inputs, outputs) == 0);
+        assert(deeplearndata_add(&learner, inputs, inputs_text, outputs) == 0);
         free(inputs);
         free(outputs);
     }

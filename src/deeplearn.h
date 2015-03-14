@@ -38,6 +38,7 @@
 
 typedef struct {
     float * inputs;
+    char ** inputs_text;
     float * outputs;
     unsigned int flags;
     unsigned int labeled;
