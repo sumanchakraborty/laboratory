@@ -32,14 +32,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include "globals.h"
 #include "deeplearn.h"
 
-int deeplearndata_add(deeplearn * learner,
+int deeplearndata_add(deeplearndata ** datalist,
+					  int * data_samples,
                       float * inputs,
                       char ** inputs_text,
-                      float * outputs);
+                      float * outputs,
+                      int no_of_input_fields,
+                      int no_of_outputs,
+					  float input_range_min[],
+					  float input_range_max[],
+					  float output_range_min[],
+					  float output_range_max[]);
 deeplearndata * deeplearndata_get(deeplearn * learner, int index);
 deeplearndata * deeplearndata_get_training(deeplearn * learner, int index);
 deeplearndata * deeplearndata_get_training_labeled(deeplearn * learner, int index);

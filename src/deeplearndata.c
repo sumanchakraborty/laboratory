@@ -31,15 +31,29 @@
 
 /**
 * @brief Adds a training or test sample to the data set
-* @param learner Deep learner object
+* @param datalist The list to be added to
+* @param data_samples The number of data samples in the list
 * @param inputs Input data
 * @param outputs Output data
+* @param no_of_input_fields The number of input fields
+* @param no_of_outputs The number of output fields
+* @param input_range_min Minimum value for each input field
+* @param input_range_max Maximum value for each input field
+* @param output_range_min Minimum value for each output field
+* @param output_range_max Maximum value for each output field
 * @returns 0 on success
 */
-int deeplearndata_add(deeplearn * learner,
+int deeplearndata_add(deeplearndata ** datalist,
+                      int * data_samples,
                       float * inputs,
                       char ** inputs_text,
-                      float * outputs)
+                      float * outputs,
+                      int no_of_input_fields,
+                      int no_of_outputs,
+                      float input_range_min[],
+                      float input_range_max[],
+                      float output_range_min[],
+                      float output_range_max[])
 {
     int i;
     deeplearndata * data;
@@ -50,15 +64,15 @@ int deeplearndata_add(deeplearn * learner,
 
     /* create arrays to store the data */
     data->inputs =
-      (float*)malloc(learner->net->NoOfInputs*sizeof(float));
+      (float*)malloc(no_of_input_fields*sizeof(float));
     if (!data->inputs) {
         return -2;
     }
     data->inputs_text = 0;
     if (inputs_text != 0) {
         data->inputs_text =
-            (char**)malloc(learner->no_of_input_fields*sizeof(char*));
-        for (i = 0; i < learner->no_of_input_fields; i++) {
+            (char**)malloc(no_of_input_fields*sizeof(char*));
+        for (i = 0; i < no_of_input_fields; i++) {
             data->inputs_text[i] = 0;
             if (inputs_text[i] != 0) {
                 /* copy the string */
@@ -69,32 +83,32 @@ int deeplearndata_add(deeplearn * learner,
         }
     }
     data->outputs =
-      (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
+      (float*)malloc(no_of_outputs*sizeof(float));
     if (!data->outputs) {
         return -3;
     }
 
     /* copy the data */
-    memcpy((void*)data->inputs, inputs, learner->net->NoOfInputs*sizeof(float));
-    memcpy((void*)data->outputs, outputs, learner->net->NoOfOutputs*sizeof(float));
+    memcpy((void*)data->inputs, inputs, no_of_input_fields*sizeof(float));
+    memcpy((void*)data->outputs, outputs, no_of_outputs*sizeof(float));
 
     /* update the data range */
-    for (i = 0; i < learner->no_of_input_fields; i++) {
-        if (inputs[i] < learner->input_range_min[i]) {
-            learner->input_range_min[i] = inputs[i];
+    for (i = 0; i < no_of_input_fields; i++) {
+        if (inputs[i] < input_range_min[i]) {
+            input_range_min[i] = inputs[i];
         }
-        if (inputs[i] > learner->input_range_max[i]) {
-            learner->input_range_max[i] = inputs[i];
+        if (inputs[i] > input_range_max[i]) {
+            input_range_max[i] = inputs[i];
         }
     }
     data->labeled = 1;
-    for (i = 0; i < learner->net->NoOfOutputs; i++) {
+    for (i = 0; i < no_of_outputs; i++) {
         if ((int)outputs[i] != DEEPLEARN_UNKNOWN_VALUE) {
-            if (outputs[i] < learner->output_range_min[i]) {
-                learner->output_range_min[i] = outputs[i];
+            if (outputs[i] < output_range_min[i]) {
+                output_range_min[i] = outputs[i];
             }
-            if (outputs[i] > learner->output_range_max[i]) {
-                learner->output_range_max[i] = outputs[i];
+            if (outputs[i] > output_range_max[i]) {
+                output_range_max[i] = outputs[i];
             }
         }
         else {
@@ -107,12 +121,12 @@ int deeplearndata_add(deeplearn * learner,
     /* change the current head of the list */
     data->prev = 0;
     data->next = 0;
-    if (learner->data) {
-      learner->data->prev = (struct deeplearndata *)data;
-      data->next = (struct deeplearndata *)learner->data;
+    if (*datalist) {
+        (*datalist)->prev = (struct deeplearndata *)data;
+        data->next = (struct deeplearndata *)(*datalist);
     }
-    learner->data = data;
-    learner->data_samples++;
+    *datalist = data;
+    *data_samples = *data_samples + 1;
 
     return 0;
 }
@@ -450,13 +464,28 @@ int deeplearndata_read_csv(char * filename,
     char line[2000],valuestr[DEEPLEARN_MAX_FIELD_LENGTH_CHARS],*retval;
     float value;
     int data_set_index = 0;
-    int no_of_inputs = 0;
+    int no_of_input_fields = 0;
     float inputs[DEEPLEARN_MAX_CSV_INPUTS];
     char* inputs_text[DEEPLEARN_MAX_CSV_INPUTS];
     float outputs[DEEPLEARN_MAX_CSV_OUTPUTS];
     int fields_per_example = 0;
     int network_outputs = no_of_outputs;
     int is_text, text_fields_exist = 0;
+    deeplearndata * data = 0;
+    int data_samples = 0;
+    float input_range_min[DEEPLEARN_MAX_CSV_INPUTS];
+    float input_range_max[DEEPLEARN_MAX_CSV_INPUTS];
+    float output_range_min[DEEPLEARN_MAX_CSV_OUTPUTS];
+    float output_range_max[DEEPLEARN_MAX_CSV_OUTPUTS];
+
+    for (i = 0; i < DEEPLEARN_MAX_CSV_INPUTS; i++) {
+        input_range_min[i] = 9999;
+        input_range_max[i] = -9999;
+    }
+    for (i = 0; i < DEEPLEARN_MAX_CSV_OUTPUTS; i++) {
+        output_range_min[i] = 9999;
+        output_range_max[i] = -9999;
+    }
 
     if (output_classes > 0) {
         network_outputs = output_classes;
@@ -553,23 +582,22 @@ int deeplearndata_read_csv(char * filename,
                         fields_per_example = field_number;
                     }
                     if (samples_loaded == 0) {
-                        no_of_inputs = input_index;
-                        /* PROBLEM: if text strings are encoded the number
-                           of neural net inputs will not be the same as the
-                           number of input fields */
-                        /* create the deep learner */
-                        deeplearn_init(learner,
-                                       no_of_inputs, no_of_hiddens,
-                                       hidden_layers, network_outputs,
-                                       error_threshold, random_seed);
+                        no_of_input_fields = input_index;
                     }
                     /* add a data sample */
-                    if (deeplearndata_add(learner,
+                    if (deeplearndata_add(&data,
+                                          &data_samples,
                                           inputs, inputs_text,
-                                          outputs) != 0) {
+                                          outputs,
+                                          no_of_input_fields,
+                                          network_outputs,
+                                          input_range_min,
+                                          input_range_max,
+                                          output_range_min,
+                                          output_range_max) != 0) {
                         fclose(fp);
                         return -2;
-                    }
+					}
                     for (i = 0; i < network_outputs; i++) {
                         outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
                     }
@@ -581,6 +609,23 @@ int deeplearndata_read_csv(char * filename,
 
     fclose(fp);
 
+    /* create the deep learner */
+    deeplearn_init(learner,
+                   no_of_input_fields, no_of_hiddens,
+                   hidden_layers, network_outputs,
+                   error_threshold, random_seed);
+
+    learner->data = data;
+    learner->data_samples = data_samples;
+    for (i = 0; i < no_of_input_fields; i++) {
+        learner->input_range_min[i] = input_range_min[i];
+        learner->input_range_max[i] = input_range_max[i];
+    }
+    for (i = 0; i < network_outputs; i++) {
+        learner->output_range_min[i] = output_range_min[i];
+        learner->output_range_max[i] = output_range_max[i];
+    }
+
     /* create training and test data sets */
     if (deeplearndata_create_datasets(learner, 20) != 0) {
         return -3;
@@ -588,7 +633,7 @@ int deeplearndata_read_csv(char * filename,
 
     /* free memory for any text strings */
     if (text_fields_exist != 0) {
-        for (i = 0; i < no_of_inputs; i++) {
+        for (i = 0; i < no_of_input_fields; i++) {
             if (inputs_text[i] != 0) {
                 free(inputs_text[i]);
             }
