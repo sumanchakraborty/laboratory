@@ -618,9 +618,12 @@ int deeplearndata_read_csv(char * filename,
 
     /* create the deep learner */
     deeplearn_init(learner,
-                   no_of_input_fields, no_of_hiddens,
+                   no_of_inputs, no_of_hiddens,
                    hidden_layers, network_outputs,
                    error_threshold, random_seed);
+
+	/* set the input fields */
+    learner->no_of_input_fields = no_of_input_fields;
 
     /* attach the data samples */
     learner->data = data;

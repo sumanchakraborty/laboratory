@@ -115,8 +115,8 @@ int deeplearn_init(deeplearn * learner,
     learner->test_data = 0;
     learner->test_data_samples = 0;
 
-    learner->no_of_input_fields = no_of_inputs;
-    /*learner->field_length = (int*)malloc(learner->no_of_input_fields*sizeof(int));*/
+    learner->no_of_input_fields = 0;
+    learner->field_length = 0;
 
     learner->training_ctr = 0;
     learner->history_plot_interval = 100000;
@@ -328,7 +328,9 @@ void deeplearn_free(deeplearn * learner)
     free(learner->input_range_max);
     free(learner->output_range_min);
     free(learner->output_range_max);
-    /*free(learner->field_length);*/
+    if (learner->field_length != 0) {
+        free(learner->field_length);
+    }
 
     while (sample != 0) {
         prev_sample = sample;
@@ -422,12 +424,30 @@ void deeplearn_set_input_text(deeplearn * learner, char * text)
 */
 void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
 {
-    for (int i = 0; i < learner->net->NoOfInputs; i++) {
-        float value = sample->inputs[i];
-        float range = learner->input_range_max[i] - learner->input_range_min[i];
-        if (range > 0) {
-            float normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
-            deeplearn_set_input(learner, i, normalised);
+    float value, range, normalised;
+    int text_added, pos = 0;
+
+    for (int i = 0; i < learner->no_of_input_fields; i++) {
+        text_added = 0;
+        if (sample->inputs_text != 0) {
+            if (sample->inputs_text[i] != 0) {
+                /* text value */
+                enc_text_to_binary(sample->inputs_text[i],
+                                   learner->net->inputs,
+                                   learner->net->NoOfInputs,
+                                   pos, learner->field_length[i]);
+                pos += learner->field_length[i];
+            }
+        }
+        if (text_added == 0) {
+            /* numerical */
+            value = sample->inputs[i];
+            range = learner->input_range_max[i] - learner->input_range_min[i];
+            if (range > 0) {
+                normalised = (((value - learner->input_range_min[i])/range)*0.5) + 0.25;
+                deeplearn_set_input(learner, pos, normalised);
+            }
+            pos++;
         }
     }
 }
@@ -541,6 +561,10 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
     retval = fwrite(&learner->current_hidden_layer, sizeof(int), 1, fp);
     retval = fwrite(&learner->BPerror, sizeof(float), 1, fp);
     retval = fwrite(&learner->no_of_input_fields, sizeof(int), 1, fp);
+    if (learner->no_of_input_fields > 0) {
+        retval = fwrite(learner->field_length, sizeof(int),
+                        learner->no_of_input_fields, fp);
+    }
 
     retval = bp_save(fp, learner->net);
 
@@ -610,20 +634,28 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     if (retval == 0) {
         return -5;
     }
+    learner->field_length = 0;
+    if (learner->no_of_input_fields > 0) {
+        learner->field_length = (int*)malloc(learner->no_of_input_fields*sizeof(int));
+        retval = fread(learner->field_length, sizeof(int), learner->no_of_input_fields, fp);
+        if (retval == 0) {
+            return -6;
+        }
+    }
 
     learner->net = (bp*)malloc(sizeof(bp));
     if (bp_load(fp, learner->net, random_seed) != 0) {
-        return -6;
+        return -7;
     }
 
     learner->autocoder = (bp**)malloc(sizeof(bp*)*learner->net->HiddenLayers);
     if (!learner->autocoder) {
-        return -7;
+        return -8;
     }
     for (i = 0; i < learner->net->HiddenLayers; i++) {
         learner->autocoder[i] = (bp*)malloc(sizeof(bp));
         if (bp_load(fp, learner->autocoder[i], random_seed) != 0) {
-            return -8;
+            return -9;
         }
     }
 
@@ -634,60 +666,60 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     retval = fread(learner->error_threshold, sizeof(float),
                    learner->net->HiddenLayers+1, fp);
     if (retval == 0) {
-        return -9;
+        return -10;
     }
 
     /* load ranges */
     learner->input_range_min = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
     if (!learner->input_range_min) {
-        return -14;
+        return -15;
     }
     learner->input_range_max = (float*)malloc(learner->net->NoOfInputs*sizeof(float));
     if (!learner->input_range_max) {
-        return -15;
+        return -16;
     }
     learner->output_range_min = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
     if (!learner->output_range_min) {
-        return -16;
+        return -17;
     }
     learner->output_range_max = (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
     if (!learner->output_range_max) {
-        return -17;
+        return -18;
     }
     retval = fread(learner->input_range_min, sizeof(float), learner->net->NoOfInputs, fp);
     if (retval == 0) {
-        return -18;
+        return -19;
     }
     retval = fread(learner->input_range_max, sizeof(float), learner->net->NoOfInputs, fp);
     if (retval == 0) {
-        return -19;
+        return -20;
     }
     retval = fread(learner->output_range_min, sizeof(float), learner->net->NoOfOutputs, fp);
     if (retval == 0) {
-        return -10;
+        return -21;
     }
     retval = fread(learner->output_range_max, sizeof(float), learner->net->NoOfOutputs, fp);
     if (retval == 0) {
-        return -21;
+        return -22;
     }
 
     /* load the history */
     retval = fread(&learner->history_index, sizeof(int), 1, fp);
     if (retval == 0) {
-        return -10;
+        return -11;
     }
     retval = fread(&learner->history_ctr, sizeof(int), 1, fp);
     if (retval == 0) {
-        return -11;
+        return -12;
     }
     retval = fread(&learner->history_step, sizeof(int), 1, fp);
     if (retval == 0) {
-        return -12;
+        return -13;
     }
     retval = fread(learner->history, sizeof(float),
                    learner->history_index, fp);
     if (retval == 0) {
-        return -13;
+        return -14;
     }
 
     return 0;
@@ -761,6 +793,10 @@ int deeplearn_compare(deeplearn * learner1,
             learner2->output_range_max[i]) {
             return -14;
         }
+    }
+    if (learner1->no_of_input_fields !=
+        learner2->no_of_input_fields) {
+        return -15;
     }
     return 1;
 }

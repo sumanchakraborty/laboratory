@@ -35,6 +35,7 @@
 #include <limits.h>
 #include "globals.h"
 #include "backprop.h"
+#include "encoding.h"
 
 typedef struct {
     float * inputs;
