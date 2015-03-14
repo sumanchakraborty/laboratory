@@ -432,10 +432,11 @@ int deeplearndata_read_csv(char * filename,
 {
     int i, j, k, field_number, input_index, ctr, samples_loaded = 0;
     FILE * fp;
-    char line[2000],valuestr[1024],*retval;
+    char line[2000],valuestr[DEEPLEARN_MAX_FIELD_LENGTH_CHARS],*retval;
     float value;
     int data_set_index = 0;
-    float inputs[2048], outputs[1024];
+    float inputs[DEEPLEARN_MAX_CSV_INPUTS];
+    float outputs[DEEPLEARN_MAX_CSV_OUTPUTS];
     int fields_per_example = 0;
     int network_outputs = no_of_outputs;
     int is_text;
@@ -462,7 +463,9 @@ int deeplearndata_read_csv(char * filename,
                         if ((line[i]==',') || (line[i]==';') ||
                             (i==strlen(line)-1)) {
                             if (i==strlen(line)-1) {
-                                valuestr[ctr++]=line[i];
+                                if (ctr < DEEPLEARN_MAX_FIELD_LENGTH_CHARS-1) {
+                                    valuestr[ctr++]=line[i];
+                                }
                             }
                             valuestr[ctr]=0;
                             ctr=0;
@@ -485,7 +488,7 @@ int deeplearndata_read_csv(char * filename,
 
                             for (j = 0; j < no_of_outputs; j++) {
                                 if (field_number == output_field_index[j]) {
-                                    if (j < 1023) {
+                                    if (j < DEEPLEARN_MAX_CSV_OUTPUTS-1) {
                                         if (output_classes <= 0) {
                                             outputs[j] = value;
                                         }
@@ -504,7 +507,7 @@ int deeplearndata_read_csv(char * filename,
                                     }
                                 }
                             }
-                            if ((j == no_of_outputs) && (input_index < 2047)) {
+                            if ((j == no_of_outputs) && (input_index < DEEPLEARN_MAX_CSV_INPUTS-1)) {
                                 inputs[input_index++] = value;
                                 if (is_text != 0) {
                                 }
@@ -515,7 +518,9 @@ int deeplearndata_read_csv(char * filename,
                         }
                         else {
                             /* update the value string */
-                            valuestr[ctr++] = line[i];
+                            if (ctr < DEEPLEARN_MAX_FIELD_LENGTH_CHARS-1) {
+                                valuestr[ctr++] = line[i];
+                            }
                         }
                     }
                     if (fields_per_example == 0) {
