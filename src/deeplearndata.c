@@ -597,7 +597,7 @@ int deeplearndata_read_csv(char * filename,
                                           output_range_max) != 0) {
                         fclose(fp);
                         return -2;
-					}
+                    }
                     for (i = 0; i < network_outputs; i++) {
                         outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
                     }
@@ -615,8 +615,11 @@ int deeplearndata_read_csv(char * filename,
                    hidden_layers, network_outputs,
                    error_threshold, random_seed);
 
+    /* attach the data samples */
     learner->data = data;
     learner->data_samples = data_samples;
+
+    /* set the field ranges */
     for (i = 0; i < no_of_input_fields; i++) {
         learner->input_range_min[i] = input_range_min[i];
         learner->input_range_max[i] = input_range_max[i];
