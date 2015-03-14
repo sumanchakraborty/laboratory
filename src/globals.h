@@ -9,4 +9,7 @@
 #define DEEPLEARN_MAX_CSV_INPUTS 2048
 #define DEEPLEARN_MAX_CSV_OUTPUTS 1024
 
+/* The number of bits per character in a text string */
+#define CHAR_BITS (sizeof(char)*8)
+
 #endif

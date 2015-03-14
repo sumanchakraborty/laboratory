@@ -727,3 +727,27 @@ float deeplearndata_get_performance(deeplearn * learner)
     free(outputs);
     return 0;
 }
+
+/**
+* @brief Returns the maximum field length for a text field
+* @param learner Deep learner object
+* @param field_index Index number of the input field
+* @returns maximum field length in characters
+*/
+int deeplearndata_get_field_length(deeplearn * learner, int field_index)
+{
+    deeplearndata * data = learner->data;
+    int max = 1;
+
+    while (data != 0) {
+        if (data->inputs_text != 0) {
+            if (data->inputs_text[field_index] != 0) {
+                if (strlen(data->inputs_text[field_index]) > max) {
+                    max = strlen(data->inputs_text[field_index])*CHAR_BITS;
+                }
+            }
+        }
+        data = (deeplearndata *)data->next;
+    }
+    return max;
+}

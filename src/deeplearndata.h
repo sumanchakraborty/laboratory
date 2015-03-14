@@ -65,5 +65,6 @@ int deeplearndata_read_csv(char * filename,
                            unsigned int * random_seed);
 int deeplearndata_training(deeplearn * learner);
 float deeplearndata_get_performance(deeplearn * learner);
+int deeplearndata_get_field_length(deeplearn * learner, int field_index);
 
 #endif
