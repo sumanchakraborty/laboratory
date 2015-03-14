@@ -60,6 +60,7 @@ struct deepl {
     unsigned int itterations;
     float * error_threshold;
     int training_complete;
+    int no_of_input_fields;
 
     deeplearndata * data;
     int data_samples;

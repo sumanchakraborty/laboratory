@@ -54,6 +54,20 @@ int deeplearndata_add(deeplearn * learner,
     if (!data->inputs) {
         return -2;
     }
+    data->inputs_text = 0;
+    if (inputs_text != 0) {
+        data->inputs_text =
+            (char**)malloc(learner->no_of_input_fields*sizeof(char*));
+        for (i = 0; i < learner->no_of_input_fields; i++) {
+            data->inputs_text[i] = 0;
+            if (inputs_text[i] != 0) {
+                /* copy the string */
+                data->inputs_text[i] =
+                    (char*)malloc((strlen(inputs_text[i])+1)*sizeof(char));
+                strcpy(data->inputs_text[i], inputs_text[i]);
+            }
+        }
+    }
     data->outputs =
       (float*)malloc(learner->net->NoOfOutputs*sizeof(float));
     if (!data->outputs) {
@@ -65,7 +79,7 @@ int deeplearndata_add(deeplearn * learner,
     memcpy((void*)data->outputs, outputs, learner->net->NoOfOutputs*sizeof(float));
 
     /* update the data range */
-    for (i = 0; i < learner->net->NoOfInputs; i++) {
+    for (i = 0; i < learner->no_of_input_fields; i++) {
         if (inputs[i] < learner->input_range_min[i]) {
             learner->input_range_min[i] = inputs[i];
         }
