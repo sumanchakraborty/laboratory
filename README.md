@@ -67,6 +67,11 @@ There are also some example programs within the examples directory. Reading the 
  * Assessing wine quality from ingredients
  * Predicting concrete quality from ingredients
 
+Using trained neural nets in your system
+========================================
+
+You can export trained neural nets either as a C program or a Python program. These programs are completely independent and can be used either as commands or integrated into a larger software application. This makes it easy to use the resulting neural net without needing to link to libdeep. See the source code in the examples directory for how to use the export function.
+
 Portability
 ===========
 
