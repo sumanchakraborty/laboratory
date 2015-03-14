@@ -38,16 +38,16 @@
 #include "deeplearn.h"
 
 int deeplearndata_add(deeplearndata ** datalist,
-					  int * data_samples,
+                      int * data_samples,
                       float * inputs,
                       char ** inputs_text,
                       float * outputs,
                       int no_of_input_fields,
                       int no_of_outputs,
-					  float input_range_min[],
-					  float input_range_max[],
-					  float output_range_min[],
-					  float output_range_max[]);
+                      float input_range_min[],
+                      float input_range_max[],
+                      float output_range_min[],
+                      float output_range_max[]);
 deeplearndata * deeplearndata_get(deeplearn * learner, int index);
 deeplearndata * deeplearndata_get_training(deeplearn * learner, int index);
 deeplearndata * deeplearndata_get_training_labeled(deeplearn * learner, int index);
@@ -65,6 +65,9 @@ int deeplearndata_read_csv(char * filename,
                            unsigned int * random_seed);
 int deeplearndata_training(deeplearn * learner);
 float deeplearndata_get_performance(deeplearn * learner);
-int deeplearndata_get_field_length(deeplearn * learner, int field_index);
+int deeplearndata_get_field_length(deeplearndata * data, int field_index);
+int deeplearndata_update_field_lengths(int no_of_input_fields,
+                                       int field_length[],
+                                       deeplearndata * data);
 
 #endif

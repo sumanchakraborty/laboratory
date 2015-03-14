@@ -464,6 +464,7 @@ int deeplearndata_read_csv(char * filename,
     char line[2000],valuestr[DEEPLEARN_MAX_FIELD_LENGTH_CHARS],*retval;
     float value;
     int data_set_index = 0;
+    int no_of_inputs = 0;
     int no_of_input_fields = 0;
     float inputs[DEEPLEARN_MAX_CSV_INPUTS];
     char* inputs_text[DEEPLEARN_MAX_CSV_INPUTS];
@@ -477,6 +478,7 @@ int deeplearndata_read_csv(char * filename,
     float input_range_max[DEEPLEARN_MAX_CSV_INPUTS];
     float output_range_min[DEEPLEARN_MAX_CSV_OUTPUTS];
     float output_range_max[DEEPLEARN_MAX_CSV_OUTPUTS];
+    int field_length[DEEPLEARN_MAX_CSV_INPUTS];
 
     for (i = 0; i < DEEPLEARN_MAX_CSV_INPUTS; i++) {
         input_range_min[i] = 9999;
@@ -609,6 +611,11 @@ int deeplearndata_read_csv(char * filename,
 
     fclose(fp);
 
+    /* calculate field lengths */
+    no_of_inputs =
+        deeplearndata_update_field_lengths(no_of_input_fields,
+                                           field_length, data);
+
     /* create the deep learner */
     deeplearn_init(learner,
                    no_of_input_fields, no_of_hiddens,
@@ -730,13 +737,12 @@ float deeplearndata_get_performance(deeplearn * learner)
 
 /**
 * @brief Returns the maximum field length for a text field
-* @param learner Deep learner object
+* @param data List of data samples
 * @param field_index Index number of the input field
-* @returns maximum field length in characters
+* @returns maximum field length in number of input neurons (bits)
 */
-int deeplearndata_get_field_length(deeplearn * learner, int field_index)
+int deeplearndata_get_field_length(deeplearndata * data, int field_index)
 {
-    deeplearndata * data = learner->data;
     int max = 1;
 
     while (data != 0) {
@@ -750,4 +756,25 @@ int deeplearndata_get_field_length(deeplearn * learner, int field_index)
         data = (deeplearndata *)data->next;
     }
     return max;
+}
+
+/**
+* @brief Calculates the field lengths (input neurons per field)
+* @param no_of_input_fields The number of input fields
+* @param field_length Array storing the field lengths in input neurons (bits)
+* @param data List containing data samples
+* @returns The total number of input neurons needed
+*/
+int deeplearndata_update_field_lengths(int no_of_input_fields,
+                                       int field_length[],
+                                       deeplearndata * data)
+{
+    int i, no_of_inputs = 0;
+
+    for (i = 0; i < no_of_input_fields; i++) {
+        field_length[i] =
+            deeplearndata_get_field_length(data, i);
+        no_of_inputs += field_length[i];
+    }
+    return no_of_inputs;
 }

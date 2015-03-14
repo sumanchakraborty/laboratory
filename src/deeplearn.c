@@ -114,7 +114,9 @@ int deeplearn_init(deeplearn * learner,
     learner->training_data_labeled_samples = 0;
     learner->test_data = 0;
     learner->test_data_samples = 0;
+
     learner->no_of_input_fields = no_of_inputs;
+    /*learner->field_length = (int*)malloc(learner->no_of_input_fields*sizeof(int));*/
 
     learner->training_ctr = 0;
     learner->history_plot_interval = 100000;
@@ -326,6 +328,7 @@ void deeplearn_free(deeplearn * learner)
     free(learner->input_range_max);
     free(learner->output_range_min);
     free(learner->output_range_max);
+    /*free(learner->field_length);*/
 
     while (sample != 0) {
         prev_sample = sample;
