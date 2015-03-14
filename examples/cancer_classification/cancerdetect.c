@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     int output_field_index[] = { 1 };
     float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
     unsigned int random_seed = 123;
-  
+
     /* load the data */
     printf("Loading data set\n");
     deeplearndata_read_csv(DATA_FILE,
@@ -67,11 +67,11 @@ int main(int argc, char* argv[])
 
     /* set percentage of dropouts */
     deeplearn_set_dropouts(&learner, 0.001f);
-    
+
     learner.history_plot_interval = 50000;
 
     sprintf(learner.history_plot_title,"%s",TITLE);
-    
+
     while (deeplearndata_training(&learner) != 0) {
     }
 
@@ -80,8 +80,9 @@ int main(int argc, char* argv[])
     printf("Test data set performance is %.1f%%\n", deeplearndata_get_performance(&learner));
 
     deeplearn_export(&learner, "cancer_classifier.c");
+    deeplearn_export(&learner, "cancer_classifier.py");
 
     deeplearn_free(&learner);
-    
+
     return 0;
 }
