@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
 {
     int no_of_outputs = 1;
     int output_field_index[] = { 2 };
-    float error_threshold_percent[] = { 0.07f, 0.07f, 0.07f };
+    float error_threshold_percent[] = { 0.05f, 0.05f };
     unsigned int random_seed = 123;
 
     /* load the data */
     printf("Loading data set\n");
     deeplearndata_read_csv(DATA_FILE,
                            &learner,
-                           25, 2,
+                           5, 1,
                            no_of_outputs,
                            output_field_index, 0,
                            error_threshold_percent,
