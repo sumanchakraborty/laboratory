@@ -435,7 +435,7 @@ void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
                 enc_text_to_binary(sample->inputs_text[i],
                                    learner->net->inputs,
                                    learner->net->NoOfInputs,
-                                   pos, learner->field_length[i]);
+                                   pos, learner->field_length[i]/CHAR_BITS);
                 pos += learner->field_length[i];
             }
         }
@@ -1177,7 +1177,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "    else {\n");
         fprintf(fp, "%s", "      /* text value */\n");
         fprintf(fp, "%s", "      encode_text(argv[i+1], network_inputs, no_of_inputs,\n");
-        fprintf(fp, "%s", "                  pos, field_length[i]);\n");
+        fprintf(fp,       "                  pos, field_length[i]/%d);\n", (int)CHAR_BITS);
         fprintf(fp, "%s", "      pos += field_length[i];\n");
         fprintf(fp, "%s", "    }\n");
         fprintf(fp, "%s", "  }\n\n");
@@ -1454,7 +1454,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "      else:\n");
         fprintf(fp, "%s", "        # text value\n");
         fprintf(fp, "%s", "        this.encode_text(inputs[i], network_inputs, this.no_of_inputs,");
-        fprintf(fp, "%s", "pos, this.field_length[i])\n");
+        fprintf(fp,       "pos, this.field_length[i]/%d)\n", (int)CHAR_BITS);
         fprintf(fp, "%s", "        pos = pos + this.field_length[i]\n\n");
     }
 
