@@ -34,12 +34,12 @@ static void test_encode_text()
 
     char * text1 = "one";
     char * text2 = "two";
-	char * text1_binary = "111101100111011010100110";
-	char * text2_binary = "001011101110111011110110";
+	char * text1_binary = "111101100111011010100110--------";
+	char * text2_binary = "001011101110111011110110--------";
     bp_neuron ** inputs;
-    int no_of_inputs = CHAR_BITS*6;
+    int no_of_inputs = CHAR_BITS*8;
     int i, offset = 0, new_offset;
-    int max_field_length_chars = 3;
+    int max_field_length_chars = 4;
 
     inputs = (bp_neuron**)malloc(no_of_inputs*sizeof(bp_neuron*));
     assert(inputs);
@@ -52,27 +52,31 @@ static void test_encode_text()
                                     inputs, no_of_inputs,
                                     offset,
                                     max_field_length_chars);
-    assert(new_offset == 3*CHAR_BITS);
+    assert(new_offset == 4*CHAR_BITS);
     offset = new_offset;
 
     new_offset = enc_text_to_binary(text1,
                                     inputs, no_of_inputs,
                                     offset,
                                     max_field_length_chars);
-    assert(new_offset == 6*CHAR_BITS);
+    assert(new_offset == 8*CHAR_BITS);
 
 	/* check that the two encodings were the same */
     for (i = 0; i < 3*(int)CHAR_BITS; i++) {
-		assert(inputs[i]->value == inputs[i+(3*(int)CHAR_BITS)]->value);
+		assert(inputs[i]->value == inputs[i+(4*(int)CHAR_BITS)]->value);
 	}
 
 	/* check the expected binary */
-    for (i = 0; i < 3*(int)CHAR_BITS; i++) {
-		if (inputs[i]->value < 0.5f) {
+    for (i = 0; i < 4*(int)CHAR_BITS; i++) {
+		if (inputs[i]->value < 0.4f) {
 			assert(text1_binary[i] == '0');
 		}
-		else {
+		if (inputs[i]->value > 0.6f) {
 			assert(text1_binary[i] == '1');
+		}
+		if ((inputs[i]->value > 0.4f) &&
+			(inputs[i]->value < 0.6f)) {
+			assert(text1_binary[i] == '-');
 		}
 	}
 
@@ -81,15 +85,19 @@ static void test_encode_text()
                                     inputs, no_of_inputs,
                                     offset,
                                     max_field_length_chars);
-    assert(new_offset == 3*CHAR_BITS);
+    assert(new_offset == 4*CHAR_BITS);
 
 	/* check the expected binary */
     for (i = 0; i < 3*(int)CHAR_BITS; i++) {
-		if (inputs[i]->value < 0.5f) {
+		if (inputs[i]->value < 0.4f) {
 			assert(text2_binary[i] == '0');
 		}
-		else {
+		if (inputs[i]->value > 0.6f) {
 			assert(text2_binary[i] == '1');
+		}
+		if ((inputs[i]->value > 0.4f) &&
+			(inputs[i]->value < 0.6f)) {
+			assert(text2_binary[i] == '-');
 		}
 	}
 
