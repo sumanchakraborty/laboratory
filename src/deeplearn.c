@@ -469,9 +469,14 @@ int deeplearn_set_input_field(deeplearn * learner, int fieldindex, float value)
         return -1;
     }
 
+    if (learner->field_length == 0) {
+        /* no field length array defined */
+        return -2;
+    }
+
     if (learner->field_length[fieldindex] > 0) {
         /* this is a text field */
-        return -2;
+        return -3;
     }
 
     /* get the offset (first input unit index) of the input field */
@@ -486,6 +491,51 @@ int deeplearn_set_input_field(deeplearn * learner, int fieldindex, float value)
 
     /* set the value */
     bp_set_input(learner->net, pos, value);
+    return 0;
+}
+
+/**
+* @brief Sets a text value for the given input field
+* @param learner Deep learner object
+* @param fieldindex Index number of the input field.
+*        This is not necessarily the same as the input index
+* @param text Text value for the field
+* @returns zero on success
+*/
+int deeplearn_set_input_field_text(deeplearn * learner, int fieldindex, char * text)
+{
+    int i, pos=0;
+
+    if (learner->no_of_input_fields == 0) {
+        /* No fields are defined */
+        return -1;
+    }
+
+    if (learner->field_length == 0) {
+        /* no field length array defined */
+        return -2;
+    }
+
+    if (learner->field_length[fieldindex] > 0) {
+        /* this is a text field */
+        return -3;
+    }
+
+    /* get the offset (first input unit index) of the input field */
+    for (i = 0; i < fieldindex; i++) {
+        if (learner->field_length[i] == 0) {
+            pos++;
+        }
+        else {
+            pos += learner->field_length[i];
+        }
+    }
+
+    /* set the value */
+    enc_text_to_binary(text,
+                       learner->net->inputs,
+                       learner->net->NoOfInputs, pos,
+                       learner->field_length[fieldindex]/CHAR_BITS);
     return 0;
 }
 

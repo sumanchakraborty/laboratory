@@ -101,6 +101,7 @@ void deeplearn_free(deeplearn * learner);
 void deeplearn_set_input_text(deeplearn * learner, char * text);
 void deeplearn_set_input(deeplearn * learner, int index, float value);
 int deeplearn_set_input_field(deeplearn * learner, int fieldindex, float value);
+int deeplearn_set_input_field_text(deeplearn * learner, int fieldindex, char * text);
 void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample);
 void deeplearn_set_output(deeplearn * learner, int index, float value);
 void deeplearn_set_outputs(deeplearn * learner, deeplearndata * sample);
