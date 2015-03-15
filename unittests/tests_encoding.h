@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2015  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2013  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -27,50 +27,19 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DEEPLEARN_TESTS_ENCODING_H
+#define DEEPLEARN_TESTS_ENCODING_H
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <ctype.h>
+#include <math.h>
+#include "globals.h"
+#include "backprop_neuron.h"
 #include "encoding.h"
 
-/**
-* @brief Encodes text into binary input values
-* @param text The text string to be encoded
-* @param inputs Array of input neurons
-* @param no_of_inputs The number of input neurons
-* @param offset The index of the input neuron to begin inserting the text
-* @param max_field_length_chars The maximum length of a text field in characters
-* @returns current inputs index
-*/
-int enc_text_to_binary(char * text,
-					   bp_neuron ** inputs, int no_of_inputs,
-					   int offset,
-					   int max_field_length_chars)
-{
-    int pos = offset, i, bit, max_chars = strlen(text);
+int run_tests_encoding();
 
-    if (max_chars > (no_of_inputs-offset)/CHAR_BITS) {
-        max_chars = ((no_of_inputs-offset)/CHAR_BITS);
-    }
-    if (max_chars > max_field_length_chars) {
-        max_chars = max_field_length_chars;
-    }
-
-    /* for each character in the string */
-    for (i = 0; i < max_chars; i++) {
-        /* set the bits for this character */
-        for (bit = 0; bit < CHAR_BITS; bit++, pos++) {
-            if (text[i] & (1<<bit)) {
-                inputs[pos]->value = 0.75f;
-            }
-            else {
-                inputs[pos]->value = 0.25f;
-            }
-        }
-    }
-    /* set the remaining inputs within the field to low (zero) */
-    while (i < max_field_length_chars) {
-        if (pos >= no_of_inputs) {
-            break;
-        }
-        inputs[pos++]->value = 0.25f;
-        i++;
-    }
-	return pos;
-}
+#endif

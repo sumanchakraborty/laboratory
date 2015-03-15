@@ -1099,8 +1099,8 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
 
         fprintf(fp, "%s", "{\n  int pos = offset, i, bit, max_chars = strlen(text);\n\n");
 
-        fprintf(fp, "  if (max_chars >= (no_of_inputs-offset)/%d) {\n", (int)CHAR_BITS);
-        fprintf(fp, "    max_chars = ((no_of_inputs-offset)/%d)-1;\n", (int)CHAR_BITS);
+        fprintf(fp, "  if (max_chars > (no_of_inputs-offset)/%d) {\n", (int)CHAR_BITS);
+        fprintf(fp, "    max_chars = ((no_of_inputs-offset)/%d);\n", (int)CHAR_BITS);
         fprintf(fp, "%s", "  }\n");
         fprintf(fp, "%s", "  if (max_chars > max_field_length_chars) {\n");
         fprintf(fp, "%s", "    max_chars = max_field_length_chars;\n");
@@ -1384,8 +1384,8 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "    pos = offset\n");
         fprintf(fp, "%s", "    max_chars = len(text)\n\n");
 
-        fprintf(fp, "    if max_chars >= (no_of_inputs-offset)/%d:\n", (int)CHAR_BITS);
-        fprintf(fp, "      max_chars = ((no_of_inputs-offset)/%d)-1\n\n", (int)CHAR_BITS);
+        fprintf(fp, "    if max_chars > (no_of_inputs-offset)/%d:\n", (int)CHAR_BITS);
+        fprintf(fp, "      max_chars = ((no_of_inputs-offset)/%d)\n\n", (int)CHAR_BITS);
 
         fprintf(fp, "%s", "    if max_chars > max_field_length_chars:\n");
         fprintf(fp, "%s", "      max_chars = max_field_length_chars\n\n");

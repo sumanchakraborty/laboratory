@@ -35,9 +35,9 @@
 #include "globals.h"
 #include "backprop_neuron.h"
 
-void enc_text_to_binary(char * text,
-                        bp_neuron ** inputs, int no_of_inputs,
-                        int offset,
-                        int max_field_length_chars);
+int enc_text_to_binary(char * text,
+                       bp_neuron ** inputs, int no_of_inputs,
+                       int offset,
+                       int max_field_length_chars);
 
 #endif

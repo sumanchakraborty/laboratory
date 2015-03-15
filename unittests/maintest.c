@@ -35,6 +35,7 @@
 #include "tests_deeplearn.h"
 #include "tests_data.h"
 #include "tests_images.h"
+#include "tests_encoding.h"
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +44,7 @@ int main(int argc, char* argv[])
     run_tests_backprop();
     run_tests_deeplearn();
     run_tests_data();
+    run_tests_encoding();
 
     return 1;
 }
