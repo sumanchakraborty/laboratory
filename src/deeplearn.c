@@ -952,8 +952,15 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
 
     fprintf(fp,"%s\n", "#include <stdio.h>");
     fprintf(fp,"%s\n", "#include <stdlib.h>");
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp,"%s\n", "#include <string.h>");
+    }
     fprintf(fp,"%s\n\n", "#include <math.h>");
 
+    if (learner->no_of_input_fields > 0) {
+        fprintf(fp, "const int no_of_input_fields = %d;\n",
+                learner->no_of_input_fields);
+    }
     fprintf(fp, "const int no_of_inputs = %d;\n",
             learner->net->NoOfInputs);
     fprintf(fp, "const int no_of_hiddens = %d;\n",
@@ -962,6 +969,21 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
             learner->net->NoOfOutputs);
     fprintf(fp, "const int hidden_layers = %d;\n\n",
             learner->net->HiddenLayers);
+
+    /* field lengths */
+    if (learner->field_length != 0) {
+        if (learner->no_of_input_fields > 0) {
+            fprintf(fp, "%s", "int field_length[] = {\n");
+            fprintf(fp, "%s", "  ");
+            for (i = 0; i < learner->no_of_input_fields; i++) {
+                fprintf(fp, "%d", learner->field_length[i]);
+                if (i < learner->no_of_input_fields-1) {
+                    fprintf(fp, ",");
+                }
+            }
+            fprintf(fp, "%s", "\n};\n\n");
+        }
+    }
 
     /* ranges */
     fprintf(fp, "%s", "float input_range_min[] = {\n");
@@ -1068,23 +1090,89 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "float hiddens[%d];\n",learner->net->NoOfHiddens);
     fprintf(fp, "float outputs[%d];\n\n",learner->net->NoOfOutputs);
 
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "/* Encode some text into the input units */\n");
+        fprintf(fp, "%s", "void encode_text(char * text,\n");
+        fprintf(fp, "%s", "                 float * inputs, int no_of_inputs,\n");
+        fprintf(fp, "%s", "                 int offset, int max_field_length_chars) {\n");
+
+        fprintf(fp, "%s", "  int pos = offset, i, bit, max_chars = strlen(text);\n\n");
+
+        fprintf(fp, "  if (max_chars >= (no_of_inputs-offset)/%d) {\n", (int)CHAR_BITS);
+        fprintf(fp, "    max_chars = ((no_of_inputs-offset)/%d)-1;\n", (int)CHAR_BITS);
+        fprintf(fp, "%s", "  }\n");
+        fprintf(fp, "%s", "  if (max_chars > max_field_length_chars) {\n");
+        fprintf(fp, "%s", "    max_chars = max_field_length_chars;\n");
+        fprintf(fp, "%s", "  }\n\n");
+
+        fprintf(fp, "%s", "  /* for each character in the string */\n");
+        fprintf(fp, "%s", "  for (i = 0; i < max_chars; i++) {\n");
+        fprintf(fp, "%s", "    /* set the bits for this character */\n");
+        fprintf(fp, "    for (bit = 0; bit < %d; bit++, pos++) {\n", (int)CHAR_BITS);
+        fprintf(fp, "%s", "      if (text[i] & (1<<bit)) {\n");
+        fprintf(fp, "%s", "        inputs[pos] = 0.75f;\n");
+        fprintf(fp, "%s", "      }\n");
+        fprintf(fp, "%s", "      else {\n");
+        fprintf(fp, "%s", "        inputs[pos] = 0.25f;\n");
+        fprintf(fp, "%s", "      }\n");
+        fprintf(fp, "%s", "    }\n");
+        fprintf(fp, "%s", "  }\n");
+        fprintf(fp, "%s", "  /* set the remaining inputs within the field to low (zero) */\n");
+        fprintf(fp, "%s", "  while (i < max_field_length_chars) {\n");
+        fprintf(fp, "%s", "    if (pos >= no_of_inputs) {\n");
+        fprintf(fp, "%s", "      break;\n");
+        fprintf(fp, "%s", "    }\n");
+        fprintf(fp, "%s", "    inputs[pos++] = 0.25f;\n");
+        fprintf(fp, "%s", "    i++;\n");
+        fprintf(fp, "%s", "  }\n");
+        fprintf(fp, "%s", "}\n\n");
+    }
+
     fprintf(fp, "%s", "int main(int argc, char* argv[])\n");
     fprintf(fp, "%s", "{\n");
 
-    fprintf(fp, "%s", "  int i,j;\n");
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "  int i,j;\n");
+    }
+    else {
+        fprintf(fp, "%s", "  int i,j,pos;\n");
+    }
     fprintf(fp, "%s", "  float sum;\n\n");
+
     fprintf(fp, "  if (argc < %d) return -1;\n\n", learner->net->NoOfInputs);
+
+    fprintf(fp, "%s", "  /* Obtain input values from command arguments */\n");
     fprintf(fp, "%s", "  for (i = 1; i < argc; i++) {\n");
     fprintf(fp, "%s", "    if (i > no_of_inputs) return -2;\n");
     fprintf(fp, "%s", "    inputs[i-1] = atof(argv[i]);\n");
     fprintf(fp, "%s", "  }\n\n");
 
     fprintf(fp, "%s", "  /* Normalise inputs into a 0.25 - 0.75 range */\n");
-    fprintf(fp, "%s", "  for (i = 0; i < no_of_inputs; i++) {\n");
-    fprintf(fp, "%s", "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
-    fprintf(fp, "%s", "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
-    fprintf(fp, "%s", "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
-    fprintf(fp, "%s", "  }\n\n");
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "  for (i = 0; i < no_of_inputs; i++) {\n");
+        fprintf(fp, "%s", "    inputs[i] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
+        fprintf(fp, "%s", "    if (inputs[i] < 0.25f) inputs[i] = 0.25f;\n");
+        fprintf(fp, "%s", "    if (inputs[i] > 0.75f) inputs[i] = 0.75f;\n");
+        fprintf(fp, "%s", "  }\n\n");
+    }
+    else {
+        fprintf(fp, "%s", "  pos = 0;\n");
+        fprintf(fp, "%s", "  for (i = 0; i < no_of_input_fields; i++) {\n");
+        fprintf(fp, "%s", "    if (field_length[i] == 0) {\n");
+        fprintf(fp, "%s", "      /* numeric value */\n");
+        fprintf(fp, "%s", "      inputs[pos] = 0.25f + ((inputs[i] - input_range_min[i])*0.5f/(input_range_max[i] - input_range_min[i]));\n");
+        fprintf(fp, "%s", "      if (inputs[pos] < 0.25f) inputs[pos] = 0.25f;\n");
+        fprintf(fp, "%s", "      if (inputs[pos] > 0.75f) inputs[pos] = 0.75f;\n");
+        fprintf(fp, "%s", "      pos++;\n");
+        fprintf(fp, "%s", "    }\n");
+        fprintf(fp, "%s", "    else {\n");
+        fprintf(fp, "%s", "      /* text value */\n");
+        fprintf(fp, "%s", "      encode_text(argv[i+1], inputs, no_of_inputs,\n");
+        fprintf(fp, "%s", "                  pos, field_length[i]);\n");
+        fprintf(fp, "%s", "      pos += field_length[i];\n");
+        fprintf(fp, "%s", "    }\n");
+        fprintf(fp, "%s", "  }\n\n");
+    }
 
     fprintf(fp, "%s", "  /* Hidden layer 1 */\n");
     fprintf(fp, "%s", "  for (i = 0; i < no_of_hiddens; i++) {\n");
@@ -1158,6 +1246,10 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
 
     fprintf(fp,"%s\n\n","class NeuralNet:");
 
+    if (learner->no_of_input_fields > 0) {
+        fprintf(fp, "  no_of_input_fields = %d\n",
+                learner->no_of_input_fields);
+    }
     fprintf(fp, "  no_of_inputs = %d\n",
             learner->net->NoOfInputs);
     fprintf(fp, "  no_of_hiddens = %d\n",
@@ -1166,6 +1258,20 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
             learner->net->NoOfOutputs);
     fprintf(fp, "  hidden_layers = %d\n\n",
             learner->net->HiddenLayers);
+
+    /* field lengths */
+    if (learner->field_length != 0) {
+        if (learner->no_of_input_fields > 0) {
+            fprintf(fp, "%s", "  field_length = [");
+            for (i = 0; i < learner->no_of_input_fields; i++) {
+                fprintf(fp, "%d", learner->field_length[i]);
+                if (i < learner->no_of_input_fields-1) {
+                    fprintf(fp, ",");
+                }
+            }
+            fprintf(fp, "%s", "]\n\n");
+        }
+    }
 
     /* ranges */
     fprintf(fp, "%s", "  input_range_min = [");
@@ -1264,8 +1370,46 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     }
     fprintf(fp, "%s", "]\n\n\n");
 
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "# Encode some text into the input units\n");
+        fprintf(fp, "%s", "def encode_text(text,inputs,no_of_inputs,");
+        fprintf(fp, "%s", "offset, max_field_length_chars):\n");
+
+        fprintf(fp, "%s", "  pos = offset\n");
+        fprintf(fp, "%s", "  max_chars = len(text)\n\n");
+
+        fprintf(fp, "  if max_chars >= (no_of_inputs-offset)/%d):\n", (int)CHAR_BITS);
+        fprintf(fp, "    max_chars = ((no_of_inputs-offset)/%d)-1\n\n", (int)CHAR_BITS);
+
+        fprintf(fp, "%s", "  if max_chars > max_field_length_chars:\n");
+        fprintf(fp, "%s", "    max_chars = max_field_length_chars\n\n");
+
+        fprintf(fp, "%s", "  # for each character in the string\n");
+        fprintf(fp, "%s", "  for i in range(max_chars):\n");
+        fprintf(fp, "%s", "    # set the bits for this character\n");
+        fprintf(fp,       "    for bit in range(%d):\n", (int)CHAR_BITS);
+        fprintf(fp, "%s", "      if text[i] & (1 << bit):\n");
+        fprintf(fp, "%s", "        inputs.append(0.75)\n");
+        fprintf(fp, "%s", "      else:\n");
+        fprintf(fp, "%s", "        inputs.append(0.25)\n");
+        fprintf(fp, "%s", "      pos = pos + 1\n\n");
+
+        fprintf(fp, "%s", "  # set the remaining inputs within the field to low (zero)\n");
+        fprintf(fp, "%s", "  i = max_chars\n");
+        fprintf(fp, "%s", "  while i < max_field_length_chars:\n");
+        fprintf(fp, "%s", "    if pos >= no_of_inputs:\n");
+        fprintf(fp, "%s", "      break\n");
+        fprintf(fp, "%s", "    inputs.append(0.25)\n");
+        fprintf(fp, "%s", "    pos = pos + 1\n");
+        fprintf(fp, "%s", "    i = i + 1\n");
+    }
+
     fprintf(fp, "%s", "  def update(this, inputs):\n\n");
 
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "    pos = 0\n");
+    }
+    fprintf(fp, "%s", "    network_inputs = []\n");
     fprintf(fp, "%s", "    prev_hiddens = []\n");
     fprintf(fp, "%s", "    hiddens = []\n");
     fprintf(fp, "%s", "    outputs = []\n\n");
@@ -1273,19 +1417,37 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "        return []\n\n");
 
     fprintf(fp, "%s", "    # Normalise inputs into a 0.25 - 0.75 range\n");
-    fprintf(fp, "%s", "    for i in range (this.no_of_inputs):\n");
-    fprintf(fp, "%s", "      inputs[i] = float(inputs[i])\n");
-    fprintf(fp, "%s", "      inputs[i] = 0.25 + ((inputs[i] - this.input_range_min[i])*0.5/(this.input_range_max[i] - this.input_range_min[i]))\n");
-    fprintf(fp, "%s", "      if inputs[i] < 0.25:\n");
-    fprintf(fp, "%s", "        inputs[i] = 0.25\n");
-    fprintf(fp, "%s", "      if inputs[i] > 0.75:\n");
-    fprintf(fp, "%s", "        inputs[i] = 0.75\n\n");
+    if (learner->no_of_input_fields == 0) {
+        fprintf(fp, "%s", "    for i in range (this.no_of_inputs):\n");
+        fprintf(fp, "%s", "      network_inputs.append(0.25 + ((float(inputs[i]) - this.input_range_min[i])*0.5/(this.input_range_max[i] - this.input_range_min[i])))\n");
+        fprintf(fp, "%s", "      if inputs[i] < 0.25:\n");
+        fprintf(fp, "%s", "        inputs[i] = 0.25\n");
+        fprintf(fp, "%s", "      if inputs[i] > 0.75:\n");
+        fprintf(fp, "%s", "        inputs[i] = 0.75\n");
+        fprintf(fp, "%s", "      network_inputs.append(inputs[i])\n");
+    }
+    else {
+        fprintf(fp, "%s", "  for i in range(no_of_input_fields):\n");
+        fprintf(fp, "%s", "    if field_length[i] == 0:\n");
+        fprintf(fp, "%s", "      # numeric value\n");
+        fprintf(fp, "%s", "      network_inputs.append(0.25 + ((float(inputs[i]) - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i])))\n");
+        fprintf(fp, "%s", "      if network_inputs[pos] < 0.25:\n");
+        fprintf(fp, "%s", "        network_inputs[pos] = 0.25\n");
+        fprintf(fp, "%s", "      if network_inputs[pos] > 0.75:\n");
+        fprintf(fp, "%s", "        network_inputs[pos] = 0.75\n\n");
+        fprintf(fp, "%s", "      pos = pos + 1\n");
+        fprintf(fp, "%s", "    else:\n");
+        fprintf(fp, "%s", "      # text value\n");
+        fprintf(fp, "%s", "      this.encode_text(inputs[i], network_inputs, this.no_of_inputs,");
+        fprintf(fp, "%s", "pos, this.field_length[i])\n");
+        fprintf(fp, "%s", "      pos = pos + this.field_length[i]\n\n");
+    }
 
     fprintf(fp, "%s", "    # Hidden layer 1\n");
     fprintf(fp, "%s", "    for i in range(this.no_of_hiddens):\n");
     fprintf(fp, "%s", "      adder = this.hidden_layer_0_bias[i]\n");
     fprintf(fp, "%s", "      for j in range(this.no_of_inputs):\n");
-    fprintf(fp, "%s", "        adder = adder + this.hidden_layer_0_weights[i*this.no_of_inputs+j]*inputs[j]\n");
+    fprintf(fp, "%s", "        adder = adder + this.hidden_layer_0_weights[i*this.no_of_inputs+j]*network_inputs[j]\n");
     fprintf(fp, "%s", "      hiddens.append(1.0 / (1.0 + math.exp(-adder)))\n");
     fprintf(fp, "%s", "    for i in range(this.no_of_hiddens):\n");
     fprintf(fp, "%s", "      prev_hiddens.append(hiddens[i])\n\n");
