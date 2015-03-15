@@ -300,8 +300,8 @@ static void test_deeplearn_csv_with_text()
     float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
     unsigned int random_seed = 123;
     char * csv_filename = "/tmp/libdeep.csv";
-	char * export_filename1 = "/tmp/libdeep_text.c";
-	char * export_filename2 = "/tmp/libdeep_text.py";
+    char * export_filename1 = "/tmp/libdeep_text.c";
+    char * export_filename2 = "/tmp/libdeep_text.py";
     FILE * fp;
 
     printf("test_deeplearn_csv_with_text...");
@@ -408,6 +408,90 @@ static void test_deeplearn_csv_numeric()
     printf("Ok\n");
 }
 
+static void test_deeplearn_set_input_field_text()
+{
+    deeplearn learner;
+    int i, retval, no_of_hiddens=5;
+    int hidden_layers=1;
+    int no_of_outputs = 1;
+    int output_field_index[] = { 2 };
+    float error_threshold_percent[] = { 0.07f, 0.07f };
+    unsigned int random_seed = 123;
+    char * csv_filename = "/tmp/libdeep.csv";
+    FILE * fp;
+    char * expected_inputs = "111101100111011010100110--------";
+
+    printf("test_deeplearn_set_input_field_text...");
+
+    /* create a csv file */
+    fp = fopen(csv_filename,"w");
+    assert(fp);
+    for (i = 0; i < 10; i++) {
+        fprintf(fp,"%s,%s,%f\n","zero","zero",0.0);
+        fprintf(fp,"%s,%s,%f\n","zero","one",1.0);
+        fprintf(fp,"%s,%s,%f\n","one","zero",1.0);
+        fprintf(fp,"%s,%s,%f\n","one","one",0.0);
+    }
+    fclose(fp);
+
+    /* load the data */
+    deeplearndata_read_csv(csv_filename,
+                           &learner,
+                           no_of_hiddens, hidden_layers,
+                           no_of_outputs,
+                           output_field_index, 0,
+                           error_threshold_percent,
+                           &random_seed);
+
+    assert(learner.net->NoOfInputs == 2*4*CHAR_BITS);
+    assert(learner.no_of_input_fields == 2);
+
+    assert(learner.field_length != 0);
+    assert(learner.field_length[0] == 4*CHAR_BITS);
+    assert(learner.field_length[1] == 4*CHAR_BITS);
+
+    /* clear the inputs */
+    for (i = 0; i < learner.net->NoOfInputs; i++) {
+        deeplearn_set_input(&learner, i, 0.0f);
+    }
+
+    retval = deeplearn_set_input_field_text(&learner, 0, "one");
+    assert(retval==0);
+    for (i = 0; i < 4*(int)CHAR_BITS; i++) {
+        if (learner.net->inputs[i]->value > 0.6f) {
+            assert(expected_inputs[i] == '1');
+        }
+        if (learner.net->inputs[i]->value < 0.4f) {
+            assert(expected_inputs[i] == '0');
+        }
+        if ((learner.net->inputs[i]->value > 0.4f) &&
+            (learner.net->inputs[i]->value < 0.6f)) {
+            assert(expected_inputs[i] == '-');
+        }
+    }
+    /*
+    printf("\n");
+    for (i = 0; i < learner.net->NoOfInputs; i++) {
+        if (learner.net->inputs[i]->value > 0.6f) {
+            printf("1");
+        }
+        if (learner.net->inputs[i]->value < 0.4f) {
+            printf("0");
+        }
+        if ((learner.net->inputs[i]->value > 0.4f) &&
+            (learner.net->inputs[i]->value < 0.6f)) {
+            printf("-");
+        }
+    }
+    printf("\n");
+    */
+
+    /* free memory */
+    deeplearn_free(&learner);
+
+    printf("Ok\n");
+}
+
 int run_tests_deeplearn()
 {
     printf("\nRunning deeplearn tests\n");
@@ -418,6 +502,7 @@ int run_tests_deeplearn()
     test_deeplearn_export();
     test_deeplearn_csv_with_text();
     test_deeplearn_csv_numeric();
+    test_deeplearn_set_input_field_text();
 
     printf("All deeplearn tests completed\n");
     return 1;

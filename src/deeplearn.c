@@ -516,7 +516,7 @@ int deeplearn_set_input_field_text(deeplearn * learner, int fieldindex, char * t
         return -2;
     }
 
-    if (learner->field_length[fieldindex] > 0) {
+    if (learner->field_length[fieldindex] == 0) {
         /* this is a text field */
         return -3;
     }
