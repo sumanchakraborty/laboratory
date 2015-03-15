@@ -1453,6 +1453,14 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "        pos = pos + this.field_length[i]\n\n");
     }
 
+    fprintf(fp, "%s", "    # TEST\n");
+    fprintf(fp, "%s", "    for i in range(this.no_of_inputs):\n");
+    fprintf(fp, "%s", "      if network_inputs[i] < 0.5:\n");
+    fprintf(fp, "%s", "        sys.stdout.write('1')\n");
+    fprintf(fp, "%s", "      else:\n");
+    fprintf(fp, "%s", "        sys.stdout.write('0')\n");
+    fprintf(fp, "%s", "    print ' '\n\n");
+
     fprintf(fp, "%s", "    # Hidden layer 0\n");
     fprintf(fp, "%s", "    for i in range(this.no_of_hiddens):\n");
     fprintf(fp, "%s", "      adder = this.hidden_layer_0_bias[i]\n");
