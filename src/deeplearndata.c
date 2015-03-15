@@ -627,6 +627,10 @@ int deeplearndata_read_csv(char * filename,
     learner->field_length = (int*)malloc(no_of_input_fields*sizeof(int));
     for (i = 0; i < no_of_input_fields; i++) {
         learner->field_length[i] = field_length[i];
+        if (field_length[i] > 0) {
+            input_range_min[i] = 0.25f;
+            input_range_max[i] = 0.75f;
+        }
     }
 
     /* attach the data samples */
@@ -782,8 +786,8 @@ int deeplearndata_update_field_lengths(int no_of_input_fields,
 
     for (i = 0; i < no_of_input_fields; i++) {
         length = deeplearndata_get_field_length(data, i);
-		field_length[i] = length;
-		if (length < 1) length = 1;
+        field_length[i] = length;
+        if (length < 1) length = 1;
         no_of_inputs += length;
     }
     return no_of_inputs;

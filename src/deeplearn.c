@@ -425,21 +425,18 @@ void deeplearn_set_input_text(deeplearn * learner, char * text)
 void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
 {
     float value, range, normalised;
-    int text_added, pos = 0;
+    int pos = 0;
 
     for (int i = 0; i < learner->no_of_input_fields; i++) {
-        text_added = 0;
-        if (sample->inputs_text != 0) {
-            if (sample->inputs_text[i] != 0) {
-                /* text value */
-                enc_text_to_binary(sample->inputs_text[i],
-                                   learner->net->inputs,
-                                   learner->net->NoOfInputs,
-                                   pos, learner->field_length[i]/CHAR_BITS);
-                pos += learner->field_length[i];
-            }
+        if (learner->field_length[i] > 0) {
+            /* text value */
+            enc_text_to_binary(sample->inputs_text[i],
+                               learner->net->inputs,
+                               learner->net->NoOfInputs,
+                               pos, learner->field_length[i]/CHAR_BITS);
+            pos += learner->field_length[i];
         }
-        if (text_added == 0) {
+        else {
             /* numerical */
             value = sample->inputs[i];
             range = learner->input_range_max[i] - learner->input_range_min[i];
@@ -989,7 +986,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "float input_range_min[] = {\n");
     fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
-        fprintf(fp, "%f", learner->input_range_min[i]);
+        fprintf(fp, "%.10f", learner->input_range_min[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
@@ -998,7 +995,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "float input_range_max[] = {\n");
     fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
-        fprintf(fp, "%f", learner->input_range_max[i]);
+        fprintf(fp, "%.10f", learner->input_range_max[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
@@ -1007,7 +1004,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "float output_range_min[] = {\n");
     fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f", learner->output_range_min[i]);
+        fprintf(fp, "%.10f", learner->output_range_min[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
@@ -1016,7 +1013,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "float output_range_max[] = {\n");
     fprintf(fp, "%s", "  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f", learner->output_range_max[i]);
+        fprintf(fp, "%.10f", learner->output_range_max[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
@@ -1035,7 +1032,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         }
         for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
             for (k = 0; k < no_of_weights; k++) {
-                fprintf(fp, "%f",
+                fprintf(fp, "%.10f",
                         learner->net->hiddens[i][j]->weights[k]);
                 if (!((j == bp_hiddens_in_layer(learner->net, i)-1) &&
                       (k == no_of_weights-1))) {
@@ -1051,7 +1048,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         fprintf(fp,
                 "float hidden_layer_%d_bias[] = {\n  ", i);
         for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
-            fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
+            fprintf(fp,"%.10f",learner->net->hiddens[i][j]->bias);
             if (j < bp_hiddens_in_layer(learner->net, i)-1) {
                 fprintf(fp, ",");
             }
@@ -1064,7 +1061,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
             "float output_layer_weights[] = {\n  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         for (j = 0; j < bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1); j++) {
-            fprintf(fp, "%f",
+            fprintf(fp, "%.10f",
                     learner->net->outputs[i]->weights[j]);
             if (!((i == learner->net->NoOfOutputs-1) &&
                   (j == bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1)-1))) {
@@ -1078,7 +1075,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s",
             "float output_layer_bias[] = {\n  ");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f",
+        fprintf(fp, "%.10f",
                 learner->net->outputs[i]->bias);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
@@ -1220,7 +1217,7 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "    /* Convert outputs from 0.25 - 0.75 back to their original range */\n");
     fprintf(fp, "%s", "    outputs[i] = output_range_min[i] + ((outputs[i]-0.25f)*(output_range_max[i] - output_range_min[i])/0.5f);\n");
     fprintf(fp, "%s", "    /* Send the outputs to stdout */\n");
-    fprintf(fp, "%s", "    printf(\"%f\",outputs[i]);\n");
+    fprintf(fp, "%s", "    printf(\"%.10f\",outputs[i]);\n");
     fprintf(fp, "%s", "    if (i < no_of_outputs-1) {\n");
     fprintf(fp, "%s", "      printf(\" \");\n");
     fprintf(fp, "%s", "    }\n");
@@ -1285,7 +1282,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     /* ranges */
     fprintf(fp, "%s", "  input_range_min = [");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
-        fprintf(fp, "%f", learner->input_range_min[i]);
+        fprintf(fp, "%.10f", learner->input_range_min[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
@@ -1293,7 +1290,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "]\n\n");
     fprintf(fp, "%s", "  input_range_max = [");
     for (i = 0; i < learner->net->NoOfInputs; i++) {
-        fprintf(fp, "%f", learner->input_range_max[i]);
+        fprintf(fp, "%.10f", learner->input_range_max[i]);
         if (i < learner->net->NoOfInputs-1) {
             fprintf(fp, ",");
         }
@@ -1301,7 +1298,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "]\n\n");
     fprintf(fp, "%s", "  output_range_min = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f", learner->output_range_min[i]);
+        fprintf(fp, "%.10f", learner->output_range_min[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
@@ -1309,7 +1306,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s", "]\n\n");
     fprintf(fp, "%s", "  output_range_max = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f", learner->output_range_max[i]);
+        fprintf(fp, "%.10f", learner->output_range_max[i]);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
         }
@@ -1328,7 +1325,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         }
         for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
             for (k = 0; k < no_of_weights; k++) {
-                fprintf(fp, "%f",
+                fprintf(fp, "%.10f",
                         learner->net->hiddens[i][j]->weights[k]);
                 if (!((j == bp_hiddens_in_layer(learner->net, i)-1) &&
                       (k == no_of_weights-1))) {
@@ -1344,7 +1341,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp,
                 "  hidden_layer_%d_bias = [", i);
         for (j = 0; j < bp_hiddens_in_layer(learner->net, i); j++) {
-            fprintf(fp,"%f",learner->net->hiddens[i][j]->bias);
+            fprintf(fp,"%.10f",learner->net->hiddens[i][j]->bias);
             if (j < bp_hiddens_in_layer(learner->net, i)-1) {
                 fprintf(fp, ",");
             }
@@ -1357,7 +1354,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
             "  output_layer_weights = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
         for (j = 0; j < bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1); j++) {
-            fprintf(fp, "%f",
+            fprintf(fp, "%.10f",
                     learner->net->outputs[i]->weights[j]);
             if (!((i == learner->net->NoOfOutputs-1) &&
                   (j == bp_hiddens_in_layer(learner->net, learner->net->HiddenLayers-1)-1))) {
@@ -1371,7 +1368,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
     fprintf(fp, "%s",
             "  output_layer_bias = [");
     for (i = 0; i < learner->net->NoOfOutputs; i++) {
-        fprintf(fp, "%f",
+        fprintf(fp, "%.10f",
                 learner->net->outputs[i]->bias);
         if (i < learner->net->NoOfOutputs-1) {
             fprintf(fp, ",");
