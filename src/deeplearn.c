@@ -408,6 +408,7 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 
 /**
 * @brief Sets the inputs to a text string
+*        Note that this sets the entire inputs, not a field
 * @param learner Deep learner object
 * @param text The text string
 */
@@ -447,6 +448,45 @@ void deeplearn_set_inputs(deeplearn * learner, deeplearndata * sample)
             pos++;
         }
     }
+}
+
+/**
+* @brief Sets a numeric value for the given input field
+* @param learner Deep learner object
+* @param fieldindex Index number of the input field.
+*        This is not necessarily the same as the input index
+* @param value Value to set the input unit to in the range 0.0 to 1.0
+* @returns zero on success
+*/
+int deeplearn_set_input_field(deeplearn * learner, int fieldindex, float value)
+{
+    int i, pos=0;
+
+    if (learner->no_of_input_fields == 0) {
+        /* No fields are defined
+           Assume you meant fieldindex to be the input index */
+        bp_set_input(learner->net, fieldindex, value);
+        return -1;
+    }
+
+    if (learner->field_length[fieldindex] > 0) {
+        /* this is a text field */
+        return -2;
+    }
+
+    /* get the offset (first input unit index) of the input field */
+    for (i = 0; i < fieldindex; i++) {
+        if (learner->field_length[i] == 0) {
+            pos++;
+        }
+        else {
+            pos += learner->field_length[i];
+        }
+    }
+
+    /* set the value */
+    bp_set_input(learner->net, pos, value);
+    return 0;
 }
 
 /**
