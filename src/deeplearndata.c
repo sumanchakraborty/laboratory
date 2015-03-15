@@ -756,7 +756,7 @@ int deeplearndata_get_field_length(deeplearndata * data, int field_index)
     while (data != 0) {
         if (data->inputs_text != 0) {
             if (data->inputs_text[field_index] != 0) {
-                if (strlen(data->inputs_text[field_index]) > max) {
+                if (strlen(data->inputs_text[field_index])*CHAR_BITS > max) {
                     max = strlen(data->inputs_text[field_index])*CHAR_BITS;
                 }
             }
