@@ -300,6 +300,8 @@ static void test_deeplearn_csv_with_text()
     float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
     unsigned int random_seed = 123;
     char * csv_filename = "/tmp/libdeep.csv";
+	char * export_filename1 = "/tmp/libdeep_text.c";
+	char * export_filename2 = "/tmp/libdeep_text.py";
     FILE * fp;
 
     printf("test_deeplearn_csv_with_text...");
@@ -333,9 +335,19 @@ static void test_deeplearn_csv_with_text()
     assert(learner.no_of_input_fields == 3);
 
     assert(learner.field_length != 0);
-    assert(learner.field_length[0] == 1);
+    assert(learner.field_length[0] == 0);
     assert(learner.field_length[1] == 5*CHAR_BITS);
-    assert(learner.field_length[2] == 1);
+    assert(learner.field_length[2] == 0);
+
+    assert(deeplearn_export(&learner, export_filename1) == 0);
+    fp = fopen(export_filename1,"r");
+    assert(fp);
+    fclose(fp);
+
+    assert(deeplearn_export(&learner, export_filename2) == 0);
+    fp = fopen(export_filename2,"r");
+    assert(fp);
+    fclose(fp);
 
     /* free memory */
     deeplearn_free(&learner);
@@ -386,9 +398,9 @@ static void test_deeplearn_csv_numeric()
     assert(learner.no_of_input_fields == 3);
 
     assert(learner.field_length != 0);
-    assert(learner.field_length[0] == 1);
-    assert(learner.field_length[1] == 1);
-    assert(learner.field_length[2] == 1);
+    assert(learner.field_length[0] == 0);
+    assert(learner.field_length[1] == 0);
+    assert(learner.field_length[2] == 0);
 
     /* free memory */
     deeplearn_free(&learner);

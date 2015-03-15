@@ -747,10 +747,11 @@ float deeplearndata_get_performance(deeplearn * learner)
 * @param data List of data samples
 * @param field_index Index number of the input field
 * @returns maximum field length in number of input neurons (bits)
+*          Zero length indicates a numeric value
 */
 int deeplearndata_get_field_length(deeplearndata * data, int field_index)
 {
-    int max = 1;
+    int max = 0;
 
     while (data != 0) {
         if (data->inputs_text != 0) {
@@ -767,6 +768,7 @@ int deeplearndata_get_field_length(deeplearndata * data, int field_index)
 
 /**
 * @brief Calculates the field lengths (input neurons per field)
+*        Note that a zero field length indicates a numeric value
 * @param no_of_input_fields The number of input fields
 * @param field_length Array storing the field lengths in input neurons (bits)
 * @param data List containing data samples
@@ -776,12 +778,13 @@ int deeplearndata_update_field_lengths(int no_of_input_fields,
                                        int field_length[],
                                        deeplearndata * data)
 {
-    int i, no_of_inputs = 0;
+    int i, no_of_inputs = 0, length;
 
     for (i = 0; i < no_of_input_fields; i++) {
-        field_length[i] =
-            deeplearndata_get_field_length(data, i);
-        no_of_inputs += field_length[i];
+        length = deeplearndata_get_field_length(data, i);
+		field_length[i] = length;
+		if (length < 1) length = 1;
+        no_of_inputs += length;
     }
     return no_of_inputs;
 }
