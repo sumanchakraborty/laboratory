@@ -1118,12 +1118,15 @@ static int deeplearn_export_c(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "      }\n");
         fprintf(fp, "%s", "    }\n");
         fprintf(fp, "%s", "  }\n");
-        fprintf(fp, "%s", "  /* set the remaining inputs within the field to low (zero) */\n");
+        fprintf(fp, "%s", "  /* set the remaining inputs within the field to neutral */\n");
         fprintf(fp, "%s", "  while (i < max_field_length_chars) {\n");
-        fprintf(fp, "%s", "    if (pos >= no_of_inputs) {\n");
-        fprintf(fp, "%s", "      break;\n");
+        fprintf(fp,       "    for (bit = 0; bit < %d; bit++) {\n", (int)CHAR_BITS);
+        fprintf(fp, "%s", "      if (pos >= no_of_inputs) {\n");
+        fprintf(fp, "%s", "        i = max_field_length_chars;\n");
+        fprintf(fp, "%s", "        break;\n");
+        fprintf(fp, "%s", "      }\n");
+        fprintf(fp, "%s", "      inputs[pos++] = 0.5f;\n");
         fprintf(fp, "%s", "    }\n");
-        fprintf(fp, "%s", "    inputs[pos++] = 0.25f;\n");
         fprintf(fp, "%s", "    i++;\n");
         fprintf(fp, "%s", "  }\n");
         fprintf(fp, "%s", "}\n\n");
@@ -1400,13 +1403,15 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "          inputs.append(0.25)\n");
         fprintf(fp, "%s", "        pos = pos + 1\n\n");
 
-        fprintf(fp, "%s", "    # set the remaining inputs within the field to low (zero)\n");
+        fprintf(fp, "%s", "    # set the remaining inputs within the field to neutral\n");
         fprintf(fp, "%s", "    i = max_chars\n");
         fprintf(fp, "%s", "    while i < max_field_length_chars:\n");
-        fprintf(fp, "%s", "      if pos >= no_of_inputs:\n");
-        fprintf(fp, "%s", "        break\n");
-        fprintf(fp, "%s", "      inputs.append(0.25)\n");
-        fprintf(fp, "%s", "      pos = pos + 1\n");
+        fprintf(fp,       "      for bit in range (%d):\n", (int)CHAR_BITS);
+        fprintf(fp, "%s", "        if pos >= no_of_inputs:\n");
+        fprintf(fp, "%s", "          i = max_field_length_chars\n");
+        fprintf(fp, "%s", "          break\n");
+        fprintf(fp, "%s", "        inputs.append(0.5)\n");
+        fprintf(fp, "%s", "        pos = pos + 1\n");
         fprintf(fp, "%s", "      i = i + 1\n\n");
     }
 

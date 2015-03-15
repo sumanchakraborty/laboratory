@@ -39,9 +39,9 @@
 * @returns current inputs index
 */
 int enc_text_to_binary(char * text,
-					   bp_neuron ** inputs, int no_of_inputs,
-					   int offset,
-					   int max_field_length_chars)
+                       bp_neuron ** inputs, int no_of_inputs,
+                       int offset,
+                       int max_field_length_chars)
 {
     int pos = offset, i, bit, max_chars = strlen(text);
 
@@ -64,13 +64,16 @@ int enc_text_to_binary(char * text,
             }
         }
     }
-    /* set the remaining inputs within the field to low (zero) */
+    /* set the remaining inputs within the field to neutral */
     while (i < max_field_length_chars) {
-        if (pos >= no_of_inputs) {
-            break;
+        for (bit = 0; bit < CHAR_BITS; bit++) {
+            if (pos >= no_of_inputs) {
+                i = max_field_length_chars;
+                break;
+            }
+            inputs[pos++]->value = 0.5f;
         }
-        inputs[pos++]->value = 0.25f;
         i++;
     }
-	return pos;
+    return pos;
 }
