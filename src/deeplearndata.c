@@ -471,7 +471,7 @@ int deeplearndata_read_csv(char * filename,
     float outputs[DEEPLEARN_MAX_CSV_OUTPUTS];
     int fields_per_example = 0;
     int network_outputs = no_of_outputs;
-    int is_text, text_fields_exist = 0;
+    int is_text;
     deeplearndata * data = 0;
     int data_samples = 0;
     float input_range_min[DEEPLEARN_MAX_CSV_INPUTS];
@@ -483,6 +483,7 @@ int deeplearndata_read_csv(char * filename,
     for (i = 0; i < DEEPLEARN_MAX_CSV_INPUTS; i++) {
         input_range_min[i] = 9999;
         input_range_max[i] = -9999;
+        inputs_text[i] = 0;
     }
     for (i = 0; i < DEEPLEARN_MAX_CSV_OUTPUTS; i++) {
         output_range_min[i] = 9999;
@@ -533,7 +534,6 @@ int deeplearndata_read_csv(char * filename,
                                 }
                                 else {
                                     is_text = 1;
-                                    text_fields_exist = 1;
                                 }
                             }
 
@@ -600,6 +600,13 @@ int deeplearndata_read_csv(char * filename,
                         fclose(fp);
                         return -2;
                     }
+                    /* free memory for any text strings */
+                    for (i = 0; i < no_of_input_fields; i++) {
+                        if (inputs_text[i] != 0) {
+                            free(inputs_text[i]);
+                            inputs_text[i] = 0;
+                        }
+                    }
                     for (i = 0; i < network_outputs; i++) {
                         outputs[i] = DEEPLEARN_UNKNOWN_VALUE;
                     }
@@ -650,15 +657,6 @@ int deeplearndata_read_csv(char * filename,
     /* create training and test data sets */
     if (deeplearndata_create_datasets(learner, 20) != 0) {
         return -3;
-    }
-
-    /* free memory for any text strings */
-    if (text_fields_exist != 0) {
-        for (i = 0; i < no_of_input_fields; i++) {
-            if (inputs_text[i] != 0) {
-                free(inputs_text[i]);
-            }
-        }
     }
 
     return samples_loaded;
