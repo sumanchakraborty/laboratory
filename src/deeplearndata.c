@@ -522,7 +522,7 @@ int deeplearndata_read_csv(char * filename,
                             /* get the value from the string */
                             value = 0;
                             is_text = 0;
-                            if (valuestr[0]!='?') {
+                            if ((valuestr[0]!='?') && (valuestr[0]!=10)) {
                                 /* positive numbers*/
                                 if (((valuestr[0]>='0') &&
                                      (valuestr[0]<='9')) ||
