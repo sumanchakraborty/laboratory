@@ -70,6 +70,7 @@ void bp_learn(bp * net, int current_hidden_layer);
 void bp_set_input_text(bp * net, char * text);
 void bp_set_input(bp * net, int index, float value);
 void bp_set_output(bp * net, int index, float value);
+float bp_get_hidden(bp * net, int layer, int index);
 float bp_get_output(bp * net, int index);
 void bp_update(bp * net, int current_hidden_layer);
 int bp_create_autocoder(bp * net, int hidden_layer, bp * autocoder);

@@ -666,7 +666,7 @@ void bp_set_output(bp * net, int index, float value)
 * @param index Index of the unit within the given hidden layer
 * @return value in the range 0.0 to 1.0
 */
-static float bp_get_hidden(bp * net, int layer, int index)
+float bp_get_hidden(bp * net, int layer, int index)
 {
     return net->hiddens[layer][index]->value;
 }
