@@ -62,7 +62,6 @@ int features_learn_from_floats(int samples_across,
                                int layer0_units,
                                bp * feature_autocoder);
 
-
 int features_convolve_image_to_neurons(int samples_across,
                                        int samples_down,
                                        int patch_radius,
