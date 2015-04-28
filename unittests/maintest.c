@@ -38,6 +38,7 @@
 #include "tests_encoding.h"
 #include "tests_features.h"
 #include "tests_pooling.h"
+#include "tests_preprocess.h"
 
 int main(int argc, char* argv[])
 {
@@ -49,6 +50,7 @@ int main(int argc, char* argv[])
     run_tests_encoding();
     run_tests_features();
     run_tests_pooling();
+    run_tests_preprocess();
 
     return 1;
 }
