@@ -57,7 +57,7 @@ int features_learn_from_image(int samples_across,
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
     *BPerror = 0;
-    
+
     if (samples_across * samples_down * no_of_learned_features !=
         layer0_units) {
         /* across*down doesn't equal the second layer units */
@@ -93,25 +93,26 @@ int features_learn_from_image(int samples_across,
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
-                    if (index_feature_input >=
-                        feature_autocoder->NoOfInputs) {
-                        printf("Inputs out of range %d/%d\n",
-                               index_feature_input,
-                               feature_autocoder->NoOfInputs);
-                    }
+                for (int x = tx; x < bx; x++) {
                     int index_image =
                         ((y*image_width) + x) *
                         image_depth;
-					/* TODO include depth */
-                    /* convert from 8 bit to a neuron value */
-                    float v =
-                        0.25f + (img[index_image]/(2*255.0f));
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input, v);
-                    bp_set_output(feature_autocoder,
-                                  index_feature_input, v);
+                    for (int d = 0; d < image_depth;
+                         d++, index_feature_input++) {
+                        if (index_feature_input >=
+                            feature_autocoder->NoOfInputs) {
+                            printf("Inputs out of range %d/%d\n",
+                                   index_feature_input,
+                                   feature_autocoder->NoOfInputs);
+                        }
+                        /* convert from 8 bit to a neuron value */
+                        float v =
+                            0.25f + (img[index_image+d]/(2*255.0f));
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input, v);
+                        bp_set_output(feature_autocoder,
+                                      index_feature_input, v);
+                    }
                 }
             }
             bp_update(feature_autocoder, 0);
@@ -182,26 +183,27 @@ int features_learn_from_floats(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= inputs_width) bx = inputs_width-1;
 
-			/* TODO include depth */
-			
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
                 for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
+                     x++) {
                     int index_inputs =
                         ((y*inputs_width) + x) *
                         inputs_depth;
-                    /* convert from 8 bit to a neuron value */
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input,
-                                 img[index_inputs]);
-                    bp_set_output(feature_autocoder,
-                                  index_feature_input,
-                                  img[index_inputs]);
+                    for (int d = 0; d < inputs_depth;
+                         d++, index_feature_input++) {
+                        /* convert from 8 bit to a neuron value */
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input,
+                                     img[index_inputs+d]);
+                        bp_set_output(feature_autocoder,
+                                      index_feature_input,
+                                      img[index_inputs+d]);
+                    }
                 }
             }
-            bp_update(feature_autocoder, 0);            
+            bp_update(feature_autocoder, 0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
@@ -233,7 +235,7 @@ int features_convolve_image_to_neurons(int samples_across,
                                        bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
-    
+
     if (samples_across * samples_down * no_of_learned_features !=
         net->NoOfInputs) {
         /* across*down doesn't equal the second layer units */
@@ -269,16 +271,18 @@ int features_convolve_image_to_neurons(int samples_across,
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
+                for (int x = tx; x < bx; x++) {
                     int index_image =
                         ((y*image_width) + x) *
                         image_depth;
-                    /* convert from 8 bit to a neuron value */
-                    float v =
-                        0.25f + (img[index_image]/(2*255.0f));
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input, v);
+                    for (int d = 0; d < image_depth;
+                         d++, index_feature_input++) {
+                        /* convert from 8 bit to a neuron value */
+                        float v =
+                            0.25f + (img[index_image+d]/(2*255.0f));
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input, v);
+                    }
                 }
             }
             bp_feed_forward_layers(feature_autocoder, 0);
@@ -322,7 +326,7 @@ int features_convolve_image_to_floats(int samples_across,
                                       bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
-    
+
     if (samples_across * samples_down * no_of_learned_features !=
         layer0_units) {
         /* across*down doesn't equal the second layer units */
@@ -358,16 +362,18 @@ int features_convolve_image_to_floats(int samples_across,
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
+                for (int x = tx; x < bx; x++) {
                     int index_image =
                         ((y*image_width) + x) *
                         image_depth;
-                    /* convert from 8 bit to a neuron value */
-                    float v =
-                        0.25f + (img[index_image]/(2*255.0f));
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input, v);
+                    for (int d = 0; d < image_depth;
+                         d++, index_feature_input++) {
+                        /* convert from 8 bit to a neuron value */
+                        float v =
+                            0.25f + (img[index_image+d]/(2*255.0f));
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input, v);
+                    }
                 }
             }
             bp_feed_forward_layers(feature_autocoder, 0);
@@ -410,7 +416,7 @@ int features_convolve_floats_to_floats(int samples_across,
                                        bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
-    
+
     if (samples_across * samples_down * no_of_learned_features !=
         layer1_units) {
         /* across*down doesn't equal the second layer units */
@@ -446,14 +452,16 @@ int features_convolve_floats_to_floats(int samples_across,
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
+                for (int x = tx; x < bx; x++) {
                     int index_image =
                         ((y*floats_width) + x) *
                         floats_depth;
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input,
-                                 layer0[index_image]);
+                    for (int d = 0; d < floats_depth;
+                         d++, index_feature_input++) {
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input,
+                                     layer0[index_image+d]);
+                    }
                 }
             }
             bp_feed_forward_layers(feature_autocoder, 0);
@@ -494,7 +502,7 @@ int features_convolve_floats_to_neurons(int samples_across,
                                         bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
-    
+
     if (samples_across * samples_down * no_of_learned_features !=
         net->NoOfInputs) {
         /* across*down doesn't equal the second layer units */
@@ -530,14 +538,16 @@ int features_convolve_floats_to_neurons(int samples_across,
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++, index_feature_input++) {
+                for (int x = tx; x < bx; x++) {
                     int index_image =
                         ((y*floats_width) + x) *
                         floats_depth;
-                    bp_set_input(feature_autocoder,
-                                 index_feature_input,
-                                 layer0[index_image]);                  
+                    for (int d = 0; d < floats_depth;
+                         d++, index_feature_input++) {
+                        bp_set_input(feature_autocoder,
+                                     index_feature_input,
+                                     layer0[index_image+d]);
+                    }
                 }
             }
             bp_feed_forward_layers(feature_autocoder, 0);
