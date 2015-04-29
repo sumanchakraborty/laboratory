@@ -49,9 +49,17 @@ int pooling_from_floats_to_floats(int depth,
                                   float * layer1)
 {
     /* second layer must be smaller than the first */
-    if (layer1_across*layer1_down >=
+    if (layer1_across*layer1_down >
         layer0_across*layer0_down) {
         return -1;
+    }
+
+    /* if layers are the same size then copy the array */
+    if (layer1_across*layer1_down ==
+        layer0_across*layer0_down) {
+        memcpy((void*)layer1,(void*)layer0,
+               layer1_across*layer1_down*depth*sizeof(float));
+        return 0;
     }
 
 #pragma omp parallel for
@@ -101,9 +109,18 @@ int pooling_from_floats_to_neurons(int depth,
                                    bp_neuron ** layer1)
 {
     /* second layer must be smaller than the first */
-    if (layer1_across*layer1_down >=
+    if (layer1_across*layer1_down >
         layer0_across*layer0_down) {
         return -1;
+    }
+
+    /* if layers are the same size then copy the array */
+    if (layer1_across*layer1_down ==
+        layer0_across*layer0_down) {
+        for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
+            layer1[i]->value = layer0[i];
+        }
+        return 0;
     }
 
 #pragma omp parallel for

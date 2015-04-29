@@ -55,6 +55,7 @@ typedef struct {
 	int inputs_depth;
 	int max_features;
     int no_of_layers;
+    unsigned char enable_learning;
     deeplearn_preprocess_layer * layer;
 } deeplearn_preprocess;
 

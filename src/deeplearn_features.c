@@ -104,6 +104,7 @@ int features_learn_from_image(int samples_across,
                     int index_image =
                         ((y*image_width) + x) *
                         image_depth;
+					/* TODO include depth */
                     /* convert from 8 bit to a neuron value */
                     float v =
                         0.25f + (img[index_image]/(2*255.0f));
@@ -132,6 +133,7 @@ int features_learn_from_image(int samples_across,
 * @param img Inputs buffer
 * @param layer0_units Number of units in the neuron layer
 * @param feature_autocoder An autocoder used for feature learning
+* @param BPerror Returned total backprop error
 * @returns zero on success
 */
 int features_learn_from_floats(int samples_across,
@@ -142,9 +144,11 @@ int features_learn_from_floats(int samples_across,
                                int inputs_depth,
                                float * img,
                                int layer0_units,
-                               bp * feature_autocoder)
+                               bp * feature_autocoder,
+                               float * BPerror)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
+    *BPerror = 0;
 
     if (samples_across * samples_down * no_of_learned_features !=
         layer0_units) {
@@ -178,6 +182,8 @@ int features_learn_from_floats(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= inputs_width) bx = inputs_width-1;
 
+			/* TODO include depth */
+			
             /* scan the patch */
             int index_feature_input = 0;
             for (int y = ty; y < by; y++) {
@@ -196,6 +202,7 @@ int features_learn_from_floats(int samples_across,
                 }
             }
             bp_update(feature_autocoder, 0);            
+            *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
     return 0;
