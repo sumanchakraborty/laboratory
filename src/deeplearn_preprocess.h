@@ -69,5 +69,11 @@ int preprocess_init(int no_of_layers,
 					deeplearn_preprocess * preprocess);
 
 void preprocess_free(deeplearn_preprocess * preprocess);
+int preprocess_image(int image_width,
+                     int image_height,
+                     int image_depth,
+                     unsigned char * img,
+                     deeplearn_preprocess * preprocess,
+                     float * BPerror);
 
 #endif
