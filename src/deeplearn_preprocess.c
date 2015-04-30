@@ -39,6 +39,7 @@
  * @param reduction_factor Reduction factor for successive convolution layers
  * @param pooling_factor The reduction factor used for pooling
  * @param preprocess Preprocessing object
+ * @param random_seed Random number generator seed
  * @returns zero on success
  */
 int preprocess_init(int no_of_layers,
@@ -80,7 +81,7 @@ int preprocess_init(int no_of_layers,
 
         int patch_pixels =
             preprocess_patch_radius(i,preprocess)*
-            preprocess_patch_radius(i,preprocess);
+            preprocess_patch_radius(i,preprocess)*4;
 
         if (i == 0) {
             bp_init(preprocess->layer[i].autocoder,
