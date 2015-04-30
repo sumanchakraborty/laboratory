@@ -95,8 +95,7 @@ int features_learn_from_image(int samples_across,
             for (int y = ty; y < by; y++) {
                 for (int x = tx; x < bx; x++) {
                     int index_image =
-                        ((y*image_width) + x) *
-                        image_depth;
+                        ((y*image_width) + x) * image_depth;
                     for (int d = 0; d < image_depth;
                          d++, index_feature_input++) {
                         if (index_feature_input >=
@@ -291,8 +290,7 @@ int features_convolve_image_to_neurons(int samples_across,
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 bp_set_input(net, index_input_layer+f,
-                             bp_get_hidden(feature_autocoder,
-                                           0, index_input_layer+f));
+                             bp_get_hidden(feature_autocoder, 0, f));
             }
         }
     }
@@ -382,8 +380,7 @@ int features_convolve_image_to_floats(int samples_across,
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer0[index_layer0+f] =
-                    bp_get_hidden(feature_autocoder,
-                                  0, index_layer0+f);
+                    bp_get_hidden(feature_autocoder, 0, f);
             }
         }
     }
@@ -470,8 +467,7 @@ int features_convolve_floats_to_floats(int samples_across,
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer1[index_layer1+f] =
-                    bp_get_hidden(feature_autocoder,
-                                  0, index_layer1+f);
+                    bp_get_hidden(feature_autocoder, 0, f);
             }
         }
     }
@@ -556,8 +552,7 @@ int features_convolve_floats_to_neurons(int samples_across,
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 bp_set_input(net, index_net_inputs+f,
-                             bp_get_hidden(feature_autocoder,
-                                           0, index_net_inputs+f));
+                             bp_get_hidden(feature_autocoder, 0, f));
             }
         }
     }
