@@ -46,27 +46,38 @@ typedef struct {
     bp * autocoder;
     int units_across, units_down;
     float * convolution;
-	int pooling_factor;
+    int pooling_factor;
     float * pooling;
 } deeplearn_preprocess_layer;
 
 typedef struct {
     int inputs_across, inputs_down;
-	int inputs_depth;
-	int max_features;
+    int inputs_depth;
+    int max_features;
     int no_of_layers;
     unsigned char enable_learning;
     deeplearn_preprocess_layer * layer;
 } deeplearn_preprocess;
 
+int preprocess_patch_radius(int layer_index,
+                            deeplearn_preprocess * preprocess);
+int preprocess_layer_width(int layer_index,
+                           deeplearn_preprocess * preprocess,
+                           int after_pooling);
+int preprocess_layer_height(int layer_index,
+                            deeplearn_preprocess * preprocess,
+                            int after_pooling);
+int convolution_layer_units(int layer_index,
+                            deeplearn_preprocess * preprocess);
 int preprocess_init(int no_of_layers,
-					int inputs_across,
-					int inputs_down,
-					int inputs_depth,
-					int max_features,
-					int reduction_factor,
-					int pooling_factor,
-					deeplearn_preprocess * preprocess);
+                    int inputs_across,
+                    int inputs_down,
+                    int inputs_depth,
+                    int max_features,
+                    int reduction_factor,
+                    int pooling_factor,
+                    deeplearn_preprocess * preprocess,
+                    unsigned int * random_seed);
 
 void preprocess_free(deeplearn_preprocess * preprocess);
 int preprocess_image(int image_width,

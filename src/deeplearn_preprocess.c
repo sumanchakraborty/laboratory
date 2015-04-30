@@ -48,7 +48,8 @@ int preprocess_init(int no_of_layers,
                     int max_features,
                     int reduction_factor,
                     int pooling_factor,
-                    deeplearn_preprocess * preprocess)
+                    deeplearn_preprocess * preprocess,
+                    unsigned int * random_seed)
 {
     int across = inputs_across;
     int down = inputs_down;
@@ -74,15 +75,32 @@ int preprocess_init(int no_of_layers,
             (float*)malloc(sizeof(float)*across*down*max_features);
         if (!preprocess->layer[i].convolution) return -2;
 
+        preprocess->layer[i].autocoder = (bp*)malloc(sizeof(bp));
+        if (!preprocess->layer[i].autocoder) return -3;
+
+        int patch_pixels =
+            preprocess_patch_radius(i,preprocess)*
+            preprocess_patch_radius(i,preprocess);
+
+        if (i == 0) {
+            bp_init(preprocess->layer[i].autocoder,
+                    patch_pixels*inputs_depth, max_features, 1,
+                    patch_pixels*inputs_depth,
+                    random_seed);
+        }
+        else {
+            bp_init(preprocess->layer[i].autocoder,
+                    patch_pixels*max_features, max_features, 1,
+                    patch_pixels*max_features,
+                    random_seed);
+        }
+
         across /= pooling_factor;
         down /= pooling_factor;
         preprocess->layer[i].pooling =
             (float*)malloc(sizeof(float)*across*down*
                            max_features);
-        if (!preprocess->layer[i].pooling) return -3;
-
-        preprocess->layer[i].autocoder = (bp*)malloc(sizeof(bp));
-        if (!preprocess->layer[i].autocoder) return -4;
+        if (!preprocess->layer[i].pooling) return -4;
     }
     return 0;
 }
@@ -99,6 +117,75 @@ void preprocess_free(deeplearn_preprocess * preprocess)
         free(preprocess->layer[i].autocoder);
     }
     free(preprocess->layer);
+}
+
+/**
+ * @brief Returns the input layer patch radius for the given layer number
+ * @param layer_index Index number of the convolution layer
+ * @param preprocess Preprocessing object
+ * @return Patch radius
+ */
+int preprocess_patch_radius(int layer_index,
+                            deeplearn_preprocess * preprocess)
+{
+    if (layer_index == 0) {
+        return preprocess->inputs_across/preprocess->layer[0].units_across;
+    }
+
+    int prev_pooling_factor = preprocess->layer[layer_index-1].pooling_factor;
+    return (preprocess->layer[layer_index-1].units_across/prev_pooling_factor) /
+        preprocess->layer[layer_index].units_across;
+}
+
+/**
+ * @brief Returns the width of the layer
+ * @param layer_index Index number of the convolution layer
+ * @param preprocess Preprocessing object
+ * @param after_pooling Whether to return the value before or after pooling
+ * @return Layer width
+ */
+int preprocess_layer_width(int layer_index,
+                           deeplearn_preprocess * preprocess,
+                           int after_pooling)
+{
+    if (after_pooling == 0) {
+        return preprocess->layer[layer_index].units_across;
+    }
+
+    return preprocess->layer[layer_index].units_across /
+        preprocess->layer[layer_index].pooling_factor;
+}
+
+/**
+ * @brief Returns the height of the layer
+ * @param layer_index Index number of the convolution layer
+ * @param preprocess Preprocessing object
+ * @param after_pooling Whether to return the value before or after pooling
+ * @return Layer height
+ */
+int preprocess_layer_height(int layer_index,
+                            deeplearn_preprocess * preprocess,
+                            int after_pooling)
+{
+    if (after_pooling == 0) {
+        return preprocess->layer[layer_index].units_down;
+    }
+    return preprocess->layer[layer_index].units_down /
+        preprocess->layer[layer_index].pooling_factor;
+}
+
+/**
+ * @brief Returns the number of units in a convolution layer
+ * @param layer_index Index number of the convolution layer
+ * @param preprocess Preprocessing object
+ * @return Number of units in the convolution layer
+ */
+int convolution_layer_units(int layer_index,
+                            deeplearn_preprocess * preprocess)
+{
+    return preprocess->layer[layer_index].units_across*
+        preprocess->layer[layer_index].units_down*
+        preprocess->max_features;
 }
 
 /**
@@ -120,27 +207,23 @@ int preprocess_image(int image_width,
                      float * BPerror)
 {
     int retval = -1;
-    int prev_pooling_factor, current_pooling_factor;
     int patch_radius;
     float currBPerror;
 
     *BPerror = 0;
     for (int i = 0; i < preprocess->no_of_layers; i++) {
         currBPerror = 0;
+        patch_radius = preprocess_patch_radius(i, preprocess);
         if (i == 0) {
-            patch_radius =
-                image_width/preprocess->layer[i].units_across;
-
             if (preprocess->enable_learning != 0) {
                 /* do feature learning */
                 retval =
-                    features_learn_from_image(preprocess->layer[i].units_across,
-                                              preprocess->layer[i].units_down,
+                    features_learn_from_image(preprocess_layer_width(i,preprocess,0),
+                                              preprocess_layer_height(i,preprocess,0),
                                               patch_radius,
                                               image_width, image_height,
                                               image_depth, img,
-                                              preprocess->layer[i].units_across*
-                                              preprocess->layer[i].units_down,
+                                              convolution_layer_units(i,preprocess),
                                               preprocess->layer[i].autocoder,
                                               &currBPerror);
 
@@ -149,16 +232,15 @@ int preprocess_image(int image_width,
                 }
                 *BPerror = *BPerror + currBPerror;
             }
-                
+
             /* do the convolution for this layer */
             retval =
-                features_convolve_image_to_floats(preprocess->layer[i].units_across,
-                                                  preprocess->layer[i].units_down,
+                features_convolve_image_to_floats(preprocess_layer_width(i,preprocess,0),
+                                                  preprocess_layer_height(i,preprocess,0),
                                                   patch_radius,
                                                   image_width, image_height,
                                                   image_depth, img,
-                                                  preprocess->layer[i].units_across*
-                                                  preprocess->layer[i].units_down,
+                                                  convolution_layer_units(i,preprocess),
                                                   preprocess->layer[i].convolution,
                                                   preprocess->layer[i].autocoder);
             if (retval != 0) {
@@ -166,24 +248,17 @@ int preprocess_image(int image_width,
             }
         }
         else {
-            prev_pooling_factor = preprocess->layer[i-1].pooling_factor;
-
-            patch_radius =
-                (preprocess->layer[i-1].units_across/prev_pooling_factor)/
-                preprocess->layer[i].units_across;
-                
             if (preprocess->enable_learning != 0) {
                 /* do feature learning */
                 retval =
-                    features_learn_from_floats(preprocess->layer[i].units_across,
-                                               preprocess->layer[i].units_down,
+                    features_learn_from_floats(preprocess_layer_width(i,preprocess,0),
+                                               preprocess_layer_height(i,preprocess,0),
                                                patch_radius,
-                                               preprocess->layer[i-1].units_across/prev_pooling_factor,
-                                               preprocess->layer[i-1].units_down/prev_pooling_factor,
+                                               preprocess_layer_width(i-1,preprocess,1),
+                                               preprocess_layer_height(i-1,preprocess,1),
                                                preprocess->max_features,
                                                preprocess->layer[i-1].pooling,
-                                               preprocess->layer[i].units_across*
-                                               preprocess->layer[i].units_down,
+                                               convolution_layer_units(i,preprocess),
                                                preprocess->layer[i].autocoder,
                                                &currBPerror);
 
@@ -194,15 +269,14 @@ int preprocess_image(int image_width,
             }
             /* do the convolution for this layer */
             retval =
-                features_convolve_floats_to_floats(preprocess->layer[i].units_across,
-                                                   preprocess->layer[i].units_down,
+                features_convolve_floats_to_floats(preprocess_layer_width(i,preprocess,0),
+                                                   preprocess_layer_height(i,preprocess,0),
                                                    patch_radius,
-                                                   preprocess->layer[i-1].units_across/prev_pooling_factor,
-                                                   preprocess->layer[i-1].units_down/prev_pooling_factor,
+                                                   preprocess_layer_width(i-1,preprocess,1),
+                                                   preprocess_layer_height(i-1,preprocess,1),
                                                    preprocess->max_features,
                                                    preprocess->layer[i-1].pooling,
-                                                   preprocess->layer[i].units_across*
-                                                   preprocess->layer[i].units_down,
+                                                   convolution_layer_units(i,preprocess),
                                                    preprocess->layer[i].convolution,
                                                    preprocess->layer[i].autocoder);
             if (retval != 0) {
@@ -211,16 +285,15 @@ int preprocess_image(int image_width,
         }
 
         /* pooling */
-        current_pooling_factor = preprocess->layer[i].pooling_factor;
         retval =
             pooling_from_floats_to_floats(preprocess->max_features,
-                                          preprocess->layer[i].units_across,
-                                          preprocess->layer[i].units_down,
+                                          preprocess_layer_width(i,preprocess,0),
+                                          preprocess_layer_height(i,preprocess,0),
                                           preprocess->layer[i].convolution,
-                                          preprocess->layer[i].units_across/current_pooling_factor,
-                                          preprocess->layer[i].units_down/current_pooling_factor,
+                                          preprocess_layer_width(i,preprocess,1),
+                                          preprocess_layer_height(i,preprocess,1),
                                           preprocess->layer[i].pooling);
-        
+
     }
     return 0;
 }
