@@ -280,6 +280,24 @@ void bp_neuron_backprop(bp_neuron * n)
     }
 }
 
+/**
+* @brief Reprojects a neuron value back into the previous layer
+* @param n Backprop neuron object
+*/
+void bp_neuron_reproject(bp_neuron * n)
+{
+    int i;
+    bp_neuron * nrn;
+    float afact;
+
+    for (i = 0; i < n->NoOfInputs; i++) {
+        nrn = n->inputs[i];
+        if (nrn != 0) {
+            nrn->value_reprojected +=
+                (n->value_reprojected * n->weights[i]);
+        }
+    }
+}
 
 /**
 * @brief Adjust the weights of a neuron

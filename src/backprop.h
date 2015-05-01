@@ -97,5 +97,6 @@ int bp_classifications_to_numbers(int no_of_instances,
                                   char ** instance_classification,
                                   int * numbers);
 int bp_hiddens_in_layer(bp * net, int layer);
+void bp_reproject(bp * net, int layer, int neuron_index);
 
 #endif

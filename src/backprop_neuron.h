@@ -53,6 +53,7 @@ struct bp_n {
     int excluded;
 
     float value;
+    float value_reprojected;
     float desiredValue;
 };
 typedef struct bp_n bp_neuron;
@@ -75,5 +76,6 @@ int bp_neuron_save(FILE * fp, bp_neuron * n);
 int bp_neuron_load(FILE * fp, bp_neuron * n);
 int bp_neuron_compare(bp_neuron * n1, bp_neuron * n2);
 void bp_neuron_fix_weights(bp_neuron * n);
+void bp_neuron_reproject(bp_neuron * n);
 
 #endif

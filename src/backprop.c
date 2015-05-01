@@ -152,8 +152,8 @@ int bp_init(bp * net,
         }
         n = net->outputs[i];
         if (bp_neuron_init(n,
-						   bp_hiddens_in_layer(net,hidden_layers-1),
-						   random_seed) != 0) {
+                           bp_hiddens_in_layer(net,hidden_layers-1),
+                           random_seed) != 0) {
             return -11;
         }
         for (j = 0; j < bp_hiddens_in_layer(net,hidden_layers-1); j++) {
@@ -354,6 +354,69 @@ void bp_backprop(bp * net, int current_hidden_layer)
 }
 
 /**
+ * @brief Reprojects the input layer from a given hidden layer neuron
+ *        This is like feedforward in reverse, and allows you
+ *        to visualise what a hidden layer neuron is representing
+ * @param layer The hidden layer within which the neuron resides
+ * @param neuron_index The hidden layer index of the neuron to be reprojected 
+ */
+void bp_reproject(bp * net, int layer, int neuron_index)
+{
+    int i, l;
+    bp_neuron * n;
+
+    /* clear all previous backprop errors */
+    for (i = 0; i < net->NoOfInputs; i++) {
+        /* get the neuron object */
+        n = net->inputs[i];
+        /* set the reprojection value to zero */
+        n->value_reprojected = 0;
+    }
+
+    /* for every hidden layer */
+    for (l = 0; l < layer; l++) {
+        /* For each unit within the layer */
+        for (i = 0; i < bp_hiddens_in_layer(net,l); i++) {
+            /* get the neuron object */
+            n = net->hiddens[l][i];
+            /* set the reprojection value to zero */
+            n->value_reprojected = 0;
+        }
+    }
+
+    /* set the neuron active */
+    n = net->hiddens[layer][neuron_index];
+    n->value_reprojected = 0.75f;
+
+    bp_neuron_reproject(n);
+    if (layer > 0) {
+        /* apply the sigmoid function in the previous layer,
+           as with feedforward */
+        for (i = 0; i < bp_hiddens_in_layer(net,layer-1); i++) {
+            n->value_reprojected =
+                1.0f / (1.0f + exp(-(n->value_reprojected)));
+        }
+    }
+    
+    /* reproject through the hidden layers */
+    for (l = layer-1; l > 0; l--) {
+        /* for every unit in the hidden layer */
+        for (i = 0; i < bp_hiddens_in_layer(net,l); i++) {
+            /* get the neuron object */
+            n = net->hiddens[l][i];
+            /* backpropogate the error */
+            bp_neuron_reproject(n);
+        }
+        /* apply the sigmoid function in the previous layer,
+           as with feedforward */
+        for (i = 0; i < bp_hiddens_in_layer(net,l-1); i++) {
+            n->value_reprojected =
+                1.0f / (1.0f + exp(-(n->value_reprojected)));
+        }
+    }
+}
+
+/**
 * @brief Adjust connection weights and bias values
 * @param net Backprop neural net object
 */
@@ -407,7 +470,7 @@ void bp_set_input(bp * net, int index, float value)
 */
 void bp_set_input_text(bp * net, char * text)
 {
-	enc_text_to_binary(text, net->inputs, net->NoOfInputs, 0, strlen(text));
+    enc_text_to_binary(text, net->inputs, net->NoOfInputs, 0, strlen(text));
 }
 
 /**
@@ -553,8 +616,8 @@ int bp_plot_weights(bp * net,
             no_of_neurons = net->NoOfOutputs;
         }
         else {
-			neurons_x = (int)sqrt(bp_hiddens_in_layer(net,layer));
-			neurons_y = (bp_hiddens_in_layer(net,layer)/neurons_x);
+            neurons_x = (int)sqrt(bp_hiddens_in_layer(net,layer));
+            neurons_y = (bp_hiddens_in_layer(net,layer)/neurons_x);
             neurons = net->hiddens[layer];
             no_of_neurons = bp_hiddens_in_layer(net,layer);
         }
@@ -596,12 +659,12 @@ int bp_plot_weights(bp * net,
                 }
             }
         }
-		if (layer < net->HiddenLayers) {
+        if (layer < net->HiddenLayers) {
             /* dimensions of the weight matrix for the next layer */
             inputs_x = (int)sqrt(bp_hiddens_in_layer(net,layer));
             inputs_y = (bp_hiddens_in_layer(net,layer)/inputs_x);
             no_of_weights = bp_hiddens_in_layer(net,layer);
-		}
+        }
     }
 
     ty = (net->HiddenLayers+2)*image_height/(net->HiddenLayers+3);
@@ -715,9 +778,9 @@ static void bp_dropouts(bp * net)
     if (net->DropoutPercent==0) return;
 
     /* total number of hidden units */
-	for (l = 0; l < net->HiddenLayers; l++) {
+    for (l = 0; l < net->HiddenLayers; l++) {
         hidden_units += bp_hiddens_in_layer(net,l);
-	}
+    }
 
     /* total number of dropouts */
     no_of_dropouts = net->DropoutPercent*hidden_units/100;
@@ -799,9 +862,9 @@ int bp_create_autocoder(bp * net,
             neural net input units */
         no_of_inputs = net->NoOfInputs;
     }
-	else {
-		no_of_inputs = bp_hiddens_in_layer(net,hidden_layer-1);
-	}
+    else {
+        no_of_inputs = bp_hiddens_in_layer(net,hidden_layer-1);
+    }
 
     /* create the autocoder */
     if (bp_init(autocoder,
