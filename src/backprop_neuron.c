@@ -288,7 +288,6 @@ void bp_neuron_reproject(bp_neuron * n)
 {
     int i;
     bp_neuron * nrn;
-    float afact;
 
     for (i = 0; i < n->NoOfInputs; i++) {
         nrn = n->inputs[i];

@@ -58,7 +58,7 @@ int features_learn_from_floats(int samples_across,
                                int inputs_width,
                                int inputs_height,
                                int inputs_depth,
-                               float * img,
+                               float * inputs_floats,
                                int layer0_units,
                                bp * feature_autocoder,
                                float * BPerror);

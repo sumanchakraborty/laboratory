@@ -30,6 +30,65 @@
 #include "deeplearn_features.h"
 
 
+static void scan_image_patch(unsigned char * img,
+							 int image_width, int image_depth,
+							 int tx, int ty, int bx, int by,
+							 bp * feature_autocoder,
+							 int enable_learning)
+{
+	int index_feature_input = 0;
+	for (int y = ty; y < by; y++) {
+		for (int x = tx; x < bx; x++) {
+			int index_image =
+				((y*image_width) + x) * image_depth;
+			for (int d = 0; d < image_depth;
+				 d++, index_feature_input++) {
+				if (index_feature_input >=
+					feature_autocoder->NoOfInputs) {
+					printf("Inputs out of range %d/%d\n",
+						   index_feature_input,
+						   feature_autocoder->NoOfInputs);
+				}
+				/* convert from 8 bit to a neuron value */
+				float v =
+					0.25f + (img[index_image+d]/(2*255.0f));
+				bp_set_input(feature_autocoder,
+							 index_feature_input, v);
+				if (enable_learning != 0) {
+					bp_set_output(feature_autocoder,
+								  index_feature_input, v);
+				}
+			}
+		}
+	}
+}
+
+static void scan_floats_patch(float * inputs_floats,
+							  int inputs_width, int inputs_depth,
+							  int tx, int ty, int bx, int by,
+							  bp * feature_autocoder,
+							  int enable_learning)
+{
+	int index_feature_input = 0;
+	for (int y = ty; y < by; y++) {
+		for (int x = tx; x < bx; x++) {
+			int index_inputs =
+				((y*inputs_width) + x) * inputs_depth;
+			for (int d = 0; d < inputs_depth;
+				 d++, index_feature_input++) {
+				bp_set_input(feature_autocoder,
+							 index_feature_input,
+							 inputs_floats[index_inputs+d]);
+				if (enable_learning != 0) {
+					bp_set_output(feature_autocoder,
+								  index_feature_input,
+								  inputs_floats[index_inputs+d]);
+				}
+			}
+		}
+	}
+}
+
 /**
 * @brief Learn a feature set between an input image and a neuron layer
 * @param samples_across The number of units across in the second layer
@@ -90,30 +149,9 @@ int features_learn_from_image(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= image_width) bx = image_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx; x++) {
-                    int index_image =
-                        ((y*image_width) + x) * image_depth;
-                    for (int d = 0; d < image_depth;
-                         d++, index_feature_input++) {
-                        if (index_feature_input >=
-                            feature_autocoder->NoOfInputs) {
-                            printf("Inputs out of range %d/%d\n",
-                                   index_feature_input,
-                                   feature_autocoder->NoOfInputs);
-                        }
-                        /* convert from 8 bit to a neuron value */
-                        float v =
-                            0.25f + (img[index_image+d]/(2*255.0f));
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input, v);
-                        bp_set_output(feature_autocoder,
-                                      index_feature_input, v);
-                    }
-                }
-            }
+			scan_image_patch(img, image_width, image_depth,
+							 tx, ty, bx, by, feature_autocoder, 1);
+
             bp_update(feature_autocoder, 0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
@@ -130,7 +168,7 @@ int features_learn_from_image(int samples_across,
 * @param inputs_width Width of the inputs array
 * @param inputs_height Height of the inputs array
 * @param inputs_depth Depth of the inputs array
-* @param img Inputs buffer
+* @param inputs_floats Inputs buffer of floats
 * @param layer0_units Number of units in the neuron layer
 * @param feature_autocoder An autocoder used for feature learning
 * @param BPerror Returned total backprop error
@@ -142,7 +180,7 @@ int features_learn_from_floats(int samples_across,
                                int inputs_width,
                                int inputs_height,
                                int inputs_depth,
-                               float * img,
+                               float * inputs_floats,
                                int layer0_units,
                                bp * feature_autocoder,
                                float * BPerror)
@@ -182,26 +220,9 @@ int features_learn_from_floats(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= inputs_width) bx = inputs_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx;
-                     x++) {
-                    int index_inputs =
-                        ((y*inputs_width) + x) *
-                        inputs_depth;
-                    for (int d = 0; d < inputs_depth;
-                         d++, index_feature_input++) {
-                        /* convert from 8 bit to a neuron value */
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input,
-                                     img[index_inputs+d]);
-                        bp_set_output(feature_autocoder,
-                                      index_feature_input,
-                                      img[index_inputs+d]);
-                    }
-                }
-            }
+			scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
+							  tx, ty, bx, by, feature_autocoder, 1);
+
             bp_update(feature_autocoder, 0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
@@ -267,23 +288,9 @@ int features_convolve_image_to_neurons(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= image_width) bx = image_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx; x++) {
-                    int index_image =
-                        ((y*image_width) + x) *
-                        image_depth;
-                    for (int d = 0; d < image_depth;
-                         d++, index_feature_input++) {
-                        /* convert from 8 bit to a neuron value */
-                        float v =
-                            0.25f + (img[index_image+d]/(2*255.0f));
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input, v);
-                    }
-                }
-            }
+			scan_image_patch(img, image_width, image_depth,
+							 tx, ty, bx, by, feature_autocoder, 0);
+
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_input_layer =
                 (fy * samples_across + fx) *
@@ -357,23 +364,9 @@ int features_convolve_image_to_floats(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= image_width) bx = image_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx; x++) {
-                    int index_image =
-                        ((y*image_width) + x) *
-                        image_depth;
-                    for (int d = 0; d < image_depth;
-                         d++, index_feature_input++) {
-                        /* convert from 8 bit to a neuron value */
-                        float v =
-                            0.25f + (img[index_image+d]/(2*255.0f));
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input, v);
-                    }
-                }
-            }
+			scan_image_patch(img, image_width, image_depth,
+							 tx, ty, bx, by, feature_autocoder, 0);
+
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_layer0 =
                 (fy * samples_across + fx) *
@@ -446,21 +439,9 @@ int features_convolve_floats_to_floats(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= floats_width) bx = floats_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx; x++) {
-                    int index_image =
-                        ((y*floats_width) + x) *
-                        floats_depth;
-                    for (int d = 0; d < floats_depth;
-                         d++, index_feature_input++) {
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input,
-                                     layer0[index_image+d]);
-                    }
-                }
-            }
+			scan_floats_patch(layer0, floats_width, floats_depth,
+							  tx, ty, bx, by, feature_autocoder, 0);
+
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_layer1 =
                 (fy * samples_across + fx) *
@@ -531,21 +512,9 @@ int features_convolve_floats_to_neurons(int samples_across,
             if (tx < 0) tx = 0;
             if (bx >= floats_width) bx = floats_width-1;
 
-            /* scan the patch */
-            int index_feature_input = 0;
-            for (int y = ty; y < by; y++) {
-                for (int x = tx; x < bx; x++) {
-                    int index_image =
-                        ((y*floats_width) + x) *
-                        floats_depth;
-                    for (int d = 0; d < floats_depth;
-                         d++, index_feature_input++) {
-                        bp_set_input(feature_autocoder,
-                                     index_feature_input,
-                                     layer0[index_image+d]);
-                    }
-                }
-            }
+			scan_floats_patch(layer0, floats_width, floats_depth,
+							  tx, ty, bx, by, feature_autocoder, 0);
+
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_net_inputs =
                 (fy * samples_across + fx) *
