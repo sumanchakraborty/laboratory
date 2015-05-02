@@ -80,10 +80,7 @@ int preprocess_init(int no_of_layers,
                     unsigned int * random_seed);
 
 void preprocess_free(deeplearn_preprocess * preprocess);
-int preprocess_image(int image_width,
-                     int image_height,
-                     int image_depth,
-                     unsigned char * img,
+int preprocess_image(unsigned char * img,
                      deeplearn_preprocess * preprocess,
                      float * BPerror);
 

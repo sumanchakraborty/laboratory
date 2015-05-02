@@ -192,18 +192,12 @@ int convolution_layer_units(int layer_index,
 /**
  * @brief Performs preprocessing on an image as a series of
  *        convolutions and poolings
- * @param image_width
- * @param image_height
- * @param image_depth
  * @param img Input image
  * @param preprocess Preprocessing object
  * @param BPerror Returned total backprop error from feature learning
  * @returns zero on success
  */
-int preprocess_image(int image_width,
-                     int image_height,
-                     int image_depth,
-                     unsigned char * img,
+int preprocess_image(unsigned char * img,
                      deeplearn_preprocess * preprocess,
                      float * BPerror)
 {
@@ -222,8 +216,9 @@ int preprocess_image(int image_width,
                     features_learn_from_image(preprocess_layer_width(i,preprocess,0),
                                               preprocess_layer_height(i,preprocess,0),
                                               patch_radius,
-                                              image_width, image_height,
-                                              image_depth, img,
+                                              preprocess->inputs_across,
+                                              preprocess->inputs_down,
+                                              preprocess->inputs_depth, img,
                                               convolution_layer_units(i,preprocess),
                                               preprocess->layer[i].autocoder,
                                               &currBPerror);
@@ -239,8 +234,9 @@ int preprocess_image(int image_width,
                 features_convolve_image_to_floats(preprocess_layer_width(i,preprocess,0),
                                                   preprocess_layer_height(i,preprocess,0),
                                                   patch_radius,
-                                                  image_width, image_height,
-                                                  image_depth, img,
+                                                  preprocess->inputs_across,
+                                                  preprocess->inputs_down,
+                                                  preprocess->inputs_depth, img,
                                                   convolution_layer_units(i,preprocess),
                                                   preprocess->layer[i].convolution,
                                                   preprocess->layer[i].autocoder);

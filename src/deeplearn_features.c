@@ -75,7 +75,7 @@ static void scan_image_patch(unsigned char * img,
 }
 
 /**
-* @brief Scans a patch within an array of floats and transfers the values
+* @brief Scans a patch within a 2D array of floats and transfers the values
 *        to an autocoder
 * @param inputs_width Width of the floats array
 * @param inputs_depth Depth of the floats array
