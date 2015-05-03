@@ -248,8 +248,8 @@ static int preprocess_image_initial(unsigned char img[],
 * @return zero on success
 */
 static int preprocess_subsequent(deeplearn_preprocess * preprocess,
-                                    int layer_index,
-                                    float * BPerror)
+                                 int layer_index,
+                                 float * BPerror)
 {
     float currBPerror=0;
     int retval;
