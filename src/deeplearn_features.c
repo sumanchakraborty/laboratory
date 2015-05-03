@@ -114,6 +114,41 @@ static void scan_floats_patch(float inputs_floats[],
 }
 
 /**
+* @brief Returns the input patch bounding box for an x,y coordinate within the second layer
+* @param x Position across within the second layer
+* @param y Position down within the second layer
+* @param samples_across The number of units across in the second layer
+* @param samples_down The number of units down in the second layer
+* @param patch_radius The radius of the patch within the input layer
+* @param width Width of the input layer
+* @param height Height of the input layer
+* @param tx Returned top left coordinate
+* @param ty Returned top coordinate
+* @param bx Returned bottom right coordinate
+* @param by Returned bottom coordinate
+*/
+void features_patch_coords(int x, int y,
+                           int samples_across,
+                           int samples_down,
+                           int patch_radius,
+                           int width, int height,
+                           int * tx, int * ty, int * bx, int * by)
+{
+    int cy = y * height / samples_down;
+    int cx = x * width / samples_across;
+
+    *ty = cy - patch_radius;
+    *by = cy + patch_radius;
+    if (*ty < 0) *ty = 0;
+    if (*by >= height) *by = height-1;
+
+    *tx = cx - patch_radius;
+    *bx = cx + patch_radius;
+    if (*tx < 0) *tx = 0;
+    if (*bx >= width) *bx = width-1;
+}
+
+/**
 * @brief Learn a feature set between an input image and a neuron layer
 * @param samples_across The number of units across in the second layer
 * @param samples_down The number of units down in the second layer
@@ -161,17 +196,11 @@ int features_learn_from_image(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * image_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= image_height) by = image_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * image_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= image_width) bx = image_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, image_width, image_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 1);
@@ -232,17 +261,11 @@ int features_learn_from_floats(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * inputs_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= inputs_height) by = inputs_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * inputs_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= inputs_width) bx = inputs_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, inputs_width, inputs_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
                               tx, ty, bx, by, feature_autocoder, 1);
@@ -300,17 +323,11 @@ int features_convolve_image_to_neurons(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * image_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= image_height) by = image_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * image_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= image_width) bx = image_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, image_width, image_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 0);
@@ -351,7 +368,7 @@ int features_convolve_image_to_floats(int samples_across,
                                       int image_depth,
                                       unsigned char img[],
                                       int layer0_units,
-                                      float * layer0,
+                                      float layer0[],
                                       bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
@@ -376,17 +393,11 @@ int features_convolve_image_to_floats(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * image_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= image_height) by = image_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * image_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= image_width) bx = image_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, image_width, image_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 0);
@@ -451,17 +462,11 @@ int features_convolve_floats_to_floats(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * floats_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= floats_height) by = floats_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * floats_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= floats_width) bx = floats_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, floats_width, floats_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_floats_patch(layer0, floats_width, floats_depth,
                               tx, ty, bx, by, feature_autocoder, 0);
@@ -524,17 +529,11 @@ int features_convolve_floats_to_neurons(int samples_across,
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
-        int cy = fy * floats_height / samples_down;
-        int ty = cy - patch_radius;
-        int by = cy + patch_radius;
-        if (ty < 0) ty = 0;
-        if (by >= floats_height) by = floats_height-1;
         for (int fx = 0; fx < samples_across; fx++) {
-            int cx = fx * floats_width / samples_across;
-            int tx = cx - patch_radius;
-            int bx = cx + patch_radius;
-            if (tx < 0) tx = 0;
-            if (bx >= floats_width) bx = floats_width-1;
+            int tx=0, ty=0, bx=0, by=0;
+            features_patch_coords(fx, fy, samples_across, samples_down,
+                                  patch_radius, floats_width, floats_height,
+                                  &tx, &ty, &bx, &by);
 
             scan_floats_patch(layer0, floats_width, floats_depth,
                               tx, ty, bx, by, feature_autocoder, 0);

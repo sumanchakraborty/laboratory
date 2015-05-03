@@ -41,6 +41,12 @@
 #include "backprop.h"
 
 /* learning of features */
+void features_patch_coords(int x, int y,
+                           int samples_across,
+                           int samples_down,
+                           int patch_radius,
+                           int width, int height,
+                           int * tx, int * ty, int * bx, int * by);
 int features_learn_from_image(int samples_across,
                               int samples_down,
                               int patch_radius,
