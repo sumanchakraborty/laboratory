@@ -190,6 +190,109 @@ int convolution_layer_units(int layer_index,
 }
 
 /**
+* @brief Convolution between the input image and the first layer
+* @param img Input image
+* @param preprocess Preprocessing object
+* @param BPerror Returned total backprop error from feature learning
+* @return zero on success
+*/
+static int preprocess_image_initial(unsigned char img[],
+                                    deeplearn_preprocess * preprocess,
+                                    float * BPerror)
+{
+    float currBPerror=0;
+    int retval;
+    int patch_radius = preprocess_patch_radius(0, preprocess);
+
+    if (preprocess->enable_learning != 0) {
+        /* do feature learning */
+        retval =
+            features_learn_from_image(preprocess_layer_width(0,preprocess,0),
+                                      preprocess_layer_height(0,preprocess,0),
+                                      patch_radius,
+                                      preprocess->inputs_across,
+                                      preprocess->inputs_down,
+                                      preprocess->inputs_depth, img,
+                                      convolution_layer_units(0,preprocess),
+                                      preprocess->layer[0].autocoder,
+                                      &currBPerror);
+
+        if (retval != 0) {
+            return -1;
+        }
+        *BPerror = *BPerror + currBPerror;
+    }
+
+    /* do the convolution for this layer */
+    retval =
+        features_convolve_image_to_floats(preprocess_layer_width(0,preprocess,0),
+                                          preprocess_layer_height(0,preprocess,0),
+                                          patch_radius,
+                                          preprocess->inputs_across,
+                                          preprocess->inputs_down,
+                                          preprocess->inputs_depth, img,
+                                          convolution_layer_units(0,preprocess),
+                                          preprocess->layer[0].convolution,
+                                          preprocess->layer[0].autocoder);
+    if (retval != 0) {
+        return -2;
+    }
+    return 0;
+}
+
+/**
+* @brief Convolution between the input image and the first layer
+* @param preprocess Preprocessing object
+* @param layer_index Index of the convolution layer
+* @param BPerror Returned total backprop error from feature learning
+* @return zero on success
+*/
+static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
+                                       int layer_index,
+                                       float * BPerror)
+{
+    float currBPerror=0;
+    int retval;
+    int patch_radius = preprocess_patch_radius(layer_index, preprocess);
+
+    if (preprocess->enable_learning != 0) {
+        /* do feature learning */
+        retval =
+            features_learn_from_floats(preprocess_layer_width(layer_index,preprocess,0),
+                                       preprocess_layer_height(layer_index,preprocess,0),
+                                       patch_radius,
+                                       preprocess_layer_width(layer_index-1,preprocess,1),
+                                       preprocess_layer_height(layer_index-1,preprocess,1),
+                                       preprocess->max_features,
+                                       preprocess->layer[layer_index-1].pooling,
+                                       convolution_layer_units(layer_index,preprocess),
+                                       preprocess->layer[layer_index].autocoder,
+                                       &currBPerror);
+
+        if (retval != 0) {
+            return -3;
+        }
+        *BPerror = *BPerror + currBPerror;
+    }
+    /* do the convolution for this layer */
+    retval =
+        features_convolve_floats_to_floats(preprocess_layer_width(layer_index,preprocess,0),
+                                           preprocess_layer_height(layer_index,preprocess,0),
+                                           patch_radius,
+                                           preprocess_layer_width(layer_index-1,preprocess,1),
+                                           preprocess_layer_height(layer_index-1,preprocess,1),
+                                           preprocess->max_features,
+                                           preprocess->layer[layer_index-1].pooling,
+                                           convolution_layer_units(layer_index,preprocess),
+                                           preprocess->layer[layer_index].convolution,
+                                           preprocess->layer[layer_index].autocoder);
+    if (retval != 0) {
+        return -4;
+    }
+    return 0;
+}
+
+/**
  * @brief Performs preprocessing on an image as a series of
  *        convolutions and poolings
  * @param img Input image
@@ -202,83 +305,17 @@ int preprocess_image(unsigned char * img,
                      float * BPerror)
 {
     int retval = -1;
-    int patch_radius;
-    float currBPerror;
 
     *BPerror = 0;
     for (int i = 0; i < preprocess->no_of_layers; i++) {
-        currBPerror = 0;
-        patch_radius = preprocess_patch_radius(i, preprocess);
         if (i == 0) {
-            if (preprocess->enable_learning != 0) {
-                /* do feature learning */
-                retval =
-                    features_learn_from_image(preprocess_layer_width(i,preprocess,0),
-                                              preprocess_layer_height(i,preprocess,0),
-                                              patch_radius,
-                                              preprocess->inputs_across,
-                                              preprocess->inputs_down,
-                                              preprocess->inputs_depth, img,
-                                              convolution_layer_units(i,preprocess),
-                                              preprocess->layer[i].autocoder,
-                                              &currBPerror);
-
-                if (retval != 0) {
-                    return -1;
-                }
-                *BPerror = *BPerror + currBPerror;
-            }
-
-            /* do the convolution for this layer */
-            retval =
-                features_convolve_image_to_floats(preprocess_layer_width(i,preprocess,0),
-                                                  preprocess_layer_height(i,preprocess,0),
-                                                  patch_radius,
-                                                  preprocess->inputs_across,
-                                                  preprocess->inputs_down,
-                                                  preprocess->inputs_depth, img,
-                                                  convolution_layer_units(i,preprocess),
-                                                  preprocess->layer[i].convolution,
-                                                  preprocess->layer[i].autocoder);
-            if (retval != 0) {
-                return -2;
-            }
+            retval = preprocess_image_initial(img, preprocess, BPerror);
         }
         else {
-            if (preprocess->enable_learning != 0) {
-                /* do feature learning */
-                retval =
-                    features_learn_from_floats(preprocess_layer_width(i,preprocess,0),
-                                               preprocess_layer_height(i,preprocess,0),
-                                               patch_radius,
-                                               preprocess_layer_width(i-1,preprocess,1),
-                                               preprocess_layer_height(i-1,preprocess,1),
-                                               preprocess->max_features,
-                                               preprocess->layer[i-1].pooling,
-                                               convolution_layer_units(i,preprocess),
-                                               preprocess->layer[i].autocoder,
-                                               &currBPerror);
-
-                if (retval != 0) {
-                    return -3;
-                }
-                *BPerror = *BPerror + currBPerror;
-            }
-            /* do the convolution for this layer */
-            retval =
-                features_convolve_floats_to_floats(preprocess_layer_width(i,preprocess,0),
-                                                   preprocess_layer_height(i,preprocess,0),
-                                                   patch_radius,
-                                                   preprocess_layer_width(i-1,preprocess,1),
-                                                   preprocess_layer_height(i-1,preprocess,1),
-                                                   preprocess->max_features,
-                                                   preprocess->layer[i-1].pooling,
-                                                   convolution_layer_units(i,preprocess),
-                                                   preprocess->layer[i].convolution,
-                                                   preprocess->layer[i].autocoder);
-            if (retval != 0) {
-                return -4;
-            }
+            retval = preprocess_image_subsequent(preprocess, i, BPerror);
+        }
+        if (retval != 0) {
+            return retval;
         }
 
         /* pooling */
@@ -290,7 +327,9 @@ int preprocess_image(unsigned char * img,
                                           preprocess_layer_width(i,preprocess,1),
                                           preprocess_layer_height(i,preprocess,1),
                                           preprocess->layer[i].pooling);
-
+        if (retval != 0) {
+            return -5;
+        }
     }
     return 0;
 }
