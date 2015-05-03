@@ -255,6 +255,10 @@ static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
     int retval;
     int patch_radius = preprocess_patch_radius(layer_index, preprocess);
 
+    if (layer_index < 1) {
+        return -3;
+    }
+
     if (preprocess->enable_learning != 0) {
         /* do feature learning */
         retval =
@@ -270,7 +274,7 @@ static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
                                        &currBPerror);
 
         if (retval != 0) {
-            return -3;
+            return -4;
         }
         *BPerror = *BPerror + currBPerror;
     }
@@ -287,7 +291,7 @@ static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
                                            preprocess->layer[layer_index].convolution,
                                            preprocess->layer[layer_index].autocoder);
     if (retval != 0) {
-        return -4;
+        return -5;
     }
     return 0;
 }
@@ -328,7 +332,7 @@ int preprocess_image(unsigned char * img,
                                           preprocess_layer_height(i,preprocess,1),
                                           preprocess->layer[i].pooling);
         if (retval != 0) {
-            return -5;
+            return -6;
         }
     }
     return 0;
