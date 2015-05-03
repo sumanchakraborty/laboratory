@@ -407,6 +407,29 @@ void deeplearn_set_input(deeplearn * learner, int index, float value)
 }
 
 /**
+* @brief Sets the input values to the outputs of convolutional preprocessing
+* @param learner Deep learner object
+* @param preprocess Preprocessing objects
+* @return zero on success
+*/
+int deeplearn_set_inputs_preprocess(deeplearn * learner, deeplearn_preprocess * preprocess)
+{
+    int layer_index = preprocess->no_of_layers-1;
+    int width = preprocess_layer_width(layer_index, preprocess, 1);
+    int height = preprocess_layer_height(layer_index, preprocess, 1);
+
+    if (learner->net->NoOfInputs !=
+        width * height * preprocess->max_features) {
+        return -1;
+    }
+    for (int i = 0; i < learner->net->NoOfInputs; i++) {
+        deeplearn_set_input(learner, i, preprocess->layer[layer_index].pooling[i]);
+    }
+
+    return 0;
+}
+
+/**
 * @brief Sets the inputs to a text string
 *        Note that this sets the entire inputs, not a field
 * @param learner Deep learner object
