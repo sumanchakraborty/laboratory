@@ -247,7 +247,7 @@ static int preprocess_image_initial(unsigned char img[],
 * @param BPerror Returned total backprop error from feature learning
 * @return zero on success
 */
-static int preprocessing_subsequent(deeplearn_preprocess * preprocess,
+static int preprocess_subsequent(deeplearn_preprocess * preprocess,
                                     int layer_index,
                                     float * BPerror)
 {
