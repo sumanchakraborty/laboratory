@@ -247,9 +247,9 @@ static int preprocess_image_initial(unsigned char img[],
 * @param BPerror Returned total backprop error from feature learning
 * @return zero on success
 */
-static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
-                                       int layer_index,
-                                       float * BPerror)
+static int preprocessing_subsequent(deeplearn_preprocess * preprocess,
+                                    int layer_index,
+                                    float * BPerror)
 {
     float currBPerror=0;
     int retval;
@@ -304,7 +304,7 @@ static int preprocess_image_subsequent(deeplearn_preprocess * preprocess,
  * @param BPerror Returned total backprop error from feature learning
  * @returns zero on success
  */
-int preprocess_image(unsigned char * img,
+int preprocess_image(unsigned char img[],
                      deeplearn_preprocess * preprocess,
                      float * BPerror)
 {
@@ -316,7 +316,7 @@ int preprocess_image(unsigned char * img,
             retval = preprocess_image_initial(img, preprocess, BPerror);
         }
         else {
-            retval = preprocess_image_subsequent(preprocess, i, BPerror);
+            retval = preprocess_subsequent(preprocess, i, BPerror);
         }
         if (retval != 0) {
             return retval;
