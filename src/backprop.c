@@ -358,7 +358,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
  *        This is like feedforward in reverse, and allows you
  *        to visualise what a hidden layer neuron is representing
  * @param layer The hidden layer within which the neuron resides
- * @param neuron_index The hidden layer index of the neuron to be reprojected 
+ * @param neuron_index The hidden layer index of the neuron to be reprojected
  */
 void bp_reproject(bp * net, int layer, int neuron_index)
 {
@@ -397,7 +397,7 @@ void bp_reproject(bp * net, int layer, int neuron_index)
                 1.0f / (1.0f + exp(-(n->value_reprojected)));
         }
     }
-    
+
     /* reproject through the hidden layers */
     for (l = layer-1; l > 0; l--) {
         /* for every unit in the hidden layer */
@@ -484,7 +484,7 @@ void bp_set_input_text(bp * net, char * text)
 * @param ty Top left y coordinate of the patch within the image
 */
 void bp_inputs_from_image_patch(bp * net,
-                                unsigned char * img,
+                                unsigned char img[],
                                 int image_width, int image_height,
                                 int tx, int ty)
 {
@@ -519,7 +519,7 @@ void bp_inputs_from_image_patch(bp * net,
 * @param image_height Height of the image in pixels
 */
 void bp_inputs_from_image(bp * net,
-                          unsigned char * img,
+                          unsigned char img[],
                           int image_width, int image_height)
 {
     int i=0;

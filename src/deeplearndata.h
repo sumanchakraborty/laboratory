@@ -38,10 +38,10 @@
 #include "deeplearn.h"
 
 int deeplearndata_add(deeplearndata ** datalist,
-                      int * data_samples,
-                      float * inputs,
+                      int data_samples[],
+                      float inputs[],
                       char ** inputs_text,
-                      float * outputs,
+                      float outputs[],
                       int no_of_input_fields,
                       int no_of_outputs,
                       float input_range_min[],

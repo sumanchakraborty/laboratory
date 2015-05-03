@@ -70,7 +70,7 @@ int deeplearn_read_png_file(char * filename,
 int deeplearn_write_png_file(char * filename,
                              unsigned int width, unsigned int height,
                              unsigned int bitsperpixel,
-                             unsigned char * buffer)
+                             unsigned char buffer[])
 {
     unsigned error=1;
     unsigned int i;
@@ -149,9 +149,9 @@ static int number_of_images(char * images_directory,
 * @param downsampled_width Downsampled image width in pixels
 * @param downsampled_height Downsampled image height in pixels
 */
-static void deeplearn_downsample(unsigned char * img,
+static void deeplearn_downsample(unsigned char img[],
                                  int width, int height,
-                                 unsigned char * downsampled,
+                                 unsigned char downsampled[],
                                  int downsampled_width,
                                  int downsampled_height)
 {

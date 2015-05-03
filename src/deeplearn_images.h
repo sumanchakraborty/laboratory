@@ -54,7 +54,7 @@ int deeplearn_read_png_file(char * filename,
 int deeplearn_write_png_file(char * filename,
                              unsigned int width, unsigned int height,
                              unsigned int bitsperpixel,
-                             unsigned char * buffer);
+                             unsigned char buffer[]);
 int deeplearn_load_training_images(char * images_directory,
                                    unsigned char *** images,
                                    char *** classifications,

@@ -43,10 +43,10 @@
 int pooling_from_floats_to_floats(int depth,
                                   int layer0_across,
                                   int layer0_down,
-                                  float * layer0,
+                                  float layer0[],
                                   int layer1_across,
-                                  int layer1_down,                              
-                                  float * layer1)
+                                  int layer1_down,
+                                  float layer1[])
 {
     /* second layer must be smaller than the first */
     if (layer1_across*layer1_down >
@@ -103,9 +103,9 @@ int pooling_from_floats_to_floats(int depth,
 int pooling_from_floats_to_neurons(int depth,
                                    int layer0_across,
                                    int layer0_down,
-                                   float * layer0,
+                                   float layer0[],
                                    int layer1_across,
-                                   int layer1_down,                              
+                                   int layer1_down,
                                    bp_neuron ** layer1)
 {
     /* second layer must be smaller than the first */
