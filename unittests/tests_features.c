@@ -53,13 +53,13 @@ static void test_learn_from_image()
     assert(image_width == 512);
     assert(image_height == 512);
     assert(bitsperpixel == 24);
-    
+
     int samples_across = image_width/20;
     int samples_down = image_height/20;
     int patch_radius = 4;
     int no_of_features = 6*6;
     int no_of_inputs = samples_across*samples_down*no_of_features;
-    
+
     /* create a network */
     bp_init(&feature_autocoder,
             patch_radius*patch_radius*4*image_depth,
@@ -107,10 +107,11 @@ static void test_learn_from_image()
     bp_plot_weights(&feature_autocoder,
                     "/tmp/test_features_learn_from_image.png",
                     480,800,8);
-	
+
     /* free the memory */
     free(img);
     bp_free(&net);
+    bp_free(&feature_autocoder);
 
     printf("Ok\n");
 }
@@ -124,4 +125,3 @@ int run_tests_features()
     printf("All feature learning tests completed\n");
     return 1;
 }
-

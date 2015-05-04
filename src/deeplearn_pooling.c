@@ -62,7 +62,7 @@ int pooling_from_floats_to_floats(int depth,
         return 0;
     }
 
-#pragma omp parallel for
+	/*#pragma omp parallel for*/
     for (int y = 0; y < layer1_down; y++) {
         int ty = y * layer0_down / layer1_down;
         int by = (y+1) * layer0_down / layer1_down;
@@ -123,7 +123,7 @@ int pooling_from_floats_to_neurons(int depth,
         return 0;
     }
 
-#pragma omp parallel for
+	/*#pragma omp parallel for*/
     for (int y = 0; y < layer1_down; y++) {
         int ty = y * layer0_down / layer1_down;
         int by = (y+1) * layer0_down / layer1_down;

@@ -43,7 +43,7 @@
 #include "deeplearn_pooling.h"
 
 typedef struct {
-    bp * autocoder;
+    bp autocoder;
     int units_across, units_down;
     float * convolution;
     int pooling_factor;

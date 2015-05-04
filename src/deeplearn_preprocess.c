@@ -76,7 +76,7 @@ int preprocess_init(int no_of_layers,
     preprocess->max_features = max_features;
     preprocess->layer =
         (deeplearn_preprocess_layer*)
-        malloc(sizeof(deeplearn_preprocess_layer));
+        malloc(no_of_layers*sizeof(deeplearn_preprocess_layer));
     if (!preprocess->layer) return -1;
 
     for (int i = 0; i < no_of_layers; i++) {
@@ -89,9 +89,6 @@ int preprocess_init(int no_of_layers,
             (float*)malloc(sizeof(float)*across*down*max_features);
         if (!preprocess->layer[i].convolution) return -2;
 
-        preprocess->layer[i].autocoder = (bp*)malloc(sizeof(bp));
-        if (!preprocess->layer[i].autocoder) return -3;
-
         int patch_pixels =
             preprocess_patch_radius(i,preprocess)*
             preprocess_patch_radius(i,preprocess)*4;
@@ -101,13 +98,13 @@ int preprocess_init(int no_of_layers,
         rand_num(random_seed);
 
         if (i == 0) {
-            bp_init(preprocess->layer[i].autocoder,
+            bp_init(&preprocess->layer[i].autocoder,
                     patch_pixels*inputs_depth, max_features, 1,
                     patch_pixels*inputs_depth,
                     random_seed);
         }
         else {
-            bp_init(preprocess->layer[i].autocoder,
+            bp_init(&preprocess->layer[i].autocoder,
                     patch_pixels*max_features, max_features, 1,
                     patch_pixels*max_features,
                     random_seed);
@@ -132,7 +129,7 @@ void preprocess_free(deeplearn_preprocess * preprocess)
     for (int i = 0; i < preprocess->no_of_layers; i++) {
         free(preprocess->layer[i].convolution);
         free(preprocess->layer[i].pooling);
-        free(preprocess->layer[i].autocoder);
+        bp_free(&preprocess->layer[i].autocoder);
     }
     free(preprocess->layer);
     free(preprocess->error_threshold);
@@ -232,7 +229,7 @@ static int preprocess_image_initial(unsigned char img[],
                                       preprocess->inputs_down,
                                       preprocess->inputs_depth, img,
                                       convolution_layer_units(0,preprocess),
-                                      preprocess->layer[0].autocoder,
+                                      &preprocess->layer[0].autocoder,
                                       &currBPerror);
 
         if (retval != 0) {
@@ -252,7 +249,7 @@ static int preprocess_image_initial(unsigned char img[],
                                               preprocess->inputs_depth, img,
                                               convolution_layer_units(0,preprocess),
                                               preprocess->layer[0].convolution,
-                                              preprocess->layer[0].autocoder);
+                                              &preprocess->layer[0].autocoder);
         if (retval != 0) {
             return -2;
         }
@@ -290,7 +287,7 @@ static int preprocess_subsequent(deeplearn_preprocess * preprocess,
                                        preprocess->max_features,
                                        preprocess->layer[layer_index-1].pooling,
                                        convolution_layer_units(layer_index,preprocess),
-                                       preprocess->layer[layer_index].autocoder,
+                                       &preprocess->layer[layer_index].autocoder,
                                        &currBPerror);
 
         if (retval != 0) {
@@ -311,7 +308,7 @@ static int preprocess_subsequent(deeplearn_preprocess * preprocess,
                                                preprocess->layer[layer_index-1].pooling,
                                                convolution_layer_units(layer_index,preprocess),
                                                preprocess->layer[layer_index].convolution,
-                                               preprocess->layer[layer_index].autocoder);
+                                               &preprocess->layer[layer_index].autocoder);
         if (retval != 0) {
             return -5;
         }
