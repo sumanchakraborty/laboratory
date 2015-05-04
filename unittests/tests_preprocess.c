@@ -63,7 +63,7 @@ static void test_preprocess_image()
     unsigned int bitsperpixel = 0;
 	int no_of_layers = 3;
 	int max_features = 20;
-	int reduction_factor = 4;
+	int reduction_factor = 8;
 	int pooling_factor = 2;
 	float error_threshold[] = {0.0, 0.0, 0.0};
 	unsigned int random_seed = 648326;

@@ -82,6 +82,8 @@ int preprocess_init(int no_of_layers,
     for (int i = 0; i < no_of_layers; i++) {
         across /= reduction_factor;
         down /= reduction_factor;
+        if (across < 4) across = 4;
+        if (down < 4) down = 4;
         preprocess->layer[i].units_across = across;
         preprocess->layer[i].units_down = down;
         preprocess->layer[i].pooling_factor = pooling_factor;
@@ -112,6 +114,8 @@ int preprocess_init(int no_of_layers,
 
         across /= pooling_factor;
         down /= pooling_factor;
+        if (across < 4) across = 4;
+        if (down < 4) down = 4;
         preprocess->layer[i].pooling =
             (float*)malloc(sizeof(float)*across*down*
                            max_features);
@@ -144,13 +148,19 @@ void preprocess_free(deeplearn_preprocess * preprocess)
 int preprocess_patch_radius(int layer_index,
                             deeplearn_preprocess * preprocess)
 {
+    int radius=0;
+
     if (layer_index == 0) {
-        return preprocess->inputs_across/preprocess->layer[0].units_across;
+        radius = preprocess->inputs_across/preprocess->layer[0].units_across;
+    }
+    else {
+        int prev_pooling_factor = preprocess->layer[layer_index-1].pooling_factor;
+        radius = (preprocess->layer[layer_index-1].units_across/prev_pooling_factor) /
+            preprocess->layer[layer_index].units_across;
     }
 
-    int prev_pooling_factor = preprocess->layer[layer_index-1].pooling_factor;
-    return (preprocess->layer[layer_index-1].units_across/prev_pooling_factor) /
-        preprocess->layer[layer_index].units_across;
+    if (radius < 2) radius = 2;
+    return radius;
 }
 
 /**
