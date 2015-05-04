@@ -51,6 +51,7 @@ typedef struct {
 } deeplearn_preprocess_layer;
 
 typedef struct {
+	int reduction_factor, pooling_factor;
     unsigned int random_seed;
     int inputs_across, inputs_down;
     int inputs_depth;
@@ -105,7 +106,6 @@ int preprocess_plot_history(deeplearn_preprocess * preprocess,
                             char * filename, char * title,
                             int image_width, int image_height);
 int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess);
-int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess,
-					unsigned int * random_seed);
+int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess);
 
 #endif

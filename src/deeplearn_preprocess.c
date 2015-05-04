@@ -59,6 +59,9 @@ int preprocess_init(int no_of_layers,
     rand_num(random_seed);
     preprocess->random_seed = *random_seed;
 
+    preprocess->reduction_factor = reduction_factor;
+    preprocess->pooling_factor = pooling_factor;
+
     preprocess->history_ctr = 0;
     preprocess->training_ctr = 0;
     preprocess->history_index = 0;
@@ -593,6 +596,8 @@ int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
 {
     int retval,i;
 
+    retval = fwrite(&preprocess->reduction_factor, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->pooling_factor, sizeof(int), 1, fp);
     retval = fwrite(&preprocess->random_seed, sizeof(unsigned int), 1, fp);
     retval = fwrite(&preprocess->inputs_across, sizeof(int), 1, fp);
     retval = fwrite(&preprocess->inputs_down, sizeof(int), 1, fp);
@@ -604,13 +609,14 @@ int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
     retval = fwrite(&preprocess->current_layer, sizeof(int), 1, fp);
     retval = fwrite(&preprocess->training_complete, sizeof(unsigned char), 1, fp);
     retval = fwrite(&preprocess->itterations, sizeof(unsigned int), 1, fp);
+    retval = fwrite(preprocess->error_threshold, sizeof(float), preprocess->no_of_layers, fp);
     for (i = 0; i < preprocess->no_of_layers; i++) {
-        bp_save(fp, &preprocess->layer[i].autocoder);
+		bp * net = &preprocess->layer[i].autocoder;
+        bp_save(fp, net);
         retval = fwrite(&preprocess->layer[i].units_across, sizeof(int), 1, fp);
         retval = fwrite(&preprocess->layer[i].units_down, sizeof(int), 1, fp);
         retval = fwrite(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp);
     }
-    retval = fwrite(preprocess->error_threshold, sizeof(float), preprocess->no_of_layers, fp);
 
     return retval;
 }
@@ -619,77 +625,98 @@ int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
 * @brief Loads a preprocessing object from file
 * @param fp File pointer
 * @param preprocess Preprocessing object
-* @param random_seed Random number generator seed
 * @return zero value on success
 */
-int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess,
-                    unsigned int * random_seed)
+int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
 {
     int retval,i;
+    float * error_threshold;
 
-    retval = fread(&preprocess->random_seed, sizeof(unsigned int), 1, fp);
+    retval = fread(&preprocess->reduction_factor, sizeof(int), 1, fp);
     if (retval == 0) {
         return -1;
     }
-    retval = fread(&preprocess->inputs_across, sizeof(int), 1, fp);
+    retval = fread(&preprocess->pooling_factor, sizeof(int), 1, fp);
     if (retval == 0) {
         return -2;
     }
-    retval = fread(&preprocess->inputs_down, sizeof(int), 1, fp);
+    retval = fread(&preprocess->random_seed, sizeof(unsigned int), 1, fp);
     if (retval == 0) {
         return -3;
     }
-    retval = fread(&preprocess->inputs_depth, sizeof(int), 1, fp);
+    retval = fread(&preprocess->inputs_across, sizeof(int), 1, fp);
     if (retval == 0) {
         return -4;
     }
-    retval = fread(&preprocess->max_features, sizeof(int), 1, fp);
+    retval = fread(&preprocess->inputs_down, sizeof(int), 1, fp);
     if (retval == 0) {
         return -5;
     }
-    retval = fread(&preprocess->no_of_layers, sizeof(int), 1, fp);
+    retval = fread(&preprocess->inputs_depth, sizeof(int), 1, fp);
     if (retval == 0) {
         return -6;
     }
-    retval = fread(&preprocess->enable_learning, sizeof(unsigned char), 1, fp);
+    retval = fread(&preprocess->max_features, sizeof(int), 1, fp);
     if (retval == 0) {
         return -7;
     }
-    retval = fread(&preprocess->enable_convolution, sizeof(unsigned char), 1, fp);
+    retval = fread(&preprocess->no_of_layers, sizeof(int), 1, fp);
     if (retval == 0) {
         return -8;
     }
-    retval = fread(&preprocess->current_layer, sizeof(int), 1, fp);
+    retval = fread(&preprocess->enable_learning, sizeof(unsigned char), 1, fp);
     if (retval == 0) {
         return -9;
     }
-    retval = fread(&preprocess->training_complete, sizeof(unsigned char), 1, fp);
+    retval = fread(&preprocess->enable_convolution, sizeof(unsigned char), 1, fp);
     if (retval == 0) {
         return -10;
     }
-    retval = fread(&preprocess->itterations, sizeof(unsigned int), 1, fp);
+    retval = fread(&preprocess->current_layer, sizeof(int), 1, fp);
     if (retval == 0) {
         return -11;
     }
+    retval = fread(&preprocess->training_complete, sizeof(unsigned char), 1, fp);
+    if (retval == 0) {
+        return -12;
+    }
+    retval = fread(&preprocess->itterations, sizeof(unsigned int), 1, fp);
+    if (retval == 0) {
+        return -13;
+    }
+
+    error_threshold = (float*)malloc(sizeof(float)*preprocess->no_of_layers);
+    retval = fread(error_threshold, sizeof(float), preprocess->no_of_layers, fp);
+    if (retval == 0) {
+        return -14;
+    }
+
+    retval = preprocess_init(preprocess->no_of_layers,
+                             preprocess->inputs_across, preprocess->inputs_down,
+                             preprocess->inputs_depth, preprocess->max_features,
+                             preprocess->reduction_factor, preprocess->pooling_factor,
+                             preprocess, error_threshold,
+                             &preprocess->random_seed);
+    if (retval != 0) {
+        free(error_threshold);
+        return -15;
+    }
+    free(error_threshold);
 
     for (i = 0; i < preprocess->no_of_layers; i++) {
         bp_load(fp, &preprocess->layer[i].autocoder, &preprocess->random_seed);
         retval = fread(&preprocess->layer[i].units_across, sizeof(int), 1, fp);
         if (retval == 0) {
-            return -12;
+            return -16;
         }
         retval = fread(&preprocess->layer[i].units_down, sizeof(int), 1, fp);
         if (retval == 0) {
-            return -13;
+            return -17;
         }
         retval = fread(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp);
         if (retval == 0) {
-            return -14;
+            return -18;
         }
-    }
-    retval = fread(preprocess->error_threshold, sizeof(float), preprocess->no_of_layers, fp);
-    if (retval == 0) {
-        return -15;
     }
 
     return retval;
