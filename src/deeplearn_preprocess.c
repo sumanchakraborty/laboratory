@@ -50,12 +50,25 @@ int preprocess_init(int no_of_layers,
                     int reduction_factor,
                     int pooling_factor,
                     deeplearn_preprocess * preprocess,
+                    float error_threshold[],
                     unsigned int * random_seed)
 {
     int across = inputs_across;
     int down = inputs_down;
 
+    rand_num(random_seed);
+    preprocess->random_seed = *random_seed;
+
+    preprocess->current_layer = 0;
+    preprocess->training_complete = 0;
+    preprocess->itterations = 0;
+    preprocess->error_threshold =
+        (float*)malloc(no_of_layers*sizeof(float));
+    preprocess->BPerror = -1;
+    memcpy((void*)preprocess->error_threshold,
+           error_threshold, no_of_layers*sizeof(float));
     preprocess->enable_learning = 0;
+    preprocess->enable_convolution = 1;
     preprocess->no_of_layers = no_of_layers;
     preprocess->inputs_across = inputs_across;
     preprocess->inputs_down = inputs_down;
@@ -82,6 +95,10 @@ int preprocess_init(int no_of_layers,
         int patch_pixels =
             preprocess_patch_radius(i,preprocess)*
             preprocess_patch_radius(i,preprocess)*4;
+
+        /* ensure that the random seed is different for each
+           convolutional neural net */
+        rand_num(random_seed);
 
         if (i == 0) {
             bp_init(preprocess->layer[i].autocoder,
@@ -118,6 +135,7 @@ void preprocess_free(deeplearn_preprocess * preprocess)
         free(preprocess->layer[i].autocoder);
     }
     free(preprocess->layer);
+    free(preprocess->error_threshold);
 }
 
 /**
@@ -223,19 +241,21 @@ static int preprocess_image_initial(unsigned char img[],
         *BPerror = *BPerror + currBPerror;
     }
 
-    /* do the convolution for this layer */
-    retval =
-        features_convolve_image_to_floats(preprocess_layer_width(0,preprocess,0),
-                                          preprocess_layer_height(0,preprocess,0),
-                                          patch_radius,
-                                          preprocess->inputs_across,
-                                          preprocess->inputs_down,
-                                          preprocess->inputs_depth, img,
-                                          convolution_layer_units(0,preprocess),
-                                          preprocess->layer[0].convolution,
-                                          preprocess->layer[0].autocoder);
-    if (retval != 0) {
-        return -2;
+    if (preprocess->enable_convolution != 0) {
+        /* do the convolution for this layer */
+        retval =
+            features_convolve_image_to_floats(preprocess_layer_width(0,preprocess,0),
+                                              preprocess_layer_height(0,preprocess,0),
+                                              patch_radius,
+                                              preprocess->inputs_across,
+                                              preprocess->inputs_down,
+                                              preprocess->inputs_depth, img,
+                                              convolution_layer_units(0,preprocess),
+                                              preprocess->layer[0].convolution,
+                                              preprocess->layer[0].autocoder);
+        if (retval != 0) {
+            return -2;
+        }
     }
     return 0;
 }
@@ -278,49 +298,143 @@ static int preprocess_subsequent(deeplearn_preprocess * preprocess,
         }
         *BPerror = *BPerror + currBPerror;
     }
-    /* do the convolution for this layer */
-    retval =
-        features_convolve_floats_to_floats(preprocess_layer_width(layer_index,preprocess,0),
-                                           preprocess_layer_height(layer_index,preprocess,0),
-                                           patch_radius,
-                                           preprocess_layer_width(layer_index-1,preprocess,1),
-                                           preprocess_layer_height(layer_index-1,preprocess,1),
-                                           preprocess->max_features,
-                                           preprocess->layer[layer_index-1].pooling,
-                                           convolution_layer_units(layer_index,preprocess),
-                                           preprocess->layer[layer_index].convolution,
-                                           preprocess->layer[layer_index].autocoder);
-    if (retval != 0) {
-        return -5;
+
+    if (preprocess->enable_convolution != 0) {
+        /* do the convolution for this layer */
+        retval =
+            features_convolve_floats_to_floats(preprocess_layer_width(layer_index,preprocess,0),
+                                               preprocess_layer_height(layer_index,preprocess,0),
+                                               patch_radius,
+                                               preprocess_layer_width(layer_index-1,preprocess,1),
+                                               preprocess_layer_height(layer_index-1,preprocess,1),
+                                               preprocess->max_features,
+                                               preprocess->layer[layer_index-1].pooling,
+                                               convolution_layer_units(layer_index,preprocess),
+                                               preprocess->layer[layer_index].convolution,
+                                               preprocess->layer[layer_index].autocoder);
+        if (retval != 0) {
+            return -5;
+        }
     }
     return 0;
 }
 
 /**
- * @brief Performs preprocessing on an image as a series of
- *        convolutions and poolings
- * @param img Input image
- * @param preprocess Preprocessing object
- * @param BPerror Returned total backprop error from feature learning
- * @returns zero on success
- */
-int preprocess_image(unsigned char img[],
-                     deeplearn_preprocess * preprocess,
-                     float * BPerror)
+* @brief Returns the current layer being trained
+* @param preprocess Preprocessing object
+* @return Current maximum layer
+*/
+static int get_max_layer(deeplearn_preprocess * preprocess)
 {
-    int retval = -1;
+    if (preprocess->training_complete == 0) {
+        return preprocess->current_layer+1;
+    }
+    return preprocess->no_of_layers;
+}
 
-    *BPerror = 0;
-    for (int i = 0; i < preprocess->no_of_layers; i++) {
-        if (i == 0) {
-            retval = preprocess_image_initial(img, preprocess, BPerror);
+/**
+* @brief Enable or disable learning depending upon the given layer
+*        and training state
+* @param layer_index Index number of the convolution layer
+* @param preprocess Preprocessing object
+*/
+static void preprocess_enable_learning(int layer_index,
+                                       deeplearn_preprocess * preprocess)
+{
+    int max_layer = get_max_layer(preprocess);
+
+    if (preprocess->training_complete == 0) {
+        /* enable learning on the current layer only */
+        preprocess->enable_learning = 0;
+        preprocess->enable_convolution = 0;
+        if (layer_index == max_layer-1) {
+            preprocess->enable_learning = 1;
         }
         else {
-            retval = preprocess_subsequent(preprocess, i, BPerror);
+            preprocess->enable_convolution = 1;
+        }
+    }
+    else {
+        preprocess->enable_convolution = 1;
+        /* NOTE: there could be some residual learning probability
+           for use with online systems */
+        preprocess->enable_learning = 0;
+    }
+}
+
+/**
+* @brief Updates the current training error and moves to the next
+*        convolution layer if the error is low enough
+* @param layer_index The given layer index
+* @param BPerror Backpropogation error for this layer
+* @param preprocess Preprocessing object
+*/
+void preprocess_update_training_error(int layer_index,
+                                      float BPerror,
+                                      deeplearn_preprocess * preprocess)
+{
+    if (preprocess->training_complete != 0) {
+        return;
+    }
+
+    int max_layer = get_max_layer(preprocess);
+    if (layer_index < max_layer-1) {
+        return;
+    }
+
+    if (preprocess->BPerror < 0) {
+        preprocess->BPerror = BPerror;
+        return;
+    }
+
+    /* update training error as a running average */
+    preprocess->BPerror =
+        (preprocess->BPerror*0.99f) + (BPerror*0.01f);
+
+    /* has the training for this layer been completed? */
+    if (preprocess->BPerror <
+        preprocess->error_threshold[layer_index]) {
+
+        /* reset the error and move to the next layer */
+        preprocess->BPerror = -1;
+        preprocess->current_layer++;
+
+        /* if this is the final layer */
+        if (preprocess->current_layer >=
+            preprocess->no_of_layers) {
+            preprocess->training_complete = 1;
+        }
+    }
+}
+
+/**
+* @brief Performs preprocessing on an image as a series of
+*        convolutions and poolings
+* @param img Input image
+* @param preprocess Preprocessing object
+* @returns zero on success
+*/
+int preprocess_image(unsigned char img[],
+                     deeplearn_preprocess * preprocess)
+{
+    int retval = -1;
+    int max_layer = get_max_layer(preprocess);
+    float BPerror;
+
+    for (int i = 0; i < max_layer; i++) {
+        preprocess_enable_learning(i, preprocess);
+
+        BPerror = 0;
+        if (i == 0) {
+            retval = preprocess_image_initial(img, preprocess, &BPerror);
+        }
+        else {
+            retval = preprocess_subsequent(preprocess, i, &BPerror);
         }
         if (retval != 0) {
             return retval;
         }
+        preprocess_update_training_error(i, BPerror, preprocess);
 
         /* pooling */
         retval =

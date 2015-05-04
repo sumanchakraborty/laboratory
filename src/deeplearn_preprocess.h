@@ -51,12 +51,21 @@ typedef struct {
 } deeplearn_preprocess_layer;
 
 typedef struct {
+    unsigned int random_seed;
     int inputs_across, inputs_down;
     int inputs_depth;
     int max_features;
     int no_of_layers;
     unsigned char enable_learning;
+    unsigned char enable_convolution;
     deeplearn_preprocess_layer * layer;
+
+    /* keep track of training progress */
+    int current_layer;
+    float * error_threshold;
+    unsigned char training_complete;
+    unsigned int itterations;
+    float BPerror;
 } deeplearn_preprocess;
 
 int preprocess_patch_radius(int layer_index,
@@ -77,11 +86,11 @@ int preprocess_init(int no_of_layers,
                     int reduction_factor,
                     int pooling_factor,
                     deeplearn_preprocess * preprocess,
+                    float error_threshold[],
                     unsigned int * random_seed);
 
 void preprocess_free(deeplearn_preprocess * preprocess);
 int preprocess_image(unsigned char img[],
-                     deeplearn_preprocess * preprocess,
-                     float * BPerror);
+                     deeplearn_preprocess * preprocess);
 
 #endif
