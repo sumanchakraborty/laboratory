@@ -70,6 +70,8 @@ static void test_preprocess_image()
     unsigned char * img;
     deeplearn_preprocess preprocess;
     float BPerror = -1;
+	char plot_filename[256];
+	char plot_title[256];
 
     /* load image from file */
     assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
@@ -90,6 +92,13 @@ static void test_preprocess_image()
         }
         BPerror = preprocess.BPerror;
     }
+
+	sprintf(plot_filename,"/tmp/%s","libdeep_conv.png");
+	sprintf(plot_title,"%s","Convolution Training Error");
+
+    assert(preprocess_plot_history(&preprocess, plot_filename,
+								   plot_title,
+                                   1024, 640) == 0);
     preprocess_free(&preprocess);
     free(img);
 

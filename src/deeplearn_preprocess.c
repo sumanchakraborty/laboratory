@@ -59,6 +59,15 @@ int preprocess_init(int no_of_layers,
     rand_num(random_seed);
     preprocess->random_seed = *random_seed;
 
+    preprocess->history_ctr = 0;
+    preprocess->training_ctr = 0;
+    preprocess->history_index = 0;
+    preprocess->history_step = 1;
+    preprocess->history_plot_interval = 1;
+    sprintf(preprocess->history_plot_filename,"%s","training_conv.png");
+    sprintf(preprocess->history_plot_title,"%s",
+            "Convolutional Training History");
+
     preprocess->current_layer = 0;
     preprocess->training_complete = 0;
     preprocess->itterations = 0;
@@ -122,6 +131,39 @@ int preprocess_init(int no_of_layers,
         if (!preprocess->layer[i].pooling) return -4;
     }
     return 0;
+}
+
+/**
+* @brief Update the learning history
+* @param preprocess Preprocessing object
+*/
+static void preprocess_update_history(deeplearn_preprocess * preprocess)
+{
+    int i;
+    float error_value;
+
+    if (preprocess->history_step == 0) return;
+
+    preprocess->history_ctr++;
+    if (preprocess->history_ctr >= preprocess->history_step) {
+        error_value = preprocess->BPerror;
+        if (error_value == DEEPLEARN_UNKNOWN_ERROR) {
+            error_value = 0;
+        }
+
+        preprocess->history[preprocess->history_index] =
+            error_value;
+        preprocess->history_index++;
+        preprocess->history_ctr = 0;
+
+        if (preprocess->history_index >= DEEPLEARN_HISTORY_SIZE) {
+            for (i = 0; i < preprocess->history_index; i++) {
+                preprocess->history[i/2] = preprocess->history[i];
+            }
+            preprocess->history_index /= 2;
+            preprocess->history_step *= 2;
+        }
+    }
 }
 
 /**
@@ -398,6 +440,14 @@ void preprocess_update_training_error(int layer_index,
     preprocess->BPerror =
         (preprocess->BPerror*0.99f) + (BPerror*0.01f);
 
+    /* record the history of error values */
+    preprocess_update_history(preprocess);
+
+    /* increment the number of itterations */
+    if (preprocess->itterations < UINT_MAX) {
+        preprocess->itterations++;
+    }
+
     /* has the training for this layer been completed? */
     if (preprocess->BPerror <
         preprocess->error_threshold[layer_index]) {
@@ -457,4 +507,190 @@ int preprocess_image(unsigned char img[],
         }
     }
     return 0;
+}
+
+/**
+* @brief Uses gnuplot to plot the training error
+* @param preprocess Preprocessing object
+* @param filename Filename for the image to save as
+* @param title Title of the graph
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @return zero on success
+*/
+int preprocess_plot_history(deeplearn_preprocess * preprocess,
+                            char * filename, char * title,
+                            int image_width, int image_height)
+{
+    int index,retval=0;
+    FILE * fp;
+    char data_filename[256];
+    char plot_filename[256];
+    char command_str[256];
+    float value;
+    float max_value = 0.01f;
+
+    sprintf(data_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_conv_data.dat");
+    sprintf(plot_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_conv_data.plot");
+
+    /* save the data */
+    fp = fopen(data_filename,"w");
+    if (!fp) return -1;
+    for (index = 0; index < preprocess->history_index; index++) {
+        value = preprocess->history[index];
+        fprintf(fp,"%d    %.10f\n",
+                index*preprocess->history_step,value);
+        /* record the maximum error value */
+        if (value > max_value) {
+            max_value = value;
+        }
+    }
+    fclose(fp);
+
+    /* create a plot file */
+    fp = fopen(plot_filename,"w");
+    if (!fp) return -1;
+    fprintf(fp,"%s","reset\n");
+    fprintf(fp,"set title \"%s\"\n",title);
+    fprintf(fp,"set xrange [0:%d]\n",
+            preprocess->history_index*preprocess->history_step);
+    fprintf(fp,"set yrange [0:%f]\n",max_value*102/100);
+    fprintf(fp,"%s","set lmargin 9\n");
+    fprintf(fp,"%s","set rmargin 2\n");
+    fprintf(fp,"%s","set xlabel \"Time Step\"\n");
+    fprintf(fp,"%s","set ylabel \"Training Error Percent\"\n");
+
+    fprintf(fp,"%s","set grid\n");
+    fprintf(fp,"%s","set key right top\n");
+
+    fprintf(fp,"set terminal png size %d,%d\n",
+            image_width, image_height);
+    fprintf(fp,"set output \"%s\"\n", filename);
+    fprintf(fp,"plot \"%s\" using 1:2 notitle with lines\n",
+            data_filename);
+    fclose(fp);
+
+    /* run gnuplot using the created files */
+    sprintf(command_str,"gnuplot %s", plot_filename);
+    retval = system(command_str); /* I assume this is synchronous */
+
+    /* remove temporary files */
+    sprintf(command_str,"rm %s %s", data_filename,plot_filename);
+    retval = system(command_str);
+
+    return retval;
+}
+
+/**
+* @brief Saves the given preprocessing object to a file
+* @param fp File pointer
+* @param preprocess Preprocessing object
+* @return Non-zero value on success
+*/
+int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
+{
+    int retval,i;
+
+    retval = fwrite(&preprocess->random_seed, sizeof(unsigned int), 1, fp);
+    retval = fwrite(&preprocess->inputs_across, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->inputs_down, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->inputs_depth, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->max_features, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->no_of_layers, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->enable_learning, sizeof(unsigned char), 1, fp);
+    retval = fwrite(&preprocess->enable_convolution, sizeof(unsigned char), 1, fp);
+    retval = fwrite(&preprocess->current_layer, sizeof(int), 1, fp);
+    retval = fwrite(&preprocess->training_complete, sizeof(unsigned char), 1, fp);
+    retval = fwrite(&preprocess->itterations, sizeof(unsigned int), 1, fp);
+    for (i = 0; i < preprocess->no_of_layers; i++) {
+        bp_save(fp, &preprocess->layer[i].autocoder);
+        retval = fwrite(&preprocess->layer[i].units_across, sizeof(int), 1, fp);
+        retval = fwrite(&preprocess->layer[i].units_down, sizeof(int), 1, fp);
+        retval = fwrite(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp);
+    }
+    retval = fwrite(preprocess->error_threshold, sizeof(float), preprocess->no_of_layers, fp);
+
+    return retval;
+}
+
+/**
+* @brief Loads a preprocessing object from file
+* @param fp File pointer
+* @param preprocess Preprocessing object
+* @param random_seed Random number generator seed
+* @return zero value on success
+*/
+int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess,
+                    unsigned int * random_seed)
+{
+    int retval,i;
+
+    retval = fread(&preprocess->random_seed, sizeof(unsigned int), 1, fp);
+    if (retval == 0) {
+        return -1;
+    }
+    retval = fread(&preprocess->inputs_across, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -2;
+    }
+    retval = fread(&preprocess->inputs_down, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -3;
+    }
+    retval = fread(&preprocess->inputs_depth, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -4;
+    }
+    retval = fread(&preprocess->max_features, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -5;
+    }
+    retval = fread(&preprocess->no_of_layers, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -6;
+    }
+    retval = fread(&preprocess->enable_learning, sizeof(unsigned char), 1, fp);
+    if (retval == 0) {
+        return -7;
+    }
+    retval = fread(&preprocess->enable_convolution, sizeof(unsigned char), 1, fp);
+    if (retval == 0) {
+        return -8;
+    }
+    retval = fread(&preprocess->current_layer, sizeof(int), 1, fp);
+    if (retval == 0) {
+        return -9;
+    }
+    retval = fread(&preprocess->training_complete, sizeof(unsigned char), 1, fp);
+    if (retval == 0) {
+        return -10;
+    }
+    retval = fread(&preprocess->itterations, sizeof(unsigned int), 1, fp);
+    if (retval == 0) {
+        return -11;
+    }
+
+    for (i = 0; i < preprocess->no_of_layers; i++) {
+        bp_load(fp, &preprocess->layer[i].autocoder, &preprocess->random_seed);
+        retval = fread(&preprocess->layer[i].units_across, sizeof(int), 1, fp);
+        if (retval == 0) {
+            return -12;
+        }
+        retval = fread(&preprocess->layer[i].units_down, sizeof(int), 1, fp);
+        if (retval == 0) {
+            return -13;
+        }
+        retval = fread(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp);
+        if (retval == 0) {
+            return -14;
+        }
+    }
+    retval = fread(preprocess->error_threshold, sizeof(float), preprocess->no_of_layers, fp);
+    if (retval == 0) {
+        return -15;
+    }
+
+    return retval;
 }

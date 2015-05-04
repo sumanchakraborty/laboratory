@@ -66,6 +66,15 @@ typedef struct {
     unsigned char training_complete;
     unsigned int itterations;
     float BPerror;
+
+    /* training history */
+    unsigned int training_ctr;
+    unsigned int history_plot_interval;
+    char history_plot_filename[256];
+    char history_plot_title[256];
+
+    float history[DEEPLEARN_HISTORY_SIZE];
+    int history_index, history_ctr, history_step;
 } deeplearn_preprocess;
 
 int preprocess_patch_radius(int layer_index,
@@ -92,5 +101,11 @@ int preprocess_init(int no_of_layers,
 void preprocess_free(deeplearn_preprocess * preprocess);
 int preprocess_image(unsigned char img[],
                      deeplearn_preprocess * preprocess);
+int preprocess_plot_history(deeplearn_preprocess * preprocess,
+                            char * filename, char * title,
+                            int image_width, int image_height);
+int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess);
+int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess,
+					unsigned int * random_seed);
 
 #endif

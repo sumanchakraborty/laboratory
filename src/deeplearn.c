@@ -932,8 +932,10 @@ int deeplearn_plot_history(deeplearn * learner,
     float value;
     float max_value = 0.01f;
 
-    sprintf(data_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,"libgpr_data.dat");
-    sprintf(plot_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,"libgpr_data.plot");
+    sprintf(data_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_data.dat");
+    sprintf(plot_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_data.plot");
 
     /* save the data */
     fp = fopen(data_filename,"w");
