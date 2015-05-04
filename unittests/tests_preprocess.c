@@ -35,23 +35,23 @@ static void test_preprocess_init()
     unsigned int image_width = 512;
     unsigned int image_height = 512;
     unsigned int bitsperpixel = 24;
-	int no_of_layers = 3;
-	int max_features = 20;
-	int reduction_factor = 4;
-	int pooling_factor = 2;
-	float error_threshold[] = {0.0, 0.0, 0.0};
-	unsigned int random_seed = 648326;
-	deeplearn_preprocess preprocess;
+    int no_of_layers = 3;
+    int max_features = 20;
+    int reduction_factor = 4;
+    int pooling_factor = 2;
+    float error_threshold[] = {0.0, 0.0, 0.0};
+    unsigned int random_seed = 648326;
+    deeplearn_preprocess preprocess;
 
-	assert(preprocess_init(no_of_layers,
-						   image_width, image_height,
-						   bitsperpixel/8, max_features,
-						   reduction_factor, pooling_factor,
-						   &preprocess, error_threshold,
-						   &random_seed) == 0);
-	preprocess_free(&preprocess);
+    assert(preprocess_init(no_of_layers,
+                           image_width, image_height,
+                           bitsperpixel/8, max_features,
+                           reduction_factor, pooling_factor,
+                           &preprocess, error_threshold,
+                           &random_seed) == 0);
+    preprocess_free(&preprocess);
 
-	printf("Ok\n");
+    printf("Ok\n");
 }
 
 static void test_preprocess_image()
@@ -61,41 +61,47 @@ static void test_preprocess_image()
     unsigned int image_width = 10;
     unsigned int image_height = 10;
     unsigned int bitsperpixel = 0;
-	int no_of_layers = 3;
-	int max_features = 20;
-	int reduction_factor = 8;
-	int pooling_factor = 2;
-	float error_threshold[] = {0.0, 0.0, 0.0};
-	unsigned int random_seed = 648326;
+    int no_of_layers = 3;
+    int max_features = 20;
+    int reduction_factor = 4;
+    int pooling_factor = 2;
+    float error_threshold[] = {0.0, 0.0, 0.0};
+    unsigned int random_seed = 648326;
     unsigned char * img;
-	deeplearn_preprocess preprocess;
+    deeplearn_preprocess preprocess;
+    float BPerror = -1;
 
     /* load image from file */
     assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
 
-	assert(preprocess_init(no_of_layers,
-						   image_width, image_height,
-						   bitsperpixel/8, max_features,
-						   reduction_factor, pooling_factor,
-						   &preprocess, error_threshold,
-						   &random_seed) == 0);
-	for (int i = 0; i < 10; i++) {
-		assert(preprocess_image(img, &preprocess) == 0);
-		printf("layer: %d  BPerror: %f\n",
-			   preprocess.current_layer, preprocess.BPerror);
-	}
-	preprocess_free(&preprocess);
+    assert(preprocess_init(no_of_layers,
+                           image_width, image_height,
+                           bitsperpixel/8, max_features,
+                           reduction_factor, pooling_factor,
+                           &preprocess, error_threshold,
+                           &random_seed) == 0);
+    for (int i = 0; i < 3; i++) {
+        assert(preprocess_image(img, &preprocess) == 0);
+        /* error should be >= 0 */
+        assert(preprocess.BPerror >= 0);
+        /* error should be reducing */
+        if (i > 0) {
+            assert(preprocess.BPerror < BPerror);
+        }
+        BPerror = preprocess.BPerror;
+    }
+    preprocess_free(&preprocess);
     free(img);
 
-	printf("Ok\n");
+    printf("Ok\n");
 }
 
 int run_tests_preprocess()
 {
     printf("\nRunning preprocessing tests\n");
 
-	test_preprocess_init();
-	test_preprocess_image();
+    test_preprocess_init();
+    test_preprocess_image();
 
     printf("All preprocessing tests completed\n");
     return 1;
