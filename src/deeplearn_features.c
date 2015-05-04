@@ -209,6 +209,9 @@ int features_learn_from_image(int samples_across,
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
+
+    /* calculate the average error */
+    *BPerror = *BPerror / (samples_across*samples_down);
     return 0;
 }
 
@@ -274,6 +277,9 @@ int features_learn_from_floats(int samples_across,
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
+
+    /* calculate the average error */
+    *BPerror = *BPerror / (samples_across*samples_down);
     return 0;
 }
 

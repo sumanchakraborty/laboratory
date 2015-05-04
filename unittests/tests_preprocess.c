@@ -79,6 +79,11 @@ static void test_preprocess_image()
 						   reduction_factor, pooling_factor,
 						   &preprocess, error_threshold,
 						   &random_seed) == 0);
+	for (int i = 0; i < 10; i++) {
+		assert(preprocess_image(img, &preprocess) == 0);
+		printf("layer: %d  BPerror: %f\n",
+			   preprocess.current_layer, preprocess.BPerror);
+	}
 	preprocess_free(&preprocess);
     free(img);
 
