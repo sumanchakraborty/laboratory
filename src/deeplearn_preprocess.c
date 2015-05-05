@@ -706,8 +706,11 @@ int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
     }
 
     error_threshold = (float*)malloc(sizeof(float)*preprocess->no_of_layers);
+	if (!error_threshold) {
+		return -14;
+	}
     if (fread(error_threshold, sizeof(float), preprocess->no_of_layers, fp) == 0) {
-        return -14;
+        return -15;
     }
 
     if (preprocess_init(preprocess->no_of_layers,
@@ -717,22 +720,22 @@ int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
                         preprocess, error_threshold,
                         &preprocess->random_seed) != 0) {
         free(error_threshold);
-        return -15;
+        return -16;
     }
     free(error_threshold);
 
     for (int i = 0; i < preprocess->no_of_layers; i++) {
         if (bp_load(fp, &preprocess->layer[i].autocoder, &preprocess->random_seed) != 0) {
-			return -16;
+			return -17;
 		}
         if (fread(&preprocess->layer[i].units_across, sizeof(int), 1, fp) == 0) {
-            return -17;
-        }
-        if (fread(&preprocess->layer[i].units_down, sizeof(int), 1, fp) == 0) {
             return -18;
         }
-        if (fread(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp) == 0) {
+        if (fread(&preprocess->layer[i].units_down, sizeof(int), 1, fp) == 0) {
             return -19;
+        }
+        if (fread(&preprocess->layer[i].pooling_factor, sizeof(int), 1, fp) == 0) {
+            return -20;
         }
     }
 

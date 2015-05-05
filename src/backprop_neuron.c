@@ -343,27 +343,43 @@ void bp_neuron_learn(bp_neuron * n,
          save the connections, since layers are always fully interconnected
 * @param fp File pointer
 * @param n Backprop neuron object
-* @return Non zero value if saving is successful
+* @return zero value if saving is successful
 */
 int bp_neuron_save(FILE * fp, bp_neuron * n)
 {
-    int retval;
+    if (fwrite(&n->NoOfInputs, sizeof(int), 1, fp) == 0) {
+        return -1;
+    }
 
-    retval = fwrite(&n->NoOfInputs, sizeof(int), 1, fp);
+    if (fwrite(n->weights, sizeof(float), n->NoOfInputs, fp) == 0) {
+        return -2;
+    }
 
-    retval = fwrite(n->weights, sizeof(float),
-                    n->NoOfInputs, fp);
-    retval = fwrite(n->lastWeightChange, sizeof(float),
-                    n->NoOfInputs, fp);
+    if (fwrite(n->lastWeightChange, sizeof(float), n->NoOfInputs, fp) == 0) {
+        return -3;
+    }
 
-    retval = fwrite(&n->min_weight, sizeof(float), 1, fp);
-    retval = fwrite(&n->max_weight, sizeof(float), 1, fp);
+    if (fwrite(&n->min_weight, sizeof(float), 1, fp) == 0) {
+        return -4;
+    }
 
-    retval = fwrite(&n->bias, sizeof(float), 1, fp);
-    retval = fwrite(&n->lastBiasChange, sizeof(float), 1, fp);
-    retval = fwrite(&n->desiredValue, sizeof(float), 1, fp);
+    if (fwrite(&n->max_weight, sizeof(float), 1, fp) == 0) {
+        return -5;
+    }
 
-    return retval;
+    if (fwrite(&n->bias, sizeof(float), 1, fp) == 0) {
+        return -6;
+    }
+
+    if (fwrite(&n->lastBiasChange, sizeof(float), 1, fp) == 0) {
+        return -7;
+    }
+
+    if (fwrite(&n->desiredValue, sizeof(float), 1, fp) == 0) {
+        return -8;
+    }
+
+    return 0;
 }
 
 /**
@@ -374,43 +390,35 @@ int bp_neuron_save(FILE * fp, bp_neuron * n)
 */
 int bp_neuron_load(FILE * fp, bp_neuron * n)
 {
-    int retval;
-
-    retval = fread(&n->NoOfInputs, sizeof(int), 1, fp);
-    if (retval == 0) {
+    if (fread(&n->NoOfInputs, sizeof(int), 1, fp) == 0) {
         return -1;
     }
 
-    retval = fread(n->weights, sizeof(float),
-                   n->NoOfInputs, fp);
-    if (retval == 0) {
+    if (fread(n->weights, sizeof(float), n->NoOfInputs, fp) == 0) {
         return -2;
     }
-    retval = fread(n->lastWeightChange, sizeof(float),
-                   n->NoOfInputs, fp);
-    if (retval == 0) {
+
+    if (fread(n->lastWeightChange, sizeof(float), n->NoOfInputs, fp) == 0) {
         return -3;
     }
 
-    retval = fread(&n->min_weight, sizeof(float), 1, fp);
-    if (retval == 0) {
+    if (fread(&n->min_weight, sizeof(float), 1, fp) == 0) {
         return -4;
     }
-    retval = fread(&n->max_weight, sizeof(float), 1, fp);
-    if (retval == 0) {
+
+    if (fread(&n->max_weight, sizeof(float), 1, fp) == 0) {
         return -5;
     }
 
-    retval = fread(&n->bias, sizeof(float), 1, fp);
-    if (retval == 0) {
+    if (fread(&n->bias, sizeof(float), 1, fp) == 0) {
         return -6;
     }
-    retval = fread(&n->lastBiasChange, sizeof(float), 1, fp);
-    if (retval == 0) {
+
+    if (fread(&n->lastBiasChange, sizeof(float), 1, fp) == 0) {
         return -7;
     }
-    retval = fread(&n->desiredValue, sizeof(float), 1, fp);
-    if (retval == 0) {
+
+    if (fread(&n->desiredValue, sizeof(float), 1, fp) == 0) {
         return -8;
     }
 
