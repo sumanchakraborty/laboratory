@@ -921,31 +921,48 @@ void bp_pretrain(bp * net,
 * @brief Save a neural network to file
 * @brief fp File pointer
 * @param net Backprop neural net object
+* @return zero on success
 */
 int bp_save(FILE * fp, bp * net)
 {
-    int retval,i,l;
+    if (fwrite(&net->itterations, sizeof(unsigned int), 1, fp) == 0) {
+		return -1;
+	}
+    if (fwrite(&net->NoOfInputs, sizeof(int), 1, fp) == 0) {
+		return -2;
+	}
+    if (fwrite(&net->NoOfHiddens, sizeof(int), 1, fp) == 0) {
+		return -3;
+	}
+    if (fwrite(&net->NoOfOutputs, sizeof(int), 1, fp) == 0) {
+		return -4;
+	}
+    if (fwrite(&net->HiddenLayers, sizeof(int), 1, fp) == 0) {
+		return -5;
+	}
+    if (fwrite(&net->learningRate, sizeof(float), 1, fp) == 0) {
+		return -6;
+	}
+    if (fwrite(&net->noise, sizeof(float), 1, fp) == 0) {
+		return -7;
+	}
+    if (fwrite(&net->BPerrorAverage, sizeof(float), 1, fp) == 0) {
+		return -8;
+	}
+    if (fwrite(&net->DropoutPercent, sizeof(float), 1, fp) == 0) {
+		return -9;
+	}
 
-    retval = fwrite(&net->itterations, sizeof(unsigned int), 1, fp);
-    retval = fwrite(&net->NoOfInputs, sizeof(int), 1, fp);
-    retval = fwrite(&net->NoOfHiddens, sizeof(int), 1, fp);
-    retval = fwrite(&net->NoOfOutputs, sizeof(int), 1, fp);
-    retval = fwrite(&net->HiddenLayers, sizeof(int), 1, fp);
-    retval = fwrite(&net->learningRate, sizeof(float), 1, fp);
-    retval = fwrite(&net->noise, sizeof(float), 1, fp);
-    retval = fwrite(&net->BPerrorAverage, sizeof(float), 1, fp);
-    retval = fwrite(&net->DropoutPercent, sizeof(float), 1, fp);
-
-    for (l = 0; l < net->HiddenLayers; l++) {
-        for (i = 0; i < bp_hiddens_in_layer(net,l); i++) {
+    for (int l = 0; l < net->HiddenLayers; l++) {
+        for (int i = 0; i < bp_hiddens_in_layer(net,l); i++) {
             bp_neuron_save(fp,net->hiddens[l][i]);
         }
     }
-    for (i = 0; i < net->NoOfOutputs; i++) {
+    for (int i = 0; i < net->NoOfOutputs; i++) {
         bp_neuron_save(fp,net->outputs[i]);
     }
 
-    return retval;
+    return 0;
 }
 
 /**

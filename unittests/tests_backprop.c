@@ -535,13 +535,13 @@ static void test_backprop_save_load()
     /* save the first network */
     fp = fopen(filename,"wb");
     assert(fp!=0);
-    bp_save(fp, &net1);
+    assert(bp_save(fp, &net1) == 0);
     fclose(fp);
 
     /* load into the second network */
     fp = fopen(filename,"rb");
     assert(fp!=0);
-    bp_load(fp, &net2, &random_seed);
+    assert(bp_load(fp, &net2, &random_seed) == 0);
     fclose(fp);
 
     /* compare the two */

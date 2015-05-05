@@ -117,6 +117,7 @@ static void test_preprocess_save_load()
     int reduction_factor = 4;
     int pooling_factor = 2;
     float error_threshold[] = {0.1, 0.2, 0.3};
+    float error_threshold2[] = {0.6, 0.7, 0.8};
     unsigned int random_seed = 648326;
     deeplearn_preprocess preprocess1;
     deeplearn_preprocess preprocess2;
@@ -135,7 +136,7 @@ static void test_preprocess_save_load()
     /* save */
     fp = fopen(filename,"w");
     assert(fp);
-    assert(preprocess_save(fp, &preprocess1));
+    assert(preprocess_save(fp, &preprocess1) == 0);
     fclose(fp);
 
     /* set some different values */
@@ -146,9 +147,7 @@ static void test_preprocess_save_load()
     preprocess2.inputs_depth = 16;
     preprocess2.no_of_layers = 2;
     preprocess2.max_features = 15;
-    preprocess2.error_threshold[0] = 0.6;
-    preprocess2.error_threshold[1] = 0.7;
-    preprocess2.error_threshold[2] = 0.8;
+    preprocess2.error_threshold = error_threshold2;
     preprocess2.random_seed = 20313;
     preprocess2.enable_learning = 0;
     preprocess2.enable_convolution = 0;
@@ -159,7 +158,7 @@ static void test_preprocess_save_load()
     /* load */
     fp = fopen(filename,"r");
     assert(fp);
-    assert(preprocess_save(fp, &preprocess2));
+    assert(preprocess_load(fp, &preprocess2) == 0);
     fclose(fp);
 
     /* compare the results */
@@ -197,7 +196,7 @@ int run_tests_preprocess()
 
     test_preprocess_init();
     test_preprocess_image();
-    /*test_preprocess_save_load();*/
+    test_preprocess_save_load();
 
     printf("All preprocessing tests completed\n");
     return 1;
