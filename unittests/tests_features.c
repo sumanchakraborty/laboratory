@@ -87,8 +87,6 @@ static void test_learn_from_image()
         }
         assert(result==0);
         error_value[i] = BPerror;
-        printf("error_value %f\n",
-               error_value[i]);
     }
 
     /* check that the training error reduced */
