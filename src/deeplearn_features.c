@@ -126,6 +126,7 @@ static void scan_floats_patch(float inputs_floats[],
 * @param ty Returned top coordinate
 * @param bx Returned bottom right coordinate
 * @param by Returned bottom coordinate
+* @return zero if the patch does not exceed the limits of the area
 */
 int features_patch_coords(int x, int y,
                           int samples_across,
