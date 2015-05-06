@@ -159,6 +159,13 @@ static void preprocess_update_history(deeplearn_preprocess * preprocess)
         preprocess->history_index++;
         preprocess->history_ctr = 0;
 
+        /* show the learned features */
+        if (preprocess->current_layer == 0) {
+            features_plot_weights(&preprocess->layer[0].autocoder,
+                                  "/tmp/learned_features.png",3,
+                                  800, 800);
+        }
+
         if (preprocess->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < preprocess->history_index; i++) {
                 preprocess->history[i/2] = preprocess->history[i];
@@ -639,8 +646,8 @@ int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
     for (int i = 0; i < preprocess->no_of_layers; i++) {
         bp * net = &preprocess->layer[i].autocoder;
         if (bp_save(fp, net) != 0) {
-			return -15;
-		}
+            return -15;
+        }
         if (fwrite(&preprocess->layer[i].units_across, sizeof(int), 1, fp) == 0) {
             return -16;
         }
@@ -706,9 +713,9 @@ int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
     }
 
     error_threshold = (float*)malloc(sizeof(float)*preprocess->no_of_layers);
-	if (!error_threshold) {
-		return -14;
-	}
+    if (!error_threshold) {
+        return -14;
+    }
     if (fread(error_threshold, sizeof(float), preprocess->no_of_layers, fp) == 0) {
         return -15;
     }
@@ -726,8 +733,8 @@ int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
 
     for (int i = 0; i < preprocess->no_of_layers; i++) {
         if (bp_load(fp, &preprocess->layer[i].autocoder, &preprocess->random_seed) != 0) {
-			return -17;
-		}
+            return -17;
+        }
         if (fread(&preprocess->layer[i].units_across, sizeof(int), 1, fp) == 0) {
             return -18;
         }

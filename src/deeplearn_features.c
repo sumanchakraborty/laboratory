@@ -556,3 +556,118 @@ int features_convolve_floats_to_neurons(int samples_across,
     }
     return 0;
 }
+
+/**
+ * @brief Plots the learned feature vectors within an image
+ * @param net The feature learning neural net
+ * @param filename The filename to save as
+ * @param input_image_width The depth of the input image used
+ *        during training
+ * @param image_width Width of the image to be saved
+ * @param image_height Height of the image to be saved
+ * @return zero on success
+ */
+int features_plot_weights(bp * net,
+                          char * filename,
+                          int input_image_depth,
+                          int image_width, int image_height)
+{
+    int no_of_features = net->NoOfHiddens;
+    int features_across = (int)sqrt(no_of_features);
+    int features_down = no_of_features / features_across;
+    int patch_diameter = (int)sqrt(net->NoOfInputs);
+    unsigned char * img;
+    float * min_weight, * max_weight, * weight_range;
+    const int layer_index = 0;
+
+    /* allocate memory for the image */
+    img = (unsigned char*)malloc(image_width*image_height*3);
+    if (!img) {
+        return -1;
+    }
+
+    /* clear the image with a white background */
+    memset((void*)img,'\255',image_width*image_height*3);
+
+    /* get the min and max weight values, so that we can
+       scale accordingly */
+    min_weight = (float*)malloc(no_of_features*sizeof(float));
+    if (!min_weight) return -2;
+    memset((void*)min_weight,'\0',no_of_features*sizeof(float));
+    max_weight = (float*)malloc(no_of_features*sizeof(float));
+    if (!max_weight) return -2;
+    memset((void*)max_weight,'\0',no_of_features*sizeof(float));
+    weight_range = (float*)malloc(no_of_features*sizeof(float));
+    if (!weight_range) return -3;
+    memset((void*)weight_range,'\0',no_of_features*sizeof(float));
+    for (int i = 0; i < no_of_features; i++) {
+        bp_neuron * nrn = net->hiddens[layer_index][i];
+        for (int j = 0; j < net->NoOfInputs; j++) {
+            if ((nrn->weights[j] < min_weight[i]) ||
+                (min_weight[i] == 0)) {
+                min_weight[i] = nrn->weights[j];
+            }
+            if ((nrn->weights[j] > max_weight[i]) ||
+                (max_weight[i] == 0)) {
+                max_weight[i] = nrn->weights[j];
+            }
+        }
+        weight_range[i] = max_weight[i] - min_weight[i];
+    }
+    
+    for (int y = 0; y < image_height; y++) {
+        int fy = y * features_down / image_height;
+        /* array y position within the patch */
+        int py =
+            (((float)y * features_down / (float)image_height) - fy)*
+            patch_diameter;
+        for (int x = 0; x < image_width; x++) {
+            int fx = x * features_across / image_width;
+            /* array x position within the patch */
+            int px =
+                (((float)x * features_across / (float)image_width) - fx)*
+                patch_diameter;
+            /* position within the patch */
+            int pn = (py*patch_diameter + px)*input_image_depth;
+            /* array index within the output image */
+            int in = (y*image_width + x)*3;
+            /* array index of the feature (hidden unit) */
+            int hidden_index = fy*features_across + fx;
+            if (hidden_index < net->NoOfHiddens) {
+                if (max_weight[hidden_index] > min_weight[hidden_index]) {
+                    if (input_image_depth == 3) {
+                        for (int c = 0; c < 3; c++) {
+                            float weight =
+                                net->hiddens[layer_index][hidden_index]->weights[pn+c];
+                            /* convert weight to an unsigned char */                        
+                            img[in++] =
+                                (unsigned char)((weight - min_weight[hidden_index])*255/
+                                                weight_range[hidden_index]);
+                        }
+                    }
+                    if (input_image_depth == 1) {
+                        float weight =
+                            net->hiddens[layer_index][hidden_index]->weights[pn];
+                        /* convert weight to an unsigned char */                        
+                        img[in] =
+                            (unsigned char)((weight - min_weight[hidden_index])*255/
+                                            weight_range[hidden_index]);
+                        img[in+1] = img[in];
+                        img[in+2] = img[in];
+                    }
+                }
+            }
+        }
+    }
+
+    deeplearn_write_png_file(filename,
+                             (unsigned int)image_width, (unsigned int)image_height,
+                             24, img);
+
+    /* deallocate memory */
+    free(img);
+    free(min_weight);
+    free(max_weight);
+    free(weight_range);
+    return 0;
+}

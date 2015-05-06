@@ -110,5 +110,9 @@ int features_convolve_floats_to_neurons(int samples_across,
                                         float layer0[],
                                         bp * net,
                                         bp * feature_autocoder);
+int features_plot_weights(bp * net,
+                          char * filename,
+                          int input_image_depth,
+                          int image_width, int image_height);
 
 #endif
