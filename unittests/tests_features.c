@@ -44,7 +44,7 @@ static void test_learn_from_image()
     int no_of_outputs = 2*2;
     float error_value[10];
     unsigned int bitsperpixel = 0;
-    unsigned char * img;
+    unsigned char * img, * img2;
     float BPerror=0;
 
     /* load image from file */
@@ -53,6 +53,15 @@ static void test_learn_from_image()
     assert(image_width == 512);
     assert(image_height == 512);
     assert(bitsperpixel == 24);
+
+	img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
+	assert(img2);
+	deeplearn_downsample(img, image_width, image_height,
+						 img2, 128, 128);
+	free(img);
+	img = img2;
+	image_width = 128;
+	image_height = 128;
 
     int samples_across = image_width/20;
     int samples_down = image_height/20;

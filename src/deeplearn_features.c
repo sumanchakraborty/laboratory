@@ -127,25 +127,26 @@ static void scan_floats_patch(float inputs_floats[],
 * @param bx Returned bottom right coordinate
 * @param by Returned bottom coordinate
 */
-void features_patch_coords(int x, int y,
-                           int samples_across,
-                           int samples_down,
-                           int patch_radius,
-                           int width, int height,
-                           int * tx, int * ty, int * bx, int * by)
+int features_patch_coords(int x, int y,
+                          int samples_across,
+                          int samples_down,
+                          int patch_radius,
+                          int width, int height,
+                          int * tx, int * ty, int * bx, int * by)
 {
     int cy = y * height / samples_down;
     int cx = x * width / samples_across;
 
     *ty = cy - patch_radius;
     *by = cy + patch_radius;
-    if (*ty < 0) *ty = 0;
-    if (*by >= height) *by = height-1;
+    if (*ty < 0) return -1;
+    if (*by >= height) return -2;
 
     *tx = cx - patch_radius;
     *bx = cx + patch_radius;
-    if (*tx < 0) *tx = 0;
-    if (*bx >= width) *bx = width-1;
+    if (*tx < 0) return -3;
+    if (*bx >= width) return -4;
+    return 0;
 }
 
 /**
@@ -198,9 +199,11 @@ int features_learn_from_image(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, image_width, image_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, image_width, image_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 1);
@@ -266,9 +269,11 @@ int features_learn_from_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, inputs_width, inputs_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, inputs_width, inputs_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
                               tx, ty, bx, by, feature_autocoder, 1);
@@ -331,9 +336,11 @@ int features_convolve_image_to_neurons(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, image_width, image_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, image_width, image_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 0);
@@ -401,9 +408,11 @@ int features_convolve_image_to_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, image_width, image_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, image_width, image_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 0);
@@ -470,9 +479,11 @@ int features_convolve_floats_to_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, floats_width, floats_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, floats_width, floats_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_floats_patch(layer0, floats_width, floats_depth,
                               tx, ty, bx, by, feature_autocoder, 0);
@@ -537,9 +548,11 @@ int features_convolve_floats_to_neurons(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            features_patch_coords(fx, fy, samples_across, samples_down,
-                                  patch_radius, floats_width, floats_height,
-                                  &tx, &ty, &bx, &by);
+            if (features_patch_coords(fx, fy, samples_across, samples_down,
+                                      patch_radius, floats_width, floats_height,
+                                      &tx, &ty, &bx, &by) != 0) {
+                continue;
+            }
 
             scan_floats_patch(layer0, floats_width, floats_depth,
                               tx, ty, bx, by, feature_autocoder, 0);
@@ -602,19 +615,19 @@ int features_plot_weights(bp * net,
     memset((void*)weight_range,'\0',no_of_features*sizeof(float));
     for (int i = 0; i < no_of_features; i++) {
         bp_neuron * nrn = net->hiddens[layer_index][i];
-        for (int j = 0; j < net->NoOfInputs; j++) {
-            if ((nrn->weights[j] < min_weight[i]) ||
-                (min_weight[i] == 0)) {
+        min_weight[i] = nrn->weights[0];
+        max_weight[i] = nrn->weights[0];
+        for (int j = 1; j < net->NoOfInputs; j++) {
+            if (nrn->weights[j] < min_weight[i]) {
                 min_weight[i] = nrn->weights[j];
             }
-            if ((nrn->weights[j] > max_weight[i]) ||
-                (max_weight[i] == 0)) {
+            if (nrn->weights[j] > max_weight[i]) {
                 max_weight[i] = nrn->weights[j];
             }
         }
         weight_range[i] = max_weight[i] - min_weight[i];
     }
-    
+
     for (int y = 0; y < image_height; y++) {
         int fy = y * features_down / image_height;
         /* array y position within the patch */
@@ -639,7 +652,7 @@ int features_plot_weights(bp * net,
                         for (int c = 0; c < 3; c++) {
                             float weight =
                                 net->hiddens[layer_index][hidden_index]->weights[pn+c];
-                            /* convert weight to an unsigned char */                        
+                            /* convert weight to an unsigned char */
                             img[in++] =
                                 (unsigned char)((weight - min_weight[hidden_index])*255/
                                                 weight_range[hidden_index]);
@@ -648,7 +661,7 @@ int features_plot_weights(bp * net,
                     if (input_image_depth == 1) {
                         float weight =
                             net->hiddens[layer_index][hidden_index]->weights[pn];
-                        /* convert weight to an unsigned char */                        
+                        /* convert weight to an unsigned char */
                         img[in] =
                             (unsigned char)((weight - min_weight[hidden_index])*255/
                                             weight_range[hidden_index]);

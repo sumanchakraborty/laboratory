@@ -63,11 +63,11 @@ static void test_preprocess_image()
     unsigned int bitsperpixel = 0;
     int no_of_layers = 3;
     int max_features = 20;
-    int reduction_factor = 4;
+    int reduction_factor = 6;
     int pooling_factor = 2;
     float error_threshold[] = {0.0, 0.0, 0.0};
     unsigned int random_seed = 648326;
-    unsigned char * img;
+    unsigned char * img, * img2;
     deeplearn_preprocess preprocess;
     float BPerror = -1;
     char plot_filename[256];
@@ -76,13 +76,22 @@ static void test_preprocess_image()
     /* load image from file */
     assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
 
+	img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
+	assert(img2);
+	deeplearn_downsample(img, image_width, image_height,
+						 img2, 128, 128);
+	free(img);
+	img = img2;
+	image_width = 128;
+	image_height = 128;
+
     assert(preprocess_init(no_of_layers,
                            image_width, image_height,
                            bitsperpixel/8, max_features,
                            reduction_factor, pooling_factor,
                            &preprocess, error_threshold,
                            &random_seed) == 0);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 50; i++) {
         assert(preprocess_image(img, &preprocess) == 0);
         /* error should be >= 0 */
         assert(preprocess.BPerror >= 0);

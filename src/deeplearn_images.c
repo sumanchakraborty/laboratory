@@ -149,11 +149,11 @@ static int number_of_images(char * images_directory,
 * @param downsampled_width Downsampled image width in pixels
 * @param downsampled_height Downsampled image height in pixels
 */
-static void deeplearn_downsample(unsigned char img[],
-                                 int width, int height,
-                                 unsigned char downsampled[],
-                                 int downsampled_width,
-                                 int downsampled_height)
+void deeplearn_downsample(unsigned char img[],
+                          int width, int height,
+                          unsigned char downsampled[],
+                          int downsampled_width,
+                          int downsampled_height)
 {
     int x,y,n2,xx,yy,n=0;
 

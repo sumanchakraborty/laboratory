@@ -64,5 +64,10 @@ void bp_plot_images(unsigned char **images,
                     int no_of_images,
                     int image_width, int image_height,
                     char * filename);
+void deeplearn_downsample(unsigned char img[],
+                          int width, int height,
+                          unsigned char downsampled[],
+                          int downsampled_width,
+                          int downsampled_height);
 
 #endif
