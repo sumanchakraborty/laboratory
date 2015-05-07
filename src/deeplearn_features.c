@@ -54,12 +54,6 @@ static void scan_image_patch(unsigned char img[],
                 ((y*image_width) + x) * image_depth;
             for (int d = 0; d < image_depth;
                  d++, index_feature_input++) {
-                if (index_feature_input >=
-                    feature_autocoder->NoOfInputs) {
-                    printf("Inputs out of range %d/%d\n",
-                           index_feature_input,
-                           feature_autocoder->NoOfInputs);
-                }
                 /* convert from 8 bit to a neuron value */
                 float v =
                     0.25f + (img[index_image+d]/(2*255.0f));
@@ -633,14 +627,14 @@ int features_plot_weights(bp * net,
         int fy = y * features_down / image_height;
         /* array y position within the patch */
         int py =
-            (((float)y * features_down / (float)image_height) - fy)*
-            patch_diameter;
+            (int)((((float)y * features_down / (float)image_height) - fy)*
+             patch_diameter);
         for (int x = 0; x < image_width; x++) {
             int fx = x * features_across / image_width;
             /* array x position within the patch */
             int px =
-                (((float)x * features_across / (float)image_width) - fx)*
-                patch_diameter;
+                (int)((((float)x * features_across / (float)image_width) - fx)*
+                 patch_diameter);
             /* position within the patch */
             int pn = (py*patch_diameter + px)*input_image_depth;
             /* array index within the output image */
