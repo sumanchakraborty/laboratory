@@ -583,11 +583,11 @@ int features_plot_weights(bp * net,
     int no_of_features = net->NoOfHiddens;
     int features_across = (int)sqrt(no_of_features);
     int features_down = no_of_features / features_across;
-    int patch_diameter = (int)sqrt(net->NoOfInputs);
+    int patch_diameter = (int)sqrt(net->NoOfInputs/input_image_depth);
     unsigned char * img;
     float * min_weight, * max_weight, * weight_range;
     const int layer_index = 0;
-    const int test_pattern = 1;
+    const int test_pattern = 0;
 
     /* allocate memory for the image */
     img = (unsigned char*)malloc(image_width*image_height*3);
@@ -604,7 +604,7 @@ int features_plot_weights(bp * net,
                                     input_image_depth);
         }
     }
-    
+
     /* get the min and max weight values, so that we can
        scale accordingly */
     min_weight = (float*)malloc(no_of_features*sizeof(float));
