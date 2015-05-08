@@ -339,6 +339,60 @@ void bp_neuron_learn(bp_neuron * n,
 }
 
 /**
+* @brief Draws a test pattern within the input weights
+*        This can be used for debugging purposes 
+* @param n Backprop neuron object
+* @param depth The depth of the image being represented within the weights
+*/
+void bp_weights_test_pattern(bp_neuron * n, int depth)
+{
+	int units = n->NoOfInputs/depth;
+	int width = (int)sqrt(units);
+	int height = units / width;
+
+	/* clear all weights */
+    for (int i = 0; i < n->NoOfInputs; i++) {
+		n->weights[i] = 0;
+	}
+
+	/* draw a cross */
+	for (int x = 0; x < width; x++) {
+		int y = x*height/width;
+		int p = (y*width + x)*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 1.0f;
+		}
+		y = (width-1-x)*height/width;
+		p = (y*width + x)*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 1.0f;
+		}
+	}
+
+	for (int x = 0; x < width; x++) {
+		int p = x*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 2.0f;
+		}
+		p = ((height-1)*width + x)*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 2.0f;
+		}
+	}
+	
+	for (int y = 0; y < height; y++) {
+		int p = y*width*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 2.0f;
+		}
+		p = (y*width + (width-1))*depth;
+		for (int d = 0; d < depth; d++) {
+			n->weights[p+d] = 2.0f;
+		}		
+	}
+}
+
+/**
 * @brief Saves neuron parameters to a file.  Note that there is no need to
          save the connections, since layers are always fully interconnected
 * @param fp File pointer

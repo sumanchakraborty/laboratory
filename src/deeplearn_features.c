@@ -587,6 +587,7 @@ int features_plot_weights(bp * net,
     unsigned char * img;
     float * min_weight, * max_weight, * weight_range;
     const int layer_index = 0;
+    const int test_pattern = 1;
 
     /* allocate memory for the image */
     img = (unsigned char*)malloc(image_width*image_height*3);
@@ -597,6 +598,13 @@ int features_plot_weights(bp * net,
     /* clear the image with a white background */
     memset((void*)img,'\255',image_width*image_height*3);
 
+    if (test_pattern != 0) {
+        for (int i = 0; i < net->NoOfHiddens; i++) {
+            bp_weights_test_pattern(net->hiddens[layer_index][i],
+                                    input_image_depth);
+        }
+    }
+    
     /* get the min and max weight values, so that we can
        scale accordingly */
     min_weight = (float*)malloc(no_of_features*sizeof(float));
