@@ -91,7 +91,7 @@ static void test_preprocess_image()
                            reduction_factor, pooling_factor,
                            &preprocess, error_threshold,
                            &random_seed) == 0);
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 4; i++) {
         assert(preprocess_image(img, &preprocess) == 0);
         /* error should be >= 0 */
         assert(preprocess.BPerror >= 0);
