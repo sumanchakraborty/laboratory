@@ -54,18 +54,18 @@ static void test_learn_from_image()
     assert(image_height == 512);
     assert(bitsperpixel == 24);
 
-	img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
-	assert(img2);
-	deeplearn_downsample(img, image_width, image_height,
-						 img2, 128, 128);
-	free(img);
-	img = img2;
-	image_width = 128;
-	image_height = 128;
+    img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
+    assert(img2);
+    deeplearn_downsample(img, image_width, image_height,
+                         img2, 128, 128);
+    free(img);
+    img = img2;
+    image_width = 128;
+    image_height = 128;
 
-    int samples_across = image_width/20;
-    int samples_down = image_height/20;
     int patch_radius = 4;
+    int samples_across = image_width/patch_radius;
+    int samples_down = image_height/patch_radius;
     int no_of_features = 6*6;
     int no_of_inputs = samples_across*samples_down*no_of_features;
 
@@ -79,7 +79,7 @@ static void test_learn_from_image()
     assert((&feature_autocoder)->hiddens!=0);
     assert((&feature_autocoder)->outputs!=0);
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 8; i++) {
         result =
             features_learn_from_image(samples_across,
                                       samples_down,
@@ -99,7 +99,7 @@ static void test_learn_from_image()
     }
 
     /* check that the training error reduced */
-    assert(error_value[3] < error_value[1]);
+    assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
 
     /* create a network */
     bp_init(&net,
