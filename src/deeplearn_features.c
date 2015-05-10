@@ -182,6 +182,9 @@ int features_learn_from_image(int samples_across,
         patch_radius*patch_radius*4*image_depth) {
         /* the patch size doesn't match the feature
            learner inputs */
+		printf("NoOfInputs %d\n",feature_autocoder->NoOfInputs);
+		printf("patch_radius %d\n",patch_radius);
+		printf("image_depth %d\n",image_depth);
         return -2;
     }
 

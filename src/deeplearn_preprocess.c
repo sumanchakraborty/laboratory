@@ -30,18 +30,18 @@
 #include "deeplearn_preprocess.h"
 
 /**
- * @brief Initialise a preprocessing system
- * @param no_of_layers The number of convolutional layers
- * @param inputs_across Number of units across in the input layer or image
- * @param inputs_down The number of units down in the input layer or image
- * @param inputs_depth The depth of the input layer or image
- * @param max_features The maximum number of features per layer
- * @param reduction_factor Reduction factor for successive convolution layers
- * @param pooling_factor The reduction factor used for pooling
- * @param preprocess Preprocessing object
- * @param random_seed Random number generator seed
- * @returns zero on success
- */
+* @brief Initialise a preprocessing system
+* @param no_of_layers The number of convolutional layers
+* @param inputs_across Number of units across in the input layer or image
+* @param inputs_down The number of units down in the input layer or image
+* @param inputs_depth The depth of the input layer or image
+* @param max_features The maximum number of features per layer
+* @param reduction_factor Reduction factor for successive convolution layers
+* @param pooling_factor The reduction factor used for pooling
+* @param preprocess Preprocessing object
+* @param random_seed Random number generator seed
+* @returns zero on success
+*/
 int preprocess_init(int no_of_layers,
                     int inputs_across,
                     int inputs_down,
@@ -111,14 +111,15 @@ int preprocess_init(int no_of_layers,
            convolutional neural net */
         rand_num(random_seed);
 
+        preprocess->layer[i].autocoder = (bp*)malloc(sizeof(bp));
         if (i == 0) {
-            bp_init(&preprocess->layer[i].autocoder,
+            bp_init(preprocess->layer[i].autocoder,
                     patch_pixels*inputs_depth, max_features, 1,
                     patch_pixels*inputs_depth,
                     random_seed);
         }
         else {
-            bp_init(&preprocess->layer[i].autocoder,
+            bp_init(preprocess->layer[i].autocoder,
                     patch_pixels*max_features, max_features, 1,
                     patch_pixels*max_features,
                     random_seed);
@@ -134,6 +135,22 @@ int preprocess_init(int no_of_layers,
         if (!preprocess->layer[i].pooling) return -4;
     }
     return 0;
+}
+
+/**
+* @brief Frees memory for a preprocessing pipeline
+* @param preprocess Preprocessing object
+*/
+void preprocess_free(deeplearn_preprocess * preprocess)
+{
+    for (int i = 0; i < preprocess->no_of_layers; i++) {
+        free(preprocess->layer[i].convolution);
+        free(preprocess->layer[i].pooling);
+        bp_free(preprocess->layer[i].autocoder);
+        free(preprocess->layer[i].autocoder);
+    }
+    free(preprocess->layer);
+    free(preprocess->error_threshold);
 }
 
 /**
@@ -161,7 +178,7 @@ static void preprocess_update_history(deeplearn_preprocess * preprocess)
 
         /* show the learned features */
         if (preprocess->current_layer == 0) {
-            features_plot_weights(&preprocess->layer[0].autocoder,
+            features_plot_weights(preprocess->layer[0].autocoder,
                                   "/tmp/learned_features.png",3,
                                   800, 800);
         }
@@ -177,26 +194,11 @@ static void preprocess_update_history(deeplearn_preprocess * preprocess)
 }
 
 /**
- * @brief Frees memory for a preprocessing pipeline
- * @param preprocess Preprocessing object
- */
-void preprocess_free(deeplearn_preprocess * preprocess)
-{
-    for (int i = 0; i < preprocess->no_of_layers; i++) {
-        free(preprocess->layer[i].convolution);
-        free(preprocess->layer[i].pooling);
-        bp_free(&preprocess->layer[i].autocoder);
-    }
-    free(preprocess->layer);
-    free(preprocess->error_threshold);
-}
-
-/**
- * @brief Returns the input layer patch radius for the given layer number
- * @param layer_index Index number of the convolution layer
- * @param preprocess Preprocessing object
- * @return Patch radius
- */
+* @brief Returns the input layer patch radius for the given layer number
+* @param layer_index Index number of the convolution layer
+* @param preprocess Preprocessing object
+* @return Patch radius
+*/
 int preprocess_patch_radius(int layer_index,
                             deeplearn_preprocess * preprocess)
 {
@@ -216,12 +218,12 @@ int preprocess_patch_radius(int layer_index,
 }
 
 /**
- * @brief Returns the width of the layer
- * @param layer_index Index number of the convolution layer
- * @param preprocess Preprocessing object
- * @param after_pooling Whether to return the value before or after pooling
- * @return Layer width
- */
+* @brief Returns the width of the layer
+* @param layer_index Index number of the convolution layer
+* @param preprocess Preprocessing object
+* @param after_pooling Whether to return the value before or after pooling
+* @return Layer width
+*/
 int preprocess_layer_width(int layer_index,
                            deeplearn_preprocess * preprocess,
                            int after_pooling)
@@ -235,12 +237,12 @@ int preprocess_layer_width(int layer_index,
 }
 
 /**
- * @brief Returns the height of the layer
- * @param layer_index Index number of the convolution layer
- * @param preprocess Preprocessing object
- * @param after_pooling Whether to return the value before or after pooling
- * @return Layer height
- */
+* @brief Returns the height of the layer
+* @param layer_index Index number of the convolution layer
+* @param preprocess Preprocessing object
+* @param after_pooling Whether to return the value before or after pooling
+* @return Layer height
+*/
 int preprocess_layer_height(int layer_index,
                             deeplearn_preprocess * preprocess,
                             int after_pooling)
@@ -253,11 +255,11 @@ int preprocess_layer_height(int layer_index,
 }
 
 /**
- * @brief Returns the number of units in a convolution layer
- * @param layer_index Index number of the convolution layer
- * @param preprocess Preprocessing object
- * @return Number of units in the convolution layer
- */
+* @brief Returns the number of units in a convolution layer
+* @param layer_index Index number of the convolution layer
+* @param preprocess Preprocessing object
+* @return Number of units in the convolution layer
+*/
 int convolution_layer_units(int layer_index,
                             deeplearn_preprocess * preprocess)
 {
@@ -291,7 +293,7 @@ static int preprocess_image_initial(unsigned char img[],
                                       preprocess->inputs_down,
                                       preprocess->inputs_depth, img,
                                       convolution_layer_units(0,preprocess),
-                                      &preprocess->layer[0].autocoder,
+                                      preprocess->layer[0].autocoder,
                                       &currBPerror);
 
         if (retval != 0) {
@@ -311,7 +313,7 @@ static int preprocess_image_initial(unsigned char img[],
                                               preprocess->inputs_depth, img,
                                               convolution_layer_units(0,preprocess),
                                               preprocess->layer[0].convolution,
-                                              &preprocess->layer[0].autocoder);
+                                              preprocess->layer[0].autocoder);
         if (retval != 0) {
             return -2;
         }
@@ -349,7 +351,7 @@ static int preprocess_subsequent(deeplearn_preprocess * preprocess,
                                        preprocess->max_features,
                                        preprocess->layer[layer_index-1].pooling,
                                        convolution_layer_units(layer_index,preprocess),
-                                       &preprocess->layer[layer_index].autocoder,
+                                       preprocess->layer[layer_index].autocoder,
                                        &currBPerror);
 
         if (retval != 0) {
@@ -370,7 +372,7 @@ static int preprocess_subsequent(deeplearn_preprocess * preprocess,
                                                preprocess->layer[layer_index-1].pooling,
                                                convolution_layer_units(layer_index,preprocess),
                                                preprocess->layer[layer_index].convolution,
-                                               &preprocess->layer[layer_index].autocoder);
+                                               preprocess->layer[layer_index].autocoder);
         if (retval != 0) {
             return -5;
         }
@@ -644,7 +646,7 @@ int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess)
         return -14;
     }
     for (int i = 0; i < preprocess->no_of_layers; i++) {
-        bp * net = &preprocess->layer[i].autocoder;
+        bp * net = preprocess->layer[i].autocoder;
         if (bp_save(fp, net) != 0) {
             return -15;
         }
@@ -732,7 +734,7 @@ int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess)
     free(error_threshold);
 
     for (int i = 0; i < preprocess->no_of_layers; i++) {
-        if (bp_load(fp, &preprocess->layer[i].autocoder, &preprocess->random_seed) != 0) {
+        if (bp_load(fp, preprocess->layer[i].autocoder, &preprocess->random_seed) != 0) {
             return -17;
         }
         if (fread(&preprocess->layer[i].units_across, sizeof(int), 1, fp) == 0) {

@@ -186,8 +186,11 @@ static void test_preprocess_save_load()
     assert(preprocess1.itterations == preprocess2.itterations);
     for (i = 0; i < preprocess1.no_of_layers; i++) {
         assert(preprocess1.error_threshold[i] == preprocess2.error_threshold[i]);
-        assert(bp_compare(&preprocess1.layer[i].autocoder,
-                          &preprocess2.layer[i].autocoder) == 1);
+		if ((preprocess1.layer[i].autocoder != NULL) &&
+			(preprocess2.layer[i].autocoder != NULL)) {
+			assert(bp_compare(preprocess1.layer[i].autocoder,
+							  preprocess2.layer[i].autocoder) == 1);
+		}
         assert(preprocess1.layer[i].units_across == preprocess2.layer[i].units_across);
         assert(preprocess1.layer[i].units_down == preprocess2.layer[i].units_down);
         assert(preprocess1.layer[i].pooling_factor == preprocess2.layer[i].pooling_factor);
