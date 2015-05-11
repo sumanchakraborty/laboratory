@@ -32,16 +32,12 @@ static void test_learn_from_image()
 {
     printf("test_learn_from_image...");
 
-    bp net;
     bp feature_autocoder;
     unsigned int image_width = 10;
     unsigned int image_height = 10;
     int image_depth = 24/8;
     int result,i = 0;
     unsigned int random_seed = 123;
-    int no_of_hiddens = 4*4;
-    int hidden_layers = 2;
-    int no_of_outputs = 2*2;
     float error_value[10];
     unsigned int bitsperpixel = 0;
     unsigned char * img, * img2;
@@ -70,11 +66,11 @@ static void test_learn_from_image()
     int no_of_inputs = samples_across*samples_down*no_of_features;
 
     /* create a network */
-    bp_init(&feature_autocoder,
-            patch_radius*patch_radius*4*image_depth,
-            no_of_features,1,
-            patch_radius*patch_radius*4*image_depth,
-            &random_seed);
+    assert(bp_init(&feature_autocoder,
+				   patch_radius*patch_radius*4*image_depth,
+				   no_of_features,1,
+				   patch_radius*patch_radius*4*image_depth,
+				   &random_seed) == 0);
     assert((&feature_autocoder)->inputs!=0);
     assert((&feature_autocoder)->hiddens!=0);
     assert((&feature_autocoder)->outputs!=0);
@@ -101,24 +97,13 @@ static void test_learn_from_image()
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
 
-    /* create a network */
-    bp_init(&net,
-            no_of_inputs, no_of_hiddens,
-            hidden_layers,
-            no_of_outputs, &random_seed);
-    assert((&net)->inputs!=0);
-    assert((&net)->hiddens!=0);
-    assert((&net)->outputs!=0);
-
-
     bp_plot_weights(&feature_autocoder,
                     "/tmp/test_features_learn_from_image.png",
                     480,800,8);
 
     /* free the memory */
-    free(img);
-    bp_free(&net);
     bp_free(&feature_autocoder);
+    free(img);
 
     printf("Ok\n");
 }

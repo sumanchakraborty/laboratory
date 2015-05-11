@@ -42,6 +42,8 @@
 #include "deeplearn_features.h"
 #include "deeplearn_pooling.h"
 
+#define PREPROCESS_MAX_LAYERS 100
+
 typedef struct {
     bp * autocoder;
     int units_across, units_down;
@@ -59,11 +61,11 @@ typedef struct {
     int no_of_layers;
     unsigned char enable_learning;
     unsigned char enable_convolution;
-    deeplearn_preprocess_layer * layer;
+    deeplearn_preprocess_layer layer[PREPROCESS_MAX_LAYERS];
 
     /* keep track of training progress */
     int current_layer;
-    float * error_threshold;
+    float error_threshold[PREPROCESS_MAX_LAYERS];
     unsigned char training_complete;
     unsigned int itterations;
     float BPerror;

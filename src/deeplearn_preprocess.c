@@ -56,6 +56,10 @@ int preprocess_init(int no_of_layers,
     int across = inputs_across;
     int down = inputs_down;
 
+    if (no_of_layers >= PREPROCESS_MAX_LAYERS) {
+        return -1;
+    }
+    
     rand_num(random_seed);
     preprocess->random_seed = *random_seed;
 
@@ -74,8 +78,6 @@ int preprocess_init(int no_of_layers,
     preprocess->current_layer = 0;
     preprocess->training_complete = 0;
     preprocess->itterations = 0;
-    preprocess->error_threshold =
-        (float*)malloc(no_of_layers*sizeof(float));
     preprocess->BPerror = -1;
     memcpy((void*)preprocess->error_threshold,
            error_threshold, no_of_layers*sizeof(float));
@@ -86,10 +88,6 @@ int preprocess_init(int no_of_layers,
     preprocess->inputs_down = inputs_down;
     preprocess->inputs_depth = inputs_depth;
     preprocess->max_features = max_features;
-    preprocess->layer =
-        (deeplearn_preprocess_layer*)
-        malloc(no_of_layers*sizeof(deeplearn_preprocess_layer));
-    if (!preprocess->layer) return -1;
 
     for (int i = 0; i < no_of_layers; i++) {
         across /= reduction_factor;
@@ -113,16 +111,20 @@ int preprocess_init(int no_of_layers,
 
         preprocess->layer[i].autocoder = (bp*)malloc(sizeof(bp));
         if (i == 0) {
-            bp_init(preprocess->layer[i].autocoder,
-                    patch_pixels*inputs_depth, max_features, 1,
-                    patch_pixels*inputs_depth,
-                    random_seed);
+            if (bp_init(preprocess->layer[i].autocoder,
+                        patch_pixels*inputs_depth, max_features, 1,
+                        patch_pixels*inputs_depth,
+                        random_seed) != 0) {
+                return -3;
+            }
         }
         else {
-            bp_init(preprocess->layer[i].autocoder,
-                    patch_pixels*max_features, max_features, 1,
-                    patch_pixels*max_features,
-                    random_seed);
+            if (bp_init(preprocess->layer[i].autocoder,
+                        patch_pixels*max_features, max_features, 1,
+                        patch_pixels*max_features,
+                        random_seed) != 0) {
+                return -4;
+            }
         }
 
         across /= pooling_factor;
@@ -132,7 +134,7 @@ int preprocess_init(int no_of_layers,
         preprocess->layer[i].pooling =
             (float*)malloc(sizeof(float)*across*down*
                            max_features);
-        if (!preprocess->layer[i].pooling) return -4;
+        if (!preprocess->layer[i].pooling) return -5;
     }
     return 0;
 }
@@ -149,8 +151,6 @@ void preprocess_free(deeplearn_preprocess * preprocess)
         bp_free(preprocess->layer[i].autocoder);
         free(preprocess->layer[i].autocoder);
     }
-    free(preprocess->layer);
-    free(preprocess->error_threshold);
 }
 
 /**

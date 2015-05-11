@@ -76,14 +76,14 @@ static void test_preprocess_image()
     /* load image from file */
     assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
 
-	img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
-	assert(img2);
-	deeplearn_downsample(img, image_width, image_height,
-						 img2, 128, 128);
-	free(img);
-	img = img2;
-	image_width = 128;
-	image_height = 128;
+    img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
+    assert(img2);
+    deeplearn_downsample(img, image_width, image_height,
+                         img2, 128, 128);
+    free(img);
+    img = img2;
+    image_width = 128;
+    image_height = 128;
 
     assert(preprocess_init(no_of_layers,
                            image_width, image_height,
@@ -156,7 +156,9 @@ static void test_preprocess_save_load()
     preprocess2.inputs_depth = 16;
     preprocess2.no_of_layers = 2;
     preprocess2.max_features = 15;
-    preprocess2.error_threshold = error_threshold2;
+    memcpy((void*)preprocess2.error_threshold,
+           error_threshold2,
+           preprocess2.no_of_layers*sizeof(float));
     preprocess2.random_seed = 20313;
     preprocess2.enable_learning = 0;
     preprocess2.enable_convolution = 0;
@@ -186,11 +188,11 @@ static void test_preprocess_save_load()
     assert(preprocess1.itterations == preprocess2.itterations);
     for (i = 0; i < preprocess1.no_of_layers; i++) {
         assert(preprocess1.error_threshold[i] == preprocess2.error_threshold[i]);
-		if ((preprocess1.layer[i].autocoder != NULL) &&
-			(preprocess2.layer[i].autocoder != NULL)) {
-			assert(bp_compare(preprocess1.layer[i].autocoder,
-							  preprocess2.layer[i].autocoder) == 1);
-		}
+        if ((preprocess1.layer[i].autocoder != NULL) &&
+            (preprocess2.layer[i].autocoder != NULL)) {
+            assert(bp_compare(preprocess1.layer[i].autocoder,
+                              preprocess2.layer[i].autocoder) == 1);
+        }
         assert(preprocess1.layer[i].units_across == preprocess2.layer[i].units_across);
         assert(preprocess1.layer[i].units_down == preprocess2.layer[i].units_down);
         assert(preprocess1.layer[i].pooling_factor == preprocess2.layer[i].pooling_factor);
