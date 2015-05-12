@@ -130,7 +130,6 @@ int bp_neuron_init(bp_neuron * n,
     n->value = 0;
     n->BPerror = 0;
     n->excluded = 0;
-    n->bias = 0;
 
     /* pointers to input neurons */
     n->inputs = (struct bp_n **)malloc(no_of_inputs*
