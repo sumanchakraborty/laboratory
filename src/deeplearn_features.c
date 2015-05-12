@@ -206,7 +206,7 @@ int features_learn_from_image(int samples_across,
             scan_image_patch(img, image_width, image_depth,
                              tx, ty, bx, by, feature_autocoder, 1);
 
-            bp_update(feature_autocoder, 0);
+            bp_update(feature_autocoder,0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }

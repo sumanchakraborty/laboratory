@@ -26,11 +26,11 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "tests_preprocess.h"
+#include "tests_conv.h"
 
-static void test_preprocess_init()
+static void test_conv_init()
 {
-    printf("test_preprocess_init...");
+    printf("test_conv_init...");
 
     unsigned int image_width = 512;
     unsigned int image_height = 512;
@@ -41,22 +41,22 @@ static void test_preprocess_init()
     int pooling_factor = 2;
     float error_threshold[] = {0.0, 0.0, 0.0};
     unsigned int random_seed = 648326;
-    deeplearn_preprocess preprocess;
+    deeplearn_conv conv;
 
-    assert(preprocess_init(no_of_layers,
+    assert(conv_init(no_of_layers,
                            image_width, image_height,
                            bitsperpixel/8, max_features,
                            reduction_factor, pooling_factor,
-                           &preprocess, error_threshold,
+                           &conv, error_threshold,
                            &random_seed) == 0);
-    preprocess_free(&preprocess);
+    conv_free(&conv);
 
     printf("Ok\n");
 }
 
-static void test_preprocess_image()
+static void test_conv_image()
 {
-    printf("test_preprocess_image...");
+    printf("test_conv_image...");
 
     unsigned int image_width = 10;
     unsigned int image_height = 10;
@@ -68,7 +68,7 @@ static void test_preprocess_image()
     float error_threshold[] = {0.0, 0.0, 0.0};
     unsigned int random_seed = 648326;
     unsigned char * img, * img2;
-    deeplearn_preprocess preprocess;
+    deeplearn_conv conv;
     float BPerror = -1;
     char plot_filename[256];
     char plot_title[256];
@@ -85,38 +85,38 @@ static void test_preprocess_image()
     image_width = 128;
     image_height = 128;
 
-    assert(preprocess_init(no_of_layers,
+    assert(conv_init(no_of_layers,
                            image_width, image_height,
                            bitsperpixel/8, max_features,
                            reduction_factor, pooling_factor,
-                           &preprocess, error_threshold,
+                           &conv, error_threshold,
                            &random_seed) == 0);
     for (int i = 0; i < 4; i++) {
-        assert(preprocess_image(img, &preprocess) == 0);
+        assert(conv_image(img, &conv) == 0);
         /* error should be >= 0 */
-        assert(preprocess.BPerror >= 0);
+        assert(conv.BPerror >= 0);
         /* error should be reducing */
         if (i > 0) {
-            assert(preprocess.BPerror < BPerror);
+            assert(conv.BPerror < BPerror);
         }
-        BPerror = preprocess.BPerror;
+        BPerror = conv.BPerror;
     }
 
     sprintf(plot_filename,"/tmp/%s","libdeep_conv.png");
     sprintf(plot_title,"%s","Convolution Training Error");
 
-    assert(preprocess_plot_history(&preprocess, plot_filename,
+    assert(conv_plot_history(&conv, plot_filename,
                                    plot_title,
                                    1024, 640) == 0);
-    preprocess_free(&preprocess);
+    conv_free(&conv);
     free(img);
 
     printf("Ok\n");
 }
 
-static void test_preprocess_save_load()
+static void test_conv_save_load()
 {
-    printf("test_preprocess_save_load...");
+    printf("test_conv_save_load...");
 
     unsigned int image_width = 512;
     unsigned int image_height = 512;
@@ -128,16 +128,16 @@ static void test_preprocess_save_load()
     float error_threshold[] = {0.1, 0.2, 0.3};
     float error_threshold2[] = {0.6, 0.7, 0.8};
     unsigned int random_seed = 648326;
-    deeplearn_preprocess preprocess1;
-    deeplearn_preprocess preprocess2;
+    deeplearn_conv conv1;
+    deeplearn_conv conv2;
     FILE * fp;
     char filename[256];
 
-    assert(preprocess_init(no_of_layers,
+    assert(conv_init(no_of_layers,
                            image_width, image_height,
                            bitsperpixel/8, max_features,
                            reduction_factor, pooling_factor,
-                           &preprocess1, error_threshold,
+                           &conv1, error_threshold,
                            &random_seed) == 0);
 
     sprintf(filename, "/tmp/%s", "libdeep_conv.dat");
@@ -145,73 +145,73 @@ static void test_preprocess_save_load()
     /* save */
     fp = fopen(filename,"w");
     assert(fp);
-    assert(preprocess_save(fp, &preprocess1) == 0);
+    assert(conv_save(fp, &conv1) == 0);
     fclose(fp);
 
     /* set some different values */
-    preprocess2.reduction_factor = 45;
-    preprocess2.pooling_factor = 8;
-    preprocess2.inputs_across = 100;
-    preprocess2.inputs_down = 200;
-    preprocess2.inputs_depth = 16;
-    preprocess2.no_of_layers = 2;
-    preprocess2.max_features = 15;
-    memcpy((void*)preprocess2.error_threshold,
+    conv2.reduction_factor = 45;
+    conv2.pooling_factor = 8;
+    conv2.inputs_across = 100;
+    conv2.inputs_down = 200;
+    conv2.inputs_depth = 16;
+    conv2.no_of_layers = 2;
+    conv2.max_features = 15;
+    memcpy((void*)conv2.error_threshold,
            error_threshold2,
-           preprocess2.no_of_layers*sizeof(float));
-    preprocess2.random_seed = 20313;
-    preprocess2.enable_learning = 0;
-    preprocess2.enable_convolution = 0;
-    preprocess2.current_layer = 4577;
-    preprocess2.training_complete = 3;
-    preprocess2.itterations = 642;
+           conv2.no_of_layers*sizeof(float));
+    conv2.random_seed = 20313;
+    conv2.enable_learning = 0;
+    conv2.enable_convolution = 0;
+    conv2.current_layer = 4577;
+    conv2.training_complete = 3;
+    conv2.itterations = 642;
 
     /* load */
     fp = fopen(filename,"r");
     assert(fp);
-    assert(preprocess_load(fp, &preprocess2) == 0);
+    assert(conv_load(fp, &conv2) == 0);
     fclose(fp);
 
     /* compare the results */
-    assert(preprocess1.reduction_factor == preprocess2.reduction_factor);
-    assert(preprocess1.pooling_factor == preprocess2.pooling_factor);
-    assert(preprocess1.random_seed != preprocess2.random_seed);
-    assert(preprocess1.inputs_across == preprocess2.inputs_across);
-    assert(preprocess1.inputs_down == preprocess2.inputs_down);
-    assert(preprocess1.inputs_depth == preprocess2.inputs_depth);
-    assert(preprocess1.max_features == preprocess2.max_features);
-    assert(preprocess1.no_of_layers == preprocess2.no_of_layers);
-    assert(preprocess1.enable_learning == preprocess2.enable_learning);
-    assert(preprocess1.enable_convolution == preprocess2.enable_convolution);
-    assert(preprocess1.current_layer == preprocess2.current_layer);
-    assert(preprocess1.training_complete == preprocess2.training_complete);
-    assert(preprocess1.itterations == preprocess2.itterations);
-    for (i = 0; i < preprocess1.no_of_layers; i++) {
-        assert(preprocess1.error_threshold[i] == preprocess2.error_threshold[i]);
-        if ((preprocess1.layer[i].autocoder != NULL) &&
-            (preprocess2.layer[i].autocoder != NULL)) {
-            assert(bp_compare(preprocess1.layer[i].autocoder,
-                              preprocess2.layer[i].autocoder) == 1);
+    assert(conv1.reduction_factor == conv2.reduction_factor);
+    assert(conv1.pooling_factor == conv2.pooling_factor);
+    assert(conv1.random_seed != conv2.random_seed);
+    assert(conv1.inputs_across == conv2.inputs_across);
+    assert(conv1.inputs_down == conv2.inputs_down);
+    assert(conv1.inputs_depth == conv2.inputs_depth);
+    assert(conv1.max_features == conv2.max_features);
+    assert(conv1.no_of_layers == conv2.no_of_layers);
+    assert(conv1.enable_learning == conv2.enable_learning);
+    assert(conv1.enable_convolution == conv2.enable_convolution);
+    assert(conv1.current_layer == conv2.current_layer);
+    assert(conv1.training_complete == conv2.training_complete);
+    assert(conv1.itterations == conv2.itterations);
+    for (i = 0; i < conv1.no_of_layers; i++) {
+        assert(conv1.error_threshold[i] == conv2.error_threshold[i]);
+        if ((conv1.layer[i].autocoder != NULL) &&
+            (conv2.layer[i].autocoder != NULL)) {
+            assert(bp_compare(conv1.layer[i].autocoder,
+                              conv2.layer[i].autocoder) == 1);
         }
-        assert(preprocess1.layer[i].units_across == preprocess2.layer[i].units_across);
-        assert(preprocess1.layer[i].units_down == preprocess2.layer[i].units_down);
-        assert(preprocess1.layer[i].pooling_factor == preprocess2.layer[i].pooling_factor);
+        assert(conv1.layer[i].units_across == conv2.layer[i].units_across);
+        assert(conv1.layer[i].units_down == conv2.layer[i].units_down);
+        assert(conv1.layer[i].pooling_factor == conv2.layer[i].pooling_factor);
     }
 
-    preprocess_free(&preprocess1);
-    preprocess_free(&preprocess2);
+    conv_free(&conv1);
+    conv_free(&conv2);
 
     printf("Ok\n");
 }
 
-int run_tests_preprocess()
+int run_tests_conv()
 {
-    printf("\nRunning preprocessing tests\n");
+    printf("\nRunning convolution tests\n");
 
-    test_preprocess_init();
-    test_preprocess_image();
-    test_preprocess_save_load();
+    test_conv_init();
+    test_conv_image();
+    test_conv_save_load();
 
-    printf("All preprocessing tests completed\n");
+    printf("All convolution tests completed\n");
     return 1;
 }

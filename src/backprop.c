@@ -284,6 +284,7 @@ void bp_backprop(bp * net, int current_hidden_layer)
     if (start_hidden_layer < 0) {
         start_hidden_layer = 0;
     }
+
     for (l = start_hidden_layer; l < net->HiddenLayers; l++) {
         /* For each unit within the layer */
         for (i = 0; i < bp_hiddens_in_layer(net,l); i++) {

@@ -27,8 +27,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DEEPLEARN_PREPROCESS_H
-#define DEEPLEARN_PREPROCESS_H
+#ifndef DEEPLEARN_CONV_H
+#define DEEPLEARN_CONV_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +50,7 @@ typedef struct {
     float * convolution;
     int pooling_factor;
     float * pooling;
-} deeplearn_preprocess_layer;
+} deeplearn_conv_layer;
 
 typedef struct {
 	int reduction_factor, pooling_factor;
@@ -61,7 +61,7 @@ typedef struct {
     int no_of_layers;
     unsigned char enable_learning;
     unsigned char enable_convolution;
-    deeplearn_preprocess_layer layer[PREPROCESS_MAX_LAYERS];
+    deeplearn_conv_layer layer[PREPROCESS_MAX_LAYERS];
 
     /* keep track of training progress */
     int current_layer;
@@ -78,36 +78,36 @@ typedef struct {
 
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
-} deeplearn_preprocess;
+} deeplearn_conv;
 
-int preprocess_patch_radius(int layer_index,
-                            deeplearn_preprocess * preprocess);
-int preprocess_layer_width(int layer_index,
-                           deeplearn_preprocess * preprocess,
+int conv_patch_radius(int layer_index,
+                            deeplearn_conv * conv);
+int conv_layer_width(int layer_index,
+                           deeplearn_conv * conv,
                            int after_pooling);
-int preprocess_layer_height(int layer_index,
-                            deeplearn_preprocess * preprocess,
+int conv_layer_height(int layer_index,
+                            deeplearn_conv * conv,
                             int after_pooling);
 int convolution_layer_units(int layer_index,
-                            deeplearn_preprocess * preprocess);
-int preprocess_init(int no_of_layers,
+                            deeplearn_conv * conv);
+int conv_init(int no_of_layers,
                     int inputs_across,
                     int inputs_down,
                     int inputs_depth,
                     int max_features,
                     int reduction_factor,
                     int pooling_factor,
-                    deeplearn_preprocess * preprocess,
+                    deeplearn_conv * conv,
                     float error_threshold[],
                     unsigned int * random_seed);
 
-void preprocess_free(deeplearn_preprocess * preprocess);
-int preprocess_image(unsigned char img[],
-                     deeplearn_preprocess * preprocess);
-int preprocess_plot_history(deeplearn_preprocess * preprocess,
+void conv_free(deeplearn_conv * conv);
+int conv_image(unsigned char img[],
+                     deeplearn_conv * conv);
+int conv_plot_history(deeplearn_conv * conv,
                             char * filename, char * title,
                             int image_width, int image_height);
-int preprocess_save(FILE * fp, deeplearn_preprocess * preprocess);
-int preprocess_load(FILE * fp, deeplearn_preprocess * preprocess);
+int conv_save(FILE * fp, deeplearn_conv * conv);
+int conv_load(FILE * fp, deeplearn_conv * conv);
 
 #endif

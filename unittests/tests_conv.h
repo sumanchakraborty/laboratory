@@ -27,8 +27,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DEEPLEARN_TESTS_PREPROCESS_H
-#define DEEPLEARN_TESTS_PREPROCESS_H
+#ifndef DEEPLEARN_TESTS_CONV_H
+#define DEEPLEARN_TESTS_CONV_H
 
 #include <stdio.h>
 #include <string.h>
@@ -42,9 +42,9 @@
 #include "backprop.h"
 #include "deeplearn_features.h"
 #include "deeplearn_pooling.h"
-#include "deeplearn_preprocess.h"
+#include "deeplearn_conv.h"
 #include "deeplearn_images.h"
 
-int run_tests_preprocess();
+int run_tests_conv();
 
 #endif

@@ -187,7 +187,7 @@ static void test_backprop_feed_forward()
     printf("Ok\n");
 }
 
-static void test_backprop()
+static void test_backprop2()
 {
     bp net;
     int no_of_inputs=10;
@@ -197,7 +197,65 @@ static void test_backprop()
     int i,l;
     unsigned int random_seed = 123;
 
-    printf("test_backprop...");
+    printf("test_backprop2...");
+
+    bp_init(&net,
+            no_of_inputs, no_of_hiddens,
+            hidden_layers,
+            no_of_outputs, &random_seed);
+    assert((&net)->inputs!=0);
+    assert((&net)->hiddens!=0);
+    assert((&net)->outputs!=0);
+
+    /* set some inputs */
+    for (i = 0; i < no_of_inputs; i++) {
+        bp_set_input(&net, i, i/(float)no_of_inputs);
+        (&net)->inputs[i]->BPerror = 999;
+    }
+    for (l = 0; l < hidden_layers; l++) {
+        for (i = 0; i < bp_hiddens_in_layer(&net,l); i++) {
+            (&net)->hiddens[l][i]->BPerror = 999;
+        }
+    }
+    /* set some target outputs */
+    for (i = 0; i < no_of_outputs; i++) {
+        (&net)->outputs[i]->BPerror = 999;
+        bp_set_output(&net, i, i/(float)no_of_inputs);
+    }
+
+    /* feed forward */
+    bp_feed_forward(&net);
+    bp_backprop(&net,0);
+
+    /* check for non-zero backprop error values */
+    for (i = 0; i < no_of_inputs; i++) {
+        assert((&net)->inputs[i]->BPerror != 999);
+    }
+    for (l = 0; l < hidden_layers; l++) {
+        for (i = 0; i < bp_hiddens_in_layer(&net,l); i++) {
+            assert((&net)->hiddens[l][i]->BPerror != 999);
+        }
+    }
+    for (i = 0; i < no_of_outputs; i++) {
+        assert((&net)->outputs[i]->BPerror != 999);
+    }
+
+    bp_free(&net);
+
+    printf("Ok\n");
+}
+
+static void test_backprop1()
+{
+    bp net;
+    int no_of_inputs=10;
+    int no_of_hiddens=4;
+    int hidden_layers=1;
+    int no_of_outputs=5;
+    int i,l;
+    unsigned int random_seed = 123;
+
+    printf("test_backprop1...");
 
     bp_init(&net,
             no_of_inputs, no_of_hiddens,
@@ -600,7 +658,8 @@ int run_tests_backprop()
     test_backprop_neuron_copy();
     test_backprop_init();
     test_backprop_feed_forward();
-    test_backprop();
+    test_backprop1();
+    test_backprop2();
     test_backprop_update();
     test_backprop_training();
     test_backprop_deep();

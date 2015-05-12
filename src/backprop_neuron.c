@@ -128,6 +128,7 @@ int bp_neuron_init(bp_neuron * n,
     bp_neuron_init_weights(n, -0.1f, 0.1f, random_seed);
     n->desiredValue = -1;
     n->value = 0;
+    n->value_reprojected = 0;
     n->BPerror = 0;
     n->excluded = 0;
 

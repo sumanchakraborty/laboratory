@@ -38,19 +38,19 @@
 #include "tests_encoding.h"
 #include "tests_features.h"
 #include "tests_pooling.h"
-#include "tests_preprocess.h"
+#include "tests_conv.h"
 
 int main(int argc, char* argv[])
 {
+    run_tests_backprop();
     run_tests_images();
     run_tests_random();
-    run_tests_backprop();
     run_tests_deeplearn();
     run_tests_data();
     run_tests_encoding();
-    run_tests_features();
     run_tests_pooling();
-    run_tests_preprocess();
-
+    run_tests_conv();
+    run_tests_features();
+	
     return 1;
 }

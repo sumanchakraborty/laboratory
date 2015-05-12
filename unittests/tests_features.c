@@ -32,7 +32,7 @@ static void test_learn_from_image()
 {
     printf("test_learn_from_image...");
 
-    bp feature_autocoder;
+    bp * feature_autocoder;
     unsigned int image_width = 10;
     unsigned int image_height = 10;
     int image_depth = 24/8;
@@ -66,14 +66,18 @@ static void test_learn_from_image()
     int no_of_inputs = samples_across*samples_down*no_of_features;
 
     /* create a network */
-    assert(bp_init(&feature_autocoder,
+	feature_autocoder = (bp*)malloc(sizeof(bp));
+    assert(bp_init(feature_autocoder,
 				   patch_radius*patch_radius*4*image_depth,
 				   no_of_features,1,
 				   patch_radius*patch_radius*4*image_depth,
 				   &random_seed) == 0);
-    assert((&feature_autocoder)->inputs!=0);
-    assert((&feature_autocoder)->hiddens!=0);
-    assert((&feature_autocoder)->outputs!=0);
+    assert(feature_autocoder->inputs!=0);
+    assert(feature_autocoder->hiddens!=0);
+    assert(feature_autocoder->outputs!=0);
+    assert(feature_autocoder->BPerror == DEEPLEARN_UNKNOWN_ERROR);
+    assert(feature_autocoder->BPerrorAverage == DEEPLEARN_UNKNOWN_ERROR);
+    assert(feature_autocoder->BPerrorTotal == DEEPLEARN_UNKNOWN_ERROR);
 
     for (i = 0; i < 8; i++) {
         result =
@@ -85,7 +89,7 @@ static void test_learn_from_image()
                                       image_depth,
                                       img,
                                       no_of_inputs,
-                                      &feature_autocoder,
+                                      feature_autocoder,
                                       &BPerror);
         if (result != 0) {
             printf("\nresult = %d\n",result);
@@ -96,13 +100,13 @@ static void test_learn_from_image()
 
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
-
-    bp_plot_weights(&feature_autocoder,
+    bp_plot_weights(feature_autocoder,
                     "/tmp/test_features_learn_from_image.png",
                     480,800,8);
 
     /* free the memory */
-    bp_free(&feature_autocoder);
+    bp_free(feature_autocoder);
+	free(feature_autocoder);
     free(img);
 
     printf("Ok\n");
