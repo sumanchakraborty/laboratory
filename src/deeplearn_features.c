@@ -41,11 +41,11 @@
 * @param enable_learning If non-zero this also sets the outputs of
 *        the autocoder
 */
-static void scan_image_patch(unsigned char img[],
-                             int image_width, int image_depth,
-                             int tx, int ty, int bx, int by,
-                             bp * feature_autocoder,
-                             int enable_learning)
+static int scan_image_patch(unsigned char img[],
+                            int image_width, int image_depth,
+                            int tx, int ty, int bx, int by,
+                            bp * feature_autocoder,
+                            int enable_learning)
 {
     int index_feature_input = 0;
     for (int y = ty; y < by; y++) {
@@ -66,6 +66,10 @@ static void scan_image_patch(unsigned char img[],
             }
         }
     }
+    if (index_feature_input != feature_autocoder->NoOfInputs) {
+        return -1;
+    }
+    return 0;
 }
 
 /**
@@ -81,11 +85,11 @@ static void scan_image_patch(unsigned char img[],
 * @param enable_learning If non-zero this also sets the outputs of
 *        the autocoder
 */
-static void scan_floats_patch(float inputs_floats[],
-                              int inputs_width, int inputs_depth,
-                              int tx, int ty, int bx, int by,
-                              bp * feature_autocoder,
-                              int enable_learning)
+static int scan_floats_patch(float inputs_floats[],
+                             int inputs_width, int inputs_depth,
+                             int tx, int ty, int bx, int by,
+                             bp * feature_autocoder,
+                             int enable_learning)
 {
     int index_feature_input = 0;
     for (int y = ty; y < by; y++) {
@@ -105,6 +109,10 @@ static void scan_floats_patch(float inputs_floats[],
             }
         }
     }
+    if (index_feature_input != feature_autocoder->NoOfInputs) {
+        return -1;
+    }
+    return 0;
 }
 
 /**
@@ -182,9 +190,9 @@ int features_learn_from_image(int samples_across,
         patch_radius*patch_radius*4*image_depth) {
         /* the patch size doesn't match the feature
            learner inputs */
-		printf("NoOfInputs %d\n",feature_autocoder->NoOfInputs);
-		printf("patch_radius %d\n",patch_radius);
-		printf("image_depth %d\n",image_depth);
+        printf("NoOfInputs %d\n",feature_autocoder->NoOfInputs);
+        printf("patch_radius %d\n",patch_radius);
+        printf("image_depth %d\n",image_depth);
         return -2;
     }
 
@@ -203,8 +211,10 @@ int features_learn_from_image(int samples_across,
                 continue;
             }
 
-            scan_image_patch(img, image_width, image_depth,
-                             tx, ty, bx, by, feature_autocoder, 1);
+            if (scan_image_patch(img, image_width, image_depth,
+                                 tx, ty, bx, by, feature_autocoder, 1) != 0) {
+                return -4;
+            }
 
             bp_update(feature_autocoder,0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
@@ -273,8 +283,10 @@ int features_learn_from_floats(int samples_across,
                 continue;
             }
 
-            scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
-                              tx, ty, bx, by, feature_autocoder, 1);
+            if (scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
+                                  tx, ty, bx, by, feature_autocoder, 1) != 0) {
+                return -4;
+            }
 
             bp_update(feature_autocoder, 0);
             *BPerror = *BPerror + feature_autocoder->BPerror;
@@ -340,8 +352,10 @@ int features_convolve_image_to_neurons(int samples_across,
                 continue;
             }
 
-            scan_image_patch(img, image_width, image_depth,
-                             tx, ty, bx, by, feature_autocoder, 0);
+            if (scan_image_patch(img, image_width, image_depth,
+                                 tx, ty, bx, by, feature_autocoder, 0) != 0) {
+                return -4;
+            }
 
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_input_layer =
@@ -412,8 +426,10 @@ int features_convolve_image_to_floats(int samples_across,
                 continue;
             }
 
-            scan_image_patch(img, image_width, image_depth,
-                             tx, ty, bx, by, feature_autocoder, 0);
+            if (scan_image_patch(img, image_width, image_depth,
+                                 tx, ty, bx, by, feature_autocoder, 0) != 0) {
+                return -4;
+            }
 
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_layer0 =
@@ -483,8 +499,10 @@ int features_convolve_floats_to_floats(int samples_across,
                 continue;
             }
 
-            scan_floats_patch(layer0, floats_width, floats_depth,
-                              tx, ty, bx, by, feature_autocoder, 0);
+            if (scan_floats_patch(layer0, floats_width, floats_depth,
+                                  tx, ty, bx, by, feature_autocoder, 0) != 0) {
+                return -4;
+            }
 
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_layer1 =
@@ -552,8 +570,10 @@ int features_convolve_floats_to_neurons(int samples_across,
                 continue;
             }
 
-            scan_floats_patch(layer0, floats_width, floats_depth,
-                              tx, ty, bx, by, feature_autocoder, 0);
+            if (scan_floats_patch(layer0, floats_width, floats_depth,
+                                  tx, ty, bx, by, feature_autocoder, 0) != 0) {
+                return -4;
+            }
 
             bp_feed_forward_layers(feature_autocoder, 0);
             int index_net_inputs =
