@@ -108,7 +108,8 @@ static int scan_floats_patch(float inputs_floats[],
 }
 
 /**
-* @brief Returns the input patch bounding box for an x,y coordinate within the second layer
+* @brief Returns the input patch bounding box for an x,y coordinate
+*        within the second layer
 * @param x Position across within the second layer
 * @param y Position down within the second layer
 * @param samples_across The number of units across in the second layer
@@ -197,14 +198,17 @@ int features_learn_from_image(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, image_width, image_height,
+            if (features_patch_coords(fx, fy,
+                                      samples_across, samples_down,
+                                      patch_radius,
+                                      image_width, image_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
             if (scan_image_patch(img, image_width, image_depth,
-                                 tx, ty, bx, by, feature_autocoder) != 0) {
+                                 tx, ty, bx, by,
+                                 feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -269,14 +273,18 @@ int features_learn_from_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, inputs_width, inputs_height,
+            if (features_patch_coords(fx, fy, samples_across,
+                                      samples_down,
+                                      patch_radius,
+                                      inputs_width, inputs_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_floats_patch(inputs_floats, inputs_width, inputs_depth,
-                                  tx, ty, bx, by, feature_autocoder) != 0) {
+            if (scan_floats_patch(inputs_floats,
+                                  inputs_width, inputs_depth,
+                                  tx, ty, bx, by,
+                                  feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -293,8 +301,10 @@ int features_learn_from_floats(int samples_across,
 /**
 * @brief Convolve an image with learned features and output
 *        the results to the input layer of a neural net
-* @param samples_across The number of units across in the input layer (sampling grid resolution)
-* @param samples_down The number of units down in the input layer (sampling grid resolution)
+* @param samples_across The number of units across in the input layer
+*        (sampling grid resolution)
+* @param samples_down The number of units down in the input layer
+*        (sampling grid resolution)
 * @param patch_radius The radius of the patch within the image
 * @param image_width Width of the image
 * @param image_height Height of the image
@@ -338,14 +348,18 @@ int features_convolve_image_to_neurons(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, image_width, image_height,
+            if (features_patch_coords(fx, fy,
+                                      samples_across, samples_down,
+                                      patch_radius,
+                                      image_width, image_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_image_patch(img, image_width, image_depth,
-                                 tx, ty, bx, by, feature_autocoder) != 0) {
+            if (scan_image_patch(img,
+                                 image_width, image_depth,
+                                 tx, ty, bx, by,
+                                 feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -365,8 +379,10 @@ int features_convolve_image_to_neurons(int samples_across,
 /**
 * @brief Convolve an image with learned features and output
 *        the results to an array of floats
-* @param samples_across The number of units across in the array of floats (sampling grid resolution)
-* @param samples_down The number of units down in the array of floats (sampling grid resolution)
+* @param samples_across The number of units across in the array of floats
+*        (sampling grid resolution)
+* @param samples_down The number of units down in the array of floats
+*        (sampling grid resolution)
 * @param patch_radius The radius of the patch within the float array
 * @param image_width Width of the image
 * @param image_height Height of the image
@@ -412,14 +428,17 @@ int features_convolve_image_to_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, image_width, image_height,
+            if (features_patch_coords(fx, fy,
+                                      samples_across, samples_down,
+                                      patch_radius,
+                                      image_width, image_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
             if (scan_image_patch(img, image_width, image_depth,
-                                 tx, ty, bx, by, feature_autocoder) != 0) {
+                                 tx, ty, bx, by,
+                                 feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -485,14 +504,18 @@ int features_convolve_floats_to_floats(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, floats_width, floats_height,
+            if (features_patch_coords(fx, fy,
+                                      samples_across, samples_down,
+                                      patch_radius,
+                                      floats_width, floats_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_floats_patch(layer0, floats_width, floats_depth,
-                                  tx, ty, bx, by, feature_autocoder) != 0) {
+            if (scan_floats_patch(layer0,
+                                  floats_width, floats_depth,
+                                  tx, ty, bx, by,
+                                  feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -511,8 +534,10 @@ int features_convolve_floats_to_floats(int samples_across,
 
 /**
 * @brief Convolve an array of floats to the input layer of a neural net
-* @param samples_across The number of units across in the layer of neurons (sampling grid resolution)
-* @param samples_down The number of units down in the layer of neurons (sampling grid resolution)
+* @param samples_across The number of units across in the layer of neurons
+*        (sampling grid resolution)
+* @param samples_down The number of units down in the layer of neurons
+*        (sampling grid resolution)
 * @param patch_radius The radius of the patch within the float array
 * @param floats_width Width of the image
 * @param floats_height Height of the image
@@ -556,14 +581,18 @@ int features_convolve_floats_to_neurons(int samples_across,
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
-            if (features_patch_coords(fx, fy, samples_across, samples_down,
-                                      patch_radius, floats_width, floats_height,
+            if (features_patch_coords(fx, fy,
+                                      samples_across, samples_down,
+                                      patch_radius,
+                                      floats_width, floats_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_floats_patch(layer0, floats_width, floats_depth,
-                                  tx, ty, bx, by, feature_autocoder) != 0) {
+            if (scan_floats_patch(layer0,
+                                  floats_width, floats_depth,
+                                  tx, ty, bx, by,
+                                  feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -656,7 +685,8 @@ int features_plot_weights(bp * net,
             int fx = x * features_across / image_width;
             /* array x position within the patch */
             int px =
-                (int)((((float)x * features_across / (float)image_width) - fx)*
+                (int)((((float)x * features_across /
+                        (float)image_width) - fx) *
                  patch_diameter);
             /* position within the patch */
             int pn = (py*patch_diameter + px)*input_image_depth;
@@ -666,33 +696,36 @@ int features_plot_weights(bp * net,
             int hidden_index = fy*features_across + fx;
             if (hidden_index < net->NoOfHiddens) {
                 if (max_weight[hidden_index] > min_weight[hidden_index]) {
+                    bp_neuron * n = net->hiddens[layer_index][hidden_index];
+
                     if (input_image_depth == 3) {
                         for (int c = 0; c < 3; c++) {
-                            float weight =
-                                net->hiddens[layer_index][hidden_index]->weights[pn+c];
                             /* convert weight to an unsigned char */
                             img[in++] =
-                                (unsigned char)((weight - min_weight[hidden_index])*255/
+                                (unsigned char)((n->weights[pn+c] -
+                                                 min_weight[hidden_index]) * 255 /
                                                 weight_range[hidden_index]);
                         }
                     }
+
                     if (input_image_depth == 1) {
-                        float weight =
-                            net->hiddens[layer_index][hidden_index]->weights[pn];
                         /* convert weight to an unsigned char */
                         img[in] =
-                            (unsigned char)((weight - min_weight[hidden_index])*255/
+                            (unsigned char)((n->weights[pn] -
+                                             min_weight[hidden_index]) * 255 /
                                             weight_range[hidden_index]);
                         img[in+1] = img[in];
                         img[in+2] = img[in];
                     }
+
                 }
             }
         }
     }
 
     deeplearn_write_png_file(filename,
-                             (unsigned int)image_width, (unsigned int)image_height,
+                             (unsigned int)image_width,
+                             (unsigned int)image_height,
                              24, img);
 
     /* deallocate memory */
