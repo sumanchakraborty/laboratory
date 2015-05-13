@@ -811,7 +811,7 @@ void bp_update(bp * net, int current_hidden_layer)
 * @brief Update an autocoder neural net
 * @param net Backprop neural net object
 */
-static void bp_update_autocoder(bp * net)
+void bp_update_autocoder(bp * net)
 {
     /* set the target outputs to be the same as the inputs */
     for (int i = 0; i < net->NoOfInputs; i++) {

@@ -51,6 +51,8 @@ int main(int argc, char* argv[])
     run_tests_pooling();
     run_tests_conv();
     run_tests_features();
+
+    printf("\nAll tests completed\n");
 	
-    return 1;
+    return 0;
 }
