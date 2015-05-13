@@ -40,13 +40,13 @@
 * @param layer1 Array containing the second layer values
 * @returns zero on success
 */
-int pooling_from_floats_to_floats(int depth,
-                                  int layer0_across,
-                                  int layer0_down,
-                                  float layer0[],
-                                  int layer1_across,
-                                  int layer1_down,
-                                  float layer1[])
+int pooling_from_flt_to_flt(int depth,
+                            int layer0_across,
+                            int layer0_down,
+                            float layer0[],
+                            int layer1_across,
+                            int layer1_down,
+                            float layer1[])
 {
     /* second layer must be smaller than the first */
     if (layer1_across*layer1_down >
@@ -62,7 +62,7 @@ int pooling_from_floats_to_floats(int depth,
         return 0;
     }
 
-	/*#pragma omp parallel for*/
+    /*#pragma omp parallel for*/
     for (int y = 0; y < layer1_down; y++) {
         int ty = y * layer0_down / layer1_down;
         int by = (y+1) * layer0_down / layer1_down;
@@ -100,13 +100,13 @@ int pooling_from_floats_to_floats(int depth,
 * @param layer1 Array containing the second layer values
 * @returns zero on success
 */
-int pooling_from_floats_to_neurons(int depth,
-                                   int layer0_across,
-                                   int layer0_down,
-                                   float layer0[],
-                                   int layer1_across,
-                                   int layer1_down,
-                                   bp_neuron ** layer1)
+int pooling_from_flt_to_nrn(int depth,
+                            int layer0_across,
+                            int layer0_down,
+                            float layer0[],
+                            int layer1_across,
+                            int layer1_down,
+                            bp_neuron ** layer1)
 {
     /* second layer must be smaller than the first */
     if (layer1_across*layer1_down >
@@ -123,7 +123,7 @@ int pooling_from_floats_to_neurons(int depth,
         return 0;
     }
 
-	/*#pragma omp parallel for*/
+    /*#pragma omp parallel for*/
     for (int y = 0; y < layer1_down; y++) {
         int ty = y * layer0_down / layer1_down;
         int by = (y+1) * layer0_down / layer1_down;

@@ -40,19 +40,19 @@
 #include "encoding.h"
 #include "backprop.h"
 
-int pooling_from_floats_to_floats(int depth,
-                                  int layer0_across,
-                                  int layer0_down,
-                                  float layer0[],
-                                  int layer1_across,
-                                  int layer1_down,
-                                  float layer1[]);
-int pooling_from_floats_to_neurons(int depth,
-                                   int layer0_across,
-                                   int layer0_down,
-                                   float layer0[],
-                                   int layer1_across,
-                                   int layer1_down,
-                                   bp_neuron ** layer1);
+int pooling_from_flt_to_flt(int depth,
+                            int layer0_across,
+                            int layer0_down,
+                            float layer0[],
+                            int layer1_across,
+                            int layer1_down,
+                            float layer1[]);
+int pooling_from_flt_to_nrn(int depth,
+                            int layer0_across,
+                            int layer0_down,
+                            float layer0[],
+                            int layer1_across,
+                            int layer1_down,
+                            bp_neuron ** layer1);
 
 #endif

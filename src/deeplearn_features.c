@@ -237,16 +237,16 @@ int features_learn_from_image(int samples_across,
 * @param BPerror Returned total backprop error
 * @returns zero on success
 */
-int features_learn_from_floats(int samples_across,
-                               int samples_down,
-                               int patch_radius,
-                               int inputs_width,
-                               int inputs_height,
-                               int inputs_depth,
-                               float inputs_floats[],
-                               int layer0_units,
-                               bp * feature_autocoder,
-                               float * BPerror)
+int features_learn_from_flt(int samples_across,
+                            int samples_down,
+                            int patch_radius,
+                            int inputs_width,
+                            int inputs_height,
+                            int inputs_depth,
+                            float inputs_floats[],
+                            int layer0_units,
+                            bp * feature_autocoder,
+                            float * BPerror)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
     *BPerror = 0;
@@ -314,15 +314,15 @@ int features_learn_from_floats(int samples_across,
 * @param feature_autocoder An autocoder containing learned features
 * @returns zero on success
 */
-int features_convolve_image_to_neurons(int samples_across,
-                                       int samples_down,
-                                       int patch_radius,
-                                       int image_width,
-                                       int image_height,
-                                       int image_depth,
-                                       unsigned char img[],
-                                       bp * net,
-                                       bp * feature_autocoder)
+int features_conv_image_to_neurons(int samples_across,
+                                   int samples_down,
+                                   int patch_radius,
+                                   int image_width,
+                                   int image_height,
+                                   int image_depth,
+                                   unsigned char img[],
+                                   bp * net,
+                                   bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -393,16 +393,16 @@ int features_convolve_image_to_neurons(int samples_across,
 * @param feature_autocoder An autocoder containing learned features
 * @returns zero on success
 */
-int features_convolve_image_to_floats(int samples_across,
-                                      int samples_down,
-                                      int patch_radius,
-                                      int image_width,
-                                      int image_height,
-                                      int image_depth,
-                                      unsigned char img[],
-                                      int layer0_units,
-                                      float layer0[],
-                                      bp * feature_autocoder)
+int features_conv_img_to_flt(int samples_across,
+                             int samples_down,
+                             int patch_radius,
+                             int image_width,
+                             int image_height,
+                             int image_depth,
+                             unsigned char img[],
+                             int layer0_units,
+                             float layer0[],
+                             bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -469,16 +469,16 @@ int features_convolve_image_to_floats(int samples_across,
 * @param feature_autocoder An autocoder containing learned features
 * @returns zero on success
 */
-int features_convolve_floats_to_floats(int samples_across,
-                                       int samples_down,
-                                       int patch_radius,
-                                       int floats_width,
-                                       int floats_height,
-                                       int floats_depth,
-                                       float layer0[],
-                                       int layer1_units,
-                                       float layer1[],
-                                       bp * feature_autocoder)
+int features_conv_flt_to_flt(int samples_across,
+                             int samples_down,
+                             int patch_radius,
+                             int floats_width,
+                             int floats_height,
+                             int floats_depth,
+                             float layer0[],
+                             int layer1_units,
+                             float layer1[],
+                             bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -547,15 +547,15 @@ int features_convolve_floats_to_floats(int samples_across,
 * @param feature_autocoder An autocoder containing learned features
 * @returns zero on success
 */
-int features_convolve_floats_to_neurons(int samples_across,
-                                        int samples_down,
-                                        int patch_radius,
-                                        int floats_width,
-                                        int floats_height,
-                                        int floats_depth,
-                                        float layer0[],
-                                        bp * net,
-                                        bp * feature_autocoder)
+int features_conv_floats_to_neurons(int samples_across,
+                                    int samples_down,
+                                    int patch_radius,
+                                    int floats_width,
+                                    int floats_height,
+                                    int floats_depth,
+                                    float layer0[],
+                                    bp * net,
+                                    bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 

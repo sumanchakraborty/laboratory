@@ -49,20 +49,20 @@ static void test_pooling_from_floats_to_floats()
             }
         }
     }
-    
-    assert(pooling_from_floats_to_floats(depth,
-                                         layer0_across,
-                                         layer0_down,
-                                         layer0,
-                                         layer1_across,
-                                         layer1_down,                              
-                                         layer1)==0);
-    
+
+    assert(pooling_from_flt_to_flt(depth,
+                                   layer0_across,
+                                   layer0_down,
+                                   layer0,
+                                   layer1_across,
+                                   layer1_down,
+                                   layer1)==0);
+
     assert(layer1[0] == 6.5f);
     assert(layer1[1] == 8.5f);
     assert(layer1[2] == 10.5f);
     assert(layer1[3] == 16.5f);
-    
+
     printf("Ok\n");
 }
 
@@ -95,15 +95,15 @@ static void test_pooling_from_floats_to_neurons()
             }
         }
     }
-    
-    assert(pooling_from_floats_to_neurons(depth,
-                                         layer0_across,
-                                         layer0_down,
-                                         layer0,
-                                         layer1_across,
-                                         layer1_down,                              
-                                         layer1)==0);
-    
+
+    assert(pooling_from_flt_to_nrn(depth,
+                                   layer0_across,
+                                   layer0_down,
+                                   layer0,
+                                   layer1_across,
+                                   layer1_down,
+                                   layer1)==0);
+
     assert(layer1[0]->value == 6.5f);
     assert(layer1[1]->value == 8.5f);
     assert(layer1[2]->value == 10.5f);
@@ -113,7 +113,7 @@ static void test_pooling_from_floats_to_neurons()
         free(layer1[i]);
     }
     free(layer1);
-    
+
     printf("Ok\n");
 }
 
@@ -127,4 +127,3 @@ int run_tests_pooling()
     printf("All pooling tests completed\n");
     return 1;
 }
-
