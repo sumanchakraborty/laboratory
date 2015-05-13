@@ -74,7 +74,9 @@ static void test_conv_image()
     char plot_title[256];
 
     /* load image from file */
-    assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
+    assert(deeplearn_read_png_file((char*)"Lenna.png",
+                                   &image_width, &image_height,
+                                   &bitsperpixel, &img)==0);
 
     img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
     assert(img2);

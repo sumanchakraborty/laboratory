@@ -44,7 +44,9 @@ static void test_learn_from_image()
     float BPerror=0;
 
     /* load image from file */
-    assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
+    assert(deeplearn_read_png_file((char*)"Lenna.png",
+                                   &image_width, &image_height,
+                                   &bitsperpixel, &img)==0);
 
     assert(image_width == 512);
     assert(image_height == 512);
@@ -87,8 +89,7 @@ static void test_learn_from_image()
                                       image_width,
                                       image_height,
                                       image_depth,
-                                      img,
-                                      no_of_inputs,
+                                      img, no_of_inputs,
                                       feature_autocoder,
                                       &BPerror);
         if (result != 0) {
@@ -99,7 +100,8 @@ static void test_learn_from_image()
     }
 
     /* check that the training error reduced */
-    assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
+    assert(error_value[6] + error_value[7] <
+           error_value[0] + error_value[1]);
     bp_plot_weights(feature_autocoder,
                     "/tmp/test_features_learn_from_image.png",
                     480,800,8);
@@ -129,7 +131,9 @@ static void test_learn_from_flt()
     float BPerror=0;
 
     /* load image from file */
-    assert(deeplearn_read_png_file((char*)"Lenna.png", &image_width, &image_height, &bitsperpixel, &img)==0);
+    assert(deeplearn_read_png_file((char*)"Lenna.png",
+                                   &image_width, &image_height,
+                                   &bitsperpixel, &img)==0);
 
     assert(image_width == 512);
     assert(image_height == 512);
@@ -178,8 +182,7 @@ static void test_learn_from_flt()
                                     image_width,
                                     image_height,
                                     image_depth,
-                                    &flt[0],
-                                    no_of_inputs,
+                                    &flt[0], no_of_inputs,
                                     feature_autocoder,
                                     &BPerror);
         if (result != 0) {
