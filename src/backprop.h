@@ -62,6 +62,10 @@ int bp_init(bp * net,
             int hidden_layers,
             int no_of_outputs,
             unsigned int * random_seed);
+int bp_init_autocoder(bp * net,
+                      int no_of_inputs,
+                      int no_of_features,
+                      unsigned int * random_seed);
 void bp_free(bp * net);
 void bp_feed_forward(bp * net);
 void bp_feed_forward_layers(bp * net, int layers);

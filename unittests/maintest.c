@@ -49,10 +49,10 @@ int main(int argc, char* argv[])
     run_tests_data();
     run_tests_encoding();
     run_tests_pooling();
-    run_tests_conv();
     run_tests_features();
+    run_tests_conv();
 
     printf("\nAll tests completed\n");
-	
+    
     return 0;
 }

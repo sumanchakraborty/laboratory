@@ -69,11 +69,10 @@ static void test_learn_from_image()
 
     /* create a network */
     feature_autocoder = (bp*)malloc(sizeof(bp));
-    assert(bp_init(feature_autocoder,
-                   patch_radius*patch_radius*4*img_depth,
-                   no_of_features,1,
-                   patch_radius*patch_radius*4*img_depth,
-                   &random_seed) == 0);
+    assert(bp_init_autocoder(feature_autocoder,
+                             patch_radius*patch_radius*4*img_depth,
+                             no_of_features,
+                             &random_seed) == 0);
     assert(feature_autocoder->inputs!=0);
     assert(feature_autocoder->hiddens!=0);
     assert(feature_autocoder->outputs!=0);
@@ -98,7 +97,7 @@ static void test_learn_from_image()
         assert(result==0);
         error_value[i] = BPerror;
     }
-
+	
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] <
            error_value[0] + error_value[1]);
@@ -162,11 +161,10 @@ static void test_learn_from_flt()
 
     /* create a network */
     feature_autocoder = (bp*)malloc(sizeof(bp));
-    assert(bp_init(feature_autocoder,
-                   patch_radius*patch_radius*4*img_depth,
-                   no_of_features,1,
-                   patch_radius*patch_radius*4*img_depth,
-                   &random_seed) == 0);
+    assert(bp_init_autocoder(feature_autocoder,
+                             patch_radius*patch_radius*4*img_depth,
+                             no_of_features,
+                             &random_seed) == 0);
     assert(feature_autocoder->inputs!=0);
     assert(feature_autocoder->hiddens!=0);
     assert(feature_autocoder->outputs!=0);

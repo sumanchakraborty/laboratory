@@ -53,7 +53,7 @@ int bp_hiddens_in_layer(bp * net, int layer)
 * @param no_of_inputs The number of input units
 * @param no_of_hiddens The number of units in each hidden layer
 * @param hidden_layers The number of hidden layers
-* @param no_of_inputs The number of output units
+* @param no_of_outputs The number of output units
 * @param random_seed The random number generator seed
 * @returns zero on success
 */
@@ -162,6 +162,23 @@ int bp_init(bp * net,
         }
     }
     return 0;
+}
+
+/**
+* @brief Initialise an autocoder
+* @param net Backprop neural net object
+* @param no_of_inputs The number of input units
+* @param no_of_features The number of features to be learned
+* @param random_seed The random number generator seed
+* @returns zero on success
+*/
+int bp_init_autocoder(bp * net,
+                      int no_of_inputs,
+                      int no_of_features,
+                      unsigned int * random_seed)
+{
+    return bp_init(net, no_of_inputs, no_of_features, 1,
+                   no_of_inputs, random_seed);
 }
 
 /**
@@ -927,32 +944,32 @@ void bp_pretrain(bp * net,
 int bp_save(FILE * fp, bp * net)
 {
     if (fwrite(&net->itterations, sizeof(unsigned int), 1, fp) == 0) {
-		return -1;
-	}
+        return -1;
+    }
     if (fwrite(&net->NoOfInputs, sizeof(int), 1, fp) == 0) {
-		return -2;
-	}
+        return -2;
+    }
     if (fwrite(&net->NoOfHiddens, sizeof(int), 1, fp) == 0) {
-		return -3;
-	}
+        return -3;
+    }
     if (fwrite(&net->NoOfOutputs, sizeof(int), 1, fp) == 0) {
-		return -4;
-	}
+        return -4;
+    }
     if (fwrite(&net->HiddenLayers, sizeof(int), 1, fp) == 0) {
-		return -5;
-	}
+        return -5;
+    }
     if (fwrite(&net->learningRate, sizeof(float), 1, fp) == 0) {
-		return -6;
-	}
+        return -6;
+    }
     if (fwrite(&net->noise, sizeof(float), 1, fp) == 0) {
-		return -7;
-	}
+        return -7;
+    }
     if (fwrite(&net->BPerrorAverage, sizeof(float), 1, fp) == 0) {
-		return -8;
-	}
+        return -8;
+    }
     if (fwrite(&net->DropoutPercent, sizeof(float), 1, fp) == 0) {
-		return -9;
-	}
+        return -9;
+    }
 
     for (int l = 0; l < net->HiddenLayers; l++) {
         for (int i = 0; i < bp_hiddens_in_layer(net,l); i++) {

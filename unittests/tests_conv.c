@@ -163,7 +163,6 @@ static void test_conv_save_load()
            conv2.no_of_layers*sizeof(float));
     conv2.random_seed = 20313;
     conv2.enable_learning = 0;
-    conv2.enable_convolution = 0;
     conv2.current_layer = 4577;
     conv2.training_complete = 3;
     conv2.itterations = 642;
@@ -184,7 +183,6 @@ static void test_conv_save_load()
     assert(conv1.max_features == conv2.max_features);
     assert(conv1.no_of_layers == conv2.no_of_layers);
     assert(conv1.enable_learning == conv2.enable_learning);
-    assert(conv1.enable_convolution == conv2.enable_convolution);
     assert(conv1.current_layer == conv2.current_layer);
     assert(conv1.training_complete == conv2.training_complete);
     assert(conv1.itterations == conv2.itterations);

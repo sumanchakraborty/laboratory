@@ -60,7 +60,6 @@ typedef struct {
     int max_features;
     int no_of_layers;
     unsigned char enable_learning;
-    unsigned char enable_convolution;
     deeplearn_conv_layer layer[PREPROCESS_MAX_LAYERS];
 
     /* keep track of training progress */
