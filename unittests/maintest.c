@@ -53,6 +53,6 @@ int main(int argc, char* argv[])
     run_tests_conv();
 
     printf("\nAll tests completed\n");
-    
+
     return 0;
 }

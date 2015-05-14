@@ -90,15 +90,15 @@ int conv_layer_height(int layer_index,
 int convolution_layer_units(int layer_index,
                             deeplearn_conv * conv);
 int conv_init(int no_of_layers,
-                    int inputs_across,
-                    int inputs_down,
-                    int inputs_depth,
-                    int max_features,
-                    int reduction_factor,
-                    int pooling_factor,
-                    deeplearn_conv * conv,
-                    float error_threshold[],
-                    unsigned int * random_seed);
+              int inputs_across,
+              int inputs_down,
+              int inputs_depth,
+              int max_features,
+              int reduction_factor,
+              int pooling_factor,
+              deeplearn_conv * conv,
+              float error_threshold[],
+              unsigned int * random_seed);
 
 void conv_free(deeplearn_conv * conv);
 int conv_img(unsigned char img[],

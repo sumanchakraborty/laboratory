@@ -341,7 +341,7 @@ void bp_neuron_learn(bp_neuron * n,
 
 /**
 * @brief Draws a test pattern within the input weights
-*        This can be used for debugging purposes 
+*        This can be used for debugging purposes
 * @param n Backprop neuron object
 * @param depth The depth of the image being represented within the weights
 */
@@ -380,7 +380,7 @@ void bp_weights_test_pattern(bp_neuron * n, int depth)
             n->weights[p+d] = 2.0f;
         }
     }
-    
+
     for (int y = 0; y < height; y++) {
         int p = y*width*depth;
         for (int d = 0; d < depth; d++) {
@@ -389,7 +389,7 @@ void bp_weights_test_pattern(bp_neuron * n, int depth)
         p = (y*width + (width-1))*depth;
         for (int d = 0; d < depth; d++) {
             n->weights[p+d] = 2.0f;
-        }       
+        }
     }
 }
 
