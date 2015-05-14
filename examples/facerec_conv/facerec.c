@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
 
     /* load training images into an array */
     no_of_images =
-        deeplearn_load_training_images("images", &images, &classifications,
+        deeplearn_load_training_images("../facerec/images", &images, &classifications,
                                        &class_number,
                                        image_width, image_height);
 
