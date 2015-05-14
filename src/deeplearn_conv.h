@@ -53,7 +53,7 @@ typedef struct {
 } deeplearn_conv_layer;
 
 typedef struct {
-	int reduction_factor, pooling_factor;
+    int reduction_factor, pooling_factor;
     unsigned int random_seed;
     int inputs_across, inputs_down;
     int inputs_depth;
@@ -102,11 +102,11 @@ int conv_init(int no_of_layers,
                     unsigned int * random_seed);
 
 void conv_free(deeplearn_conv * conv);
-int conv_image(unsigned char img[],
-                     deeplearn_conv * conv);
+int conv_img(unsigned char img[],
+             deeplearn_conv * conv);
 int conv_plot_history(deeplearn_conv * conv,
-                            char * filename, char * title,
-                            int image_width, int image_height);
+                      char * filename, char * title,
+                      int img_width, int img_height);
 int conv_save(FILE * fp, deeplearn_conv * conv);
 int conv_load(FILE * fp, deeplearn_conv * conv);
 

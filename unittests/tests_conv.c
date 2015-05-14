@@ -1,29 +1,29 @@
 /*
- Copyright (C) 2015  Bob Mottram <bob@robotics.uk.to>
+  Copyright (C) 2015  Bob Mottram <bob@robotics.uk.to>
 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  3. Neither the name of the University nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+  .
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
+  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "tests_conv.h"
@@ -32,8 +32,8 @@ static void test_conv_init()
 {
     printf("test_conv_init...");
 
-    unsigned int image_width = 512;
-    unsigned int image_height = 512;
+    unsigned int img_width = 512;
+    unsigned int img_height = 512;
     unsigned int bitsperpixel = 24;
     int no_of_layers = 3;
     int max_features = 20;
@@ -44,11 +44,11 @@ static void test_conv_init()
     deeplearn_conv conv;
 
     assert(conv_init(no_of_layers,
-                           image_width, image_height,
-                           bitsperpixel/8, max_features,
-                           reduction_factor, pooling_factor,
-                           &conv, error_threshold,
-                           &random_seed) == 0);
+                     img_width, img_height,
+                     bitsperpixel/8, max_features,
+                     reduction_factor, pooling_factor,
+                     &conv, error_threshold,
+                     &random_seed) == 0);
     conv_free(&conv);
 
     printf("Ok\n");
@@ -58,8 +58,8 @@ static void test_conv_image()
 {
     printf("test_conv_image...");
 
-    unsigned int image_width = 10;
-    unsigned int image_height = 10;
+    unsigned int img_width = 10;
+    unsigned int img_height = 10;
     unsigned int bitsperpixel = 0;
     int no_of_layers = 3;
     int max_features = 20;
@@ -75,26 +75,26 @@ static void test_conv_image()
 
     /* load image from file */
     assert(deeplearn_read_png_file((char*)"Lenna.png",
-                                   &image_width, &image_height,
+                                   &img_width, &img_height,
                                    &bitsperpixel, &img)==0);
 
     img2 = (unsigned char*)malloc(128*128*3*sizeof(unsigned char));
     assert(img2);
-    deeplearn_downsample(img, image_width, image_height,
+    deeplearn_downsample(img, img_width, img_height,
                          img2, 128, 128);
     free(img);
     img = img2;
-    image_width = 128;
-    image_height = 128;
+    img_width = 128;
+    img_height = 128;
 
     assert(conv_init(no_of_layers,
-                           image_width, image_height,
-                           bitsperpixel/8, max_features,
-                           reduction_factor, pooling_factor,
-                           &conv, error_threshold,
-                           &random_seed) == 0);
+                     img_width, img_height,
+                     bitsperpixel/8, max_features,
+                     reduction_factor, pooling_factor,
+                     &conv, error_threshold,
+                     &random_seed) == 0);
     for (int i = 0; i < 4; i++) {
-        assert(conv_image(img, &conv) == 0);
+        assert(conv_img(img, &conv) == 0);
         /* error should be >= 0 */
         assert(conv.BPerror >= 0);
         /* error should be reducing */
@@ -108,8 +108,8 @@ static void test_conv_image()
     sprintf(plot_title,"%s","Convolution Training Error");
 
     assert(conv_plot_history(&conv, plot_filename,
-                                   plot_title,
-                                   1024, 640) == 0);
+                             plot_title,
+                             1024, 640) == 0);
     conv_free(&conv);
     free(img);
 
@@ -120,8 +120,8 @@ static void test_conv_save_load()
 {
     printf("test_conv_save_load...");
 
-    unsigned int image_width = 512;
-    unsigned int image_height = 512;
+    unsigned int img_width = 512;
+    unsigned int img_height = 512;
     unsigned int bitsperpixel = 24;
     int i, no_of_layers = 3;
     int max_features = 20;
@@ -136,11 +136,11 @@ static void test_conv_save_load()
     char filename[256];
 
     assert(conv_init(no_of_layers,
-                           image_width, image_height,
-                           bitsperpixel/8, max_features,
-                           reduction_factor, pooling_factor,
-                           &conv1, error_threshold,
-                           &random_seed) == 0);
+                     img_width, img_height,
+                     bitsperpixel/8, max_features,
+                     reduction_factor, pooling_factor,
+                     &conv1, error_threshold,
+                     &random_seed) == 0);
 
     sprintf(filename, "/tmp/%s", "libdeep_conv.dat");
 

@@ -48,16 +48,16 @@ int features_patch_coords(int x, int y,
                           int width, int height,
                           int * tx, int * ty, int * bx, int * by);
 
-int features_learn_from_image(int samples_across,
-                              int samples_down,
-                              int patch_radius,
-                              int image_width,
-                              int image_height,
-                              int image_depth,
-                              unsigned char img[],
-                              int layer0_units,
-                              bp * feature_autocoder,
-                              float * BPerror);
+int features_learn_from_img(int samples_across,
+                            int samples_down,
+                            int patch_radius,
+                            int img_width,
+                            int img_height,
+                            int img_depth,
+                            unsigned char img[],
+                            int layer0_units,
+                            bp * feature_autocoder,
+                            float * BPerror);
 
 int features_learn_from_flt(int samples_across,
                             int samples_down,
@@ -70,12 +70,12 @@ int features_learn_from_flt(int samples_across,
                             bp * feature_autocoder,
                             float * BPerror);
 
-int features_conv_image_to_neurons(int samples_across,
+int features_conv_img_to_neurons(int samples_across,
                                    int samples_down,
                                    int patch_radius,
-                                   int image_width,
-                                   int image_height,
-                                   int image_depth,
+                                   int img_width,
+                                   int img_height,
+                                   int img_depth,
                                    unsigned char img[],
                                    bp * net,
                                    bp * feature_autocoder);
@@ -83,9 +83,9 @@ int features_conv_image_to_neurons(int samples_across,
 int features_conv_img_to_flt(int samples_across,
                              int samples_down,
                              int patch_radius,
-                             int image_width,
-                             int image_height,
-                             int image_depth,
+                             int img_width,
+                             int img_height,
+                             int img_depth,
                              unsigned char img[],
                              int layer0_units,
                              float layer0[],
@@ -113,7 +113,7 @@ int features_conv_floats_to_neurons(int samples_across,
                                     bp * feature_autocoder);
 int features_plot_weights(bp * net,
                           char * filename,
-                          int input_image_depth,
-                          int image_width, int image_height);
+                          int input_img_depth,
+                          int img_width, int img_height);
 
 #endif

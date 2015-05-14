@@ -101,40 +101,47 @@ int conv_init(int no_of_layers,
             (float*)malloc(sizeof(float)*across*down*max_features);
         if (!conv->layer[i].convolution) return -2;
 
-        int patch_pixels =
-            conv_patch_radius(i,conv)*
-            conv_patch_radius(i,conv)*4;
-
         /* ensure that the random seed is different for each
            convolutional neural net */
         rand_num(random_seed);
 
+        /* create an autocoder for feature learning on this layer */
         conv->layer[i].autocoder = (bp*)malloc(sizeof(bp));
+
+        /* the maximum number of learned features is the same
+           for each layer */
+        int depth = max_features;
         if (i == 0) {
-            if (bp_init(conv->layer[i].autocoder,
-                        patch_pixels*inputs_depth, max_features, 1,
-                        patch_pixels*inputs_depth,
-                        random_seed) != 0) {
-                return -3;
-            }
-        }
-        else {
-            if (bp_init(conv->layer[i].autocoder,
-                        patch_pixels*max_features, max_features, 1,
-                        patch_pixels*max_features,
-                        random_seed) != 0) {
-                return -4;
-            }
+            /* on the first layer the depth is the same as the
+               inputs or image */
+            depth = inputs_depth;
         }
 
+        /* the number of units/pixels within an input patch of
+           the previous layer, not including depth */
+        int patch_pixels =
+            conv_patch_radius(i,conv)*
+            conv_patch_radius(i,conv)*4;
+
+        /* initialise the autocoder for this layer */
+        if (bp_init(conv->layer[i].autocoder,
+                    patch_pixels*depth, max_features, 1,
+                    patch_pixels*depth,
+                    random_seed) != 0) {
+            return -3;
+        }
+
+        /* reduce the dimensions by the pooling factor */
         across /= pooling_factor;
         down /= pooling_factor;
         if (across < 4) across = 4;
         if (down < 4) down = 4;
+
+        /* create a pooling array */
         conv->layer[i].pooling =
             (float*)malloc(sizeof(float)*across*down*
                            max_features);
-        if (!conv->layer[i].pooling) return -5;
+        if (!conv->layer[i].pooling) return -4;
     }
     return 0;
 }
@@ -278,9 +285,9 @@ int convolution_layer_units(int layer_index,
  * @param BPerror Returned total backprop error from feature learning
  * @return zero on success
  */
-static int conv_image_initial(unsigned char img[],
-                              deeplearn_conv * conv,
-                              float * BPerror)
+static int conv_img_initial(unsigned char img[],
+                            deeplearn_conv * conv,
+                            float * BPerror)
 {
     float currBPerror=0;
     int retval;
@@ -289,15 +296,15 @@ static int conv_image_initial(unsigned char img[],
     if (conv->enable_learning != 0) {
         /* do feature learning */
         retval =
-            features_learn_from_image(conv_layer_width(0,conv,0),
-                                      conv_layer_height(0,conv,0),
-                                      patch_radius,
-                                      conv->inputs_across,
-                                      conv->inputs_down,
-                                      conv->inputs_depth, img,
-                                      convolution_layer_units(0,conv),
-                                      conv->layer[0].autocoder,
-                                      &currBPerror);
+            features_learn_from_img(conv_layer_width(0,conv,0),
+                                    conv_layer_height(0,conv,0),
+                                    patch_radius,
+                                    conv->inputs_across,
+                                    conv->inputs_down,
+                                    conv->inputs_depth, img,
+                                    convolution_layer_units(0,conv),
+                                    conv->layer[0].autocoder,
+                                    &currBPerror);
 
         if (retval != 0) {
             return -1;
@@ -486,8 +493,8 @@ void conv_update_training_error(int layer_index,
  * @param conv Convolution object
  * @returns zero on success
  */
-int conv_image(unsigned char img[],
-               deeplearn_conv * conv)
+int conv_img(unsigned char img[],
+             deeplearn_conv * conv)
 {
     int retval = -1;
     int max_layer = get_max_layer(conv);
@@ -498,7 +505,7 @@ int conv_image(unsigned char img[],
 
         BPerror = 0;
         if (i == 0) {
-            retval = conv_image_initial(img, conv, &BPerror);
+            retval = conv_img_initial(img, conv, &BPerror);
         }
         else {
             retval = conv_subsequent(conv, i, &BPerror);
@@ -529,13 +536,13 @@ int conv_image(unsigned char img[],
  * @param conv Convolution object
  * @param filename Filename for the image to save as
  * @param title Title of the graph
- * @param image_width Width of the image in pixels
- * @param image_height Height of the image in pixels
+ * @param img_width Width of the image in pixels
+ * @param img_height Height of the image in pixels
  * @return zero on success
  */
 int conv_plot_history(deeplearn_conv * conv,
                       char * filename, char * title,
-                      int image_width, int image_height)
+                      int img_width, int img_height)
 {
     int index,retval=0;
     FILE * fp;
@@ -581,7 +588,7 @@ int conv_plot_history(deeplearn_conv * conv,
     fprintf(fp,"%s","set key right top\n");
 
     fprintf(fp,"set terminal png size %d,%d\n",
-            image_width, image_height);
+            img_width, img_height);
     fprintf(fp,"set output \"%s\"\n", filename);
     fprintf(fp,"plot \"%s\" using 1:2 notitle with lines\n",
             data_filename);

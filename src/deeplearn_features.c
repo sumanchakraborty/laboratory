@@ -1,60 +1,60 @@
 /*
- libdeep - a library for deep learning
- Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
+  libdeep - a library for deep learning
+  Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  3. Neither the name of the University nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+  .
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
+  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "deeplearn_features.h"
 
 /**
-* @brief Scans an image patch and transfers the values to an autocoder
-* @param image_width Width of the image
-* @param image_depth Depth of the image
-* @param tx Top left coordinate of the patch
-* @param ty Top coordinate of the patch
-* @param bx Bottom right coordinate of the patch
-* @param by Bottom coordinate of the patch
-* @param feature_autocoder Autocoder object
-* @return zero on success
-*/
-static int scan_image_patch(unsigned char img[],
-                            int image_width, int image_depth,
-                            int tx, int ty, int bx, int by,
-                            bp * feature_autocoder)
+ * @brief Scans an image patch and transfers the values to an autocoder
+ * @param img_width Width of the image
+ * @param img_depth Depth of the image
+ * @param tx Top left coordinate of the patch
+ * @param ty Top coordinate of the patch
+ * @param bx Bottom right coordinate of the patch
+ * @param by Bottom coordinate of the patch
+ * @param feature_autocoder Autocoder object
+ * @return zero on success
+ */
+static int scan_img_patch(unsigned char img[],
+                          int img_width, int img_depth,
+                          int tx, int ty, int bx, int by,
+                          bp * feature_autocoder)
 {
     int index_feature_input = 0;
     for (int y = ty; y < by; y++) {
         for (int x = tx; x < bx; x++) {
-            int index_image =
-                ((y*image_width) + x) * image_depth;
-            for (int d = 0; d < image_depth;
+            int index_img =
+                ((y*img_width) + x) * img_depth;
+            for (int d = 0; d < img_depth;
                  d++, index_feature_input++) {
                 /* convert from 8 bit to a neuron value */
                 float v =
-                    0.25f + (img[index_image+d]/(2*255.0f));
+                    0.25f + (img[index_img+d]/(2*255.0f));
                 bp_set_input(feature_autocoder,
                              index_feature_input, v);
             }
@@ -69,17 +69,17 @@ static int scan_image_patch(unsigned char img[],
 }
 
 /**
-* @brief Scans a patch within a 2D array of floats and transfers the values
-*        to an autocoder
-* @param inputs_width Width of the floats array
-* @param inputs_depth Depth of the floats array
-* @param tx Top left coordinate of the patch
-* @param ty Top coordinate of the patch
-* @param bx Bottom right coordinate of the patch
-* @param by Bottom coordinate of the patch
-* @param feature_autocoder Autocoder object
-* @return zero on success
-*/
+ * @brief Scans a patch within a 2D array of floats and transfers the values
+ *        to an autocoder
+ * @param inputs_width Width of the floats array
+ * @param inputs_depth Depth of the floats array
+ * @param tx Top left coordinate of the patch
+ * @param ty Top coordinate of the patch
+ * @param bx Bottom right coordinate of the patch
+ * @param by Bottom coordinate of the patch
+ * @param feature_autocoder Autocoder object
+ * @return zero on success
+ */
 static int scan_floats_patch(float inputs_floats[],
                              int inputs_width, int inputs_depth,
                              int tx, int ty, int bx, int by,
@@ -108,21 +108,21 @@ static int scan_floats_patch(float inputs_floats[],
 }
 
 /**
-* @brief Returns the input patch bounding box for an x,y coordinate
-*        within the second layer
-* @param x Position across within the second layer
-* @param y Position down within the second layer
-* @param samples_across The number of units across in the second layer
-* @param samples_down The number of units down in the second layer
-* @param patch_radius The radius of the patch within the input layer
-* @param width Width of the input layer
-* @param height Height of the input layer
-* @param tx Returned top left coordinate
-* @param ty Returned top coordinate
-* @param bx Returned bottom right coordinate
-* @param by Returned bottom coordinate
-* @return zero if the patch does not exceed the limits of the area
-*/
+ * @brief Returns the input patch bounding box for an x,y coordinate
+ *        within the second layer
+ * @param x Position across within the second layer
+ * @param y Position down within the second layer
+ * @param samples_across The number of units across in the second layer
+ * @param samples_down The number of units down in the second layer
+ * @param patch_radius The radius of the patch within the input layer
+ * @param width Width of the input layer
+ * @param height Height of the input layer
+ * @param tx Returned top left coordinate
+ * @param ty Returned top coordinate
+ * @param bx Returned bottom right coordinate
+ * @param by Returned bottom coordinate
+ * @return zero if the patch does not exceed the limits of the area
+ */
 int features_patch_coords(int x, int y,
                           int samples_across,
                           int samples_down,
@@ -146,29 +146,29 @@ int features_patch_coords(int x, int y,
 }
 
 /**
-* @brief Learn a feature set between an input image and a neuron layer
-* @param samples_across The number of units across in the second layer
-* @param samples_down The number of units down in the second layer
-* @param patch_radius The radius of the patch within the image
-* @param image_width Width of the image
-* @param image_height Height of the image
-* @param image_depth Depth of the image (mono=1, RGB=3)
-* @param img Image buffer
-* @param layer0_units Number of units in the neuron layer
-* @param feature_autocoder An autocoder used for feature learning
-* @param BPerror Returned total learning error
-* @returns zero on success
-*/
-int features_learn_from_image(int samples_across,
-                              int samples_down,
-                              int patch_radius,
-                              int image_width,
-                              int image_height,
-                              int image_depth,
-                              unsigned char img[],
-                              int layer0_units,
-                              bp * feature_autocoder,
-                              float * BPerror)
+ * @brief Learn a feature set between an input image and a neuron layer
+ * @param samples_across The number of units across in the second layer
+ * @param samples_down The number of units down in the second layer
+ * @param patch_radius The radius of the patch within the image
+ * @param img_width Width of the image
+ * @param img_height Height of the image
+ * @param img_depth Depth of the image (mono=1, RGB=3)
+ * @param img Image buffer
+ * @param layer0_units Number of units in the neuron layer
+ * @param feature_autocoder An autocoder used for feature learning
+ * @param BPerror Returned total learning error
+ * @returns zero on success
+ */
+int features_learn_from_img(int samples_across,
+                            int samples_down,
+                            int patch_radius,
+                            int img_width,
+                            int img_height,
+                            int img_depth,
+                            unsigned char img[],
+                            int layer0_units,
+                            bp * feature_autocoder,
+                            float * BPerror)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
     *BPerror = 0;
@@ -180,12 +180,12 @@ int features_learn_from_image(int samples_across,
     }
 
     if (feature_autocoder->NoOfInputs !=
-        patch_radius*patch_radius*4*image_depth) {
+        patch_radius*patch_radius*4*img_depth) {
         /* the patch size doesn't match the feature
            learner inputs */
         printf("NoOfInputs %d\n",feature_autocoder->NoOfInputs);
         printf("patch_radius %d\n",patch_radius);
-        printf("image_depth %d\n",image_depth);
+        printf("img_depth %d\n",img_depth);
         return -2;
     }
 
@@ -201,14 +201,14 @@ int features_learn_from_image(int samples_across,
             if (features_patch_coords(fx, fy,
                                       samples_across, samples_down,
                                       patch_radius,
-                                      image_width, image_height,
+                                      img_width, img_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_image_patch(img, image_width, image_depth,
-                                 tx, ty, bx, by,
-                                 feature_autocoder) != 0) {
+            if (scan_img_patch(img, img_width, img_depth,
+                               tx, ty, bx, by,
+                               feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -223,20 +223,20 @@ int features_learn_from_image(int samples_across,
 }
 
 /**
-* @brief Learn a feature set between an array of floats and a neuron layer
-*        Inputs are expected to have values in the range 0.25->0.75
-* @param samples_across The number of units across in the second layer
-* @param samples_down The number of units down in the second layer
-* @param patch_radius The radius of the patch within the inputs
-* @param inputs_width Width of the inputs array
-* @param inputs_height Height of the inputs array
-* @param inputs_depth Depth of the inputs array
-* @param inputs_floats Inputs buffer of floats
-* @param layer0_units Number of units in the neuron layer
-* @param feature_autocoder An autocoder used for feature learning
-* @param BPerror Returned total backprop error
-* @returns zero on success
-*/
+ * @brief Learn a feature set between an array of floats and a neuron layer
+ *        Inputs are expected to have values in the range 0.25->0.75
+ * @param samples_across The number of units across in the second layer
+ * @param samples_down The number of units down in the second layer
+ * @param patch_radius The radius of the patch within the inputs
+ * @param inputs_width Width of the inputs array
+ * @param inputs_height Height of the inputs array
+ * @param inputs_depth Depth of the inputs array
+ * @param inputs_floats Inputs buffer of floats
+ * @param layer0_units Number of units in the neuron layer
+ * @param feature_autocoder An autocoder used for feature learning
+ * @param BPerror Returned total backprop error
+ * @returns zero on success
+ */
 int features_learn_from_flt(int samples_across,
                             int samples_down,
                             int patch_radius,
@@ -299,30 +299,30 @@ int features_learn_from_flt(int samples_across,
 }
 
 /**
-* @brief Convolve an image with learned features and output
-*        the results to the input layer of a neural net
-* @param samples_across The number of units across in the input layer
-*        (sampling grid resolution)
-* @param samples_down The number of units down in the input layer
-*        (sampling grid resolution)
-* @param patch_radius The radius of the patch within the image
-* @param image_width Width of the image
-* @param image_height Height of the image
-* @param image_depth Depth of the image (mono=1, RGB=3)
-* @param img Image buffer
-* @param layer0 Neural net
-* @param feature_autocoder An autocoder containing learned features
-* @returns zero on success
-*/
-int features_conv_image_to_neurons(int samples_across,
-                                   int samples_down,
-                                   int patch_radius,
-                                   int image_width,
-                                   int image_height,
-                                   int image_depth,
-                                   unsigned char img[],
-                                   bp * net,
-                                   bp * feature_autocoder)
+ * @brief Convolve an image with learned features and output
+ *        the results to the input layer of a neural net
+ * @param samples_across The number of units across in the input layer
+ *        (sampling grid resolution)
+ * @param samples_down The number of units down in the input layer
+ *        (sampling grid resolution)
+ * @param patch_radius The radius of the patch within the image
+ * @param img_width Width of the image
+ * @param img_height Height of the image
+ * @param img_depth Depth of the image (mono=1, RGB=3)
+ * @param img Image buffer
+ * @param layer0 Neural net
+ * @param feature_autocoder An autocoder containing learned features
+ * @returns zero on success
+ */
+int features_conv_img_to_neurons(int samples_across,
+                                 int samples_down,
+                                 int patch_radius,
+                                 int img_width,
+                                 int img_height,
+                                 int img_depth,
+                                 unsigned char img[],
+                                 bp * net,
+                                 bp * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -333,7 +333,7 @@ int features_conv_image_to_neurons(int samples_across,
     }
 
     if (feature_autocoder->NoOfInputs !=
-        patch_radius*patch_radius*4*image_depth) {
+        patch_radius*patch_radius*4*img_depth) {
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
@@ -351,15 +351,15 @@ int features_conv_image_to_neurons(int samples_across,
             if (features_patch_coords(fx, fy,
                                       samples_across, samples_down,
                                       patch_radius,
-                                      image_width, image_height,
+                                      img_width, img_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_image_patch(img,
-                                 image_width, image_depth,
-                                 tx, ty, bx, by,
-                                 feature_autocoder) != 0) {
+            if (scan_img_patch(img,
+                               img_width, img_depth,
+                               tx, ty, bx, by,
+                               feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -377,28 +377,28 @@ int features_conv_image_to_neurons(int samples_across,
 }
 
 /**
-* @brief Convolve an image with learned features and output
-*        the results to an array of floats
-* @param samples_across The number of units across in the array of floats
-*        (sampling grid resolution)
-* @param samples_down The number of units down in the array of floats
-*        (sampling grid resolution)
-* @param patch_radius The radius of the patch within the float array
-* @param image_width Width of the image
-* @param image_height Height of the image
-* @param image_depth Depth of the image (mono=1, RGB=3)
-* @param img Image buffer
-* @param layer0_units Number of units in the float array
-* @param layer0 float array
-* @param feature_autocoder An autocoder containing learned features
-* @returns zero on success
-*/
+ * @brief Convolve an image with learned features and output
+ *        the results to an array of floats
+ * @param samples_across The number of units across in the array of floats
+ *        (sampling grid resolution)
+ * @param samples_down The number of units down in the array of floats
+ *        (sampling grid resolution)
+ * @param patch_radius The radius of the patch within the float array
+ * @param img_width Width of the image
+ * @param img_height Height of the image
+ * @param img_depth Depth of the image (mono=1, RGB=3)
+ * @param img Image buffer
+ * @param layer0_units Number of units in the float array
+ * @param layer0 float array
+ * @param feature_autocoder An autocoder containing learned features
+ * @returns zero on success
+ */
 int features_conv_img_to_flt(int samples_across,
                              int samples_down,
                              int patch_radius,
-                             int image_width,
-                             int image_height,
-                             int image_depth,
+                             int img_width,
+                             int img_height,
+                             int img_depth,
                              unsigned char img[],
                              int layer0_units,
                              float layer0[],
@@ -413,7 +413,7 @@ int features_conv_img_to_flt(int samples_across,
     }
 
     if (feature_autocoder->NoOfInputs !=
-        patch_radius*patch_radius*4*image_depth) {
+        patch_radius*patch_radius*4*img_depth) {
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
@@ -431,14 +431,14 @@ int features_conv_img_to_flt(int samples_across,
             if (features_patch_coords(fx, fy,
                                       samples_across, samples_down,
                                       patch_radius,
-                                      image_width, image_height,
+                                      img_width, img_height,
                                       &tx, &ty, &bx, &by) != 0) {
                 continue;
             }
 
-            if (scan_image_patch(img, image_width, image_depth,
-                                 tx, ty, bx, by,
-                                 feature_autocoder) != 0) {
+            if (scan_img_patch(img, img_width, img_depth,
+                               tx, ty, bx, by,
+                               feature_autocoder) != 0) {
                 return -4;
             }
 
@@ -456,19 +456,19 @@ int features_conv_img_to_flt(int samples_across,
 }
 
 /**
-* @brief Convolve a first array of floats to a second one
-* @param samples_across The number of units across in the second array of floats (sampling grid resolution)
-* @param samples_down The number of units down in the second array of floats (sampling grid resolution)
-* @param patch_radius The radius of the patch within the first float array
-* @param floats_width Width of the image
-* @param floats_height Height of the image
-* @param floats_depth Depth of the image (mono=1, RGB=3)
-* @param layer0 First array of floats
-* @param layer1_units Number of units in the second float array
-* @param layer1 Second float array
-* @param feature_autocoder An autocoder containing learned features
-* @returns zero on success
-*/
+ * @brief Convolve a first array of floats to a second one
+ * @param samples_across The number of units across in the second array of floats (sampling grid resolution)
+ * @param samples_down The number of units down in the second array of floats (sampling grid resolution)
+ * @param patch_radius The radius of the patch within the first float array
+ * @param floats_width Width of the image
+ * @param floats_height Height of the image
+ * @param floats_depth Depth of the image (mono=1, RGB=3)
+ * @param layer0 First array of floats
+ * @param layer1_units Number of units in the second float array
+ * @param layer1 Second float array
+ * @param feature_autocoder An autocoder containing learned features
+ * @returns zero on success
+ */
 int features_conv_flt_to_flt(int samples_across,
                              int samples_down,
                              int patch_radius,
@@ -533,20 +533,20 @@ int features_conv_flt_to_flt(int samples_across,
 }
 
 /**
-* @brief Convolve an array of floats to the input layer of a neural net
-* @param samples_across The number of units across in the layer of neurons
-*        (sampling grid resolution)
-* @param samples_down The number of units down in the layer of neurons
-*        (sampling grid resolution)
-* @param patch_radius The radius of the patch within the float array
-* @param floats_width Width of the image
-* @param floats_height Height of the image
-* @param floats_depth Depth of the image (mono=1, RGB=3)
-* @param layer0 Array of floats
-* @param net Neural net to set the inputs for
-* @param feature_autocoder An autocoder containing learned features
-* @returns zero on success
-*/
+ * @brief Convolve an array of floats to the input layer of a neural net
+ * @param samples_across The number of units across in the layer of neurons
+ *        (sampling grid resolution)
+ * @param samples_down The number of units down in the layer of neurons
+ *        (sampling grid resolution)
+ * @param patch_radius The radius of the patch within the float array
+ * @param floats_width Width of the image
+ * @param floats_height Height of the image
+ * @param floats_depth Depth of the image (mono=1, RGB=3)
+ * @param layer0 Array of floats
+ * @param net Neural net to set the inputs for
+ * @param feature_autocoder An autocoder containing learned features
+ * @returns zero on success
+ */
 int features_conv_floats_to_neurons(int samples_across,
                                     int samples_down,
                                     int patch_radius,
@@ -613,39 +613,39 @@ int features_conv_floats_to_neurons(int samples_across,
  * @brief Plots the learned feature vectors within an image
  * @param net The feature learning neural net
  * @param filename The filename to save as
- * @param input_image_width The depth of the input image used
+ * @param input_img_width The depth of the input image used
  *        during training
- * @param image_width Width of the image to be saved
- * @param image_height Height of the image to be saved
+ * @param img_width Width of the image to be saved
+ * @param img_height Height of the image to be saved
  * @return zero on success
  */
 int features_plot_weights(bp * net,
                           char * filename,
-                          int input_image_depth,
-                          int image_width, int image_height)
+                          int input_img_depth,
+                          int img_width, int img_height)
 {
     int no_of_features = net->NoOfHiddens;
     int features_across = (int)sqrt(no_of_features);
     int features_down = no_of_features / features_across;
-    int patch_diameter = (int)sqrt(net->NoOfInputs/input_image_depth);
+    int patch_diameter = (int)sqrt(net->NoOfInputs/input_img_depth);
     unsigned char * img;
     float * min_weight, * max_weight, * weight_range;
     const int layer_index = 0;
     const int test_pattern = 0;
 
     /* allocate memory for the image */
-    img = (unsigned char*)malloc(image_width*image_height*3);
+    img = (unsigned char*)malloc(img_width*img_height*3);
     if (!img) {
         return -1;
     }
 
-    /* clear the image with a white background */
-    memset((void*)img,'\255',image_width*image_height*3);
+    /* clear the img with a white background */
+    memset((void*)img,'\255',img_width*img_height*3);
 
     if (test_pattern != 0) {
         for (int i = 0; i < net->NoOfHiddens; i++) {
             bp_weights_test_pattern(net->hiddens[layer_index][i],
-                                    input_image_depth);
+                                    input_img_depth);
         }
     }
 
@@ -675,30 +675,30 @@ int features_plot_weights(bp * net,
         weight_range[i] = max_weight[i] - min_weight[i];
     }
 
-    for (int y = 0; y < image_height; y++) {
-        int fy = y * features_down / image_height;
+    for (int y = 0; y < img_height; y++) {
+        int fy = y * features_down / img_height;
         /* array y position within the patch */
         int py =
-            (int)((((float)y * features_down / (float)image_height) - fy)*
-             patch_diameter);
-        for (int x = 0; x < image_width; x++) {
-            int fx = x * features_across / image_width;
+            (int)((((float)y * features_down / (float)img_height) - fy)*
+                  patch_diameter);
+        for (int x = 0; x < img_width; x++) {
+            int fx = x * features_across / img_width;
             /* array x position within the patch */
             int px =
                 (int)((((float)x * features_across /
-                        (float)image_width) - fx) *
-                 patch_diameter);
+                        (float)img_width) - fx) *
+                      patch_diameter);
             /* position within the patch */
-            int pn = (py*patch_diameter + px)*input_image_depth;
+            int pn = (py*patch_diameter + px)*input_img_depth;
             /* array index within the output image */
-            int in = (y*image_width + x)*3;
+            int in = (y*img_width + x)*3;
             /* array index of the feature (hidden unit) */
             int hidden_index = fy*features_across + fx;
             if (hidden_index < net->NoOfHiddens) {
                 if (max_weight[hidden_index] > min_weight[hidden_index]) {
                     bp_neuron * n = net->hiddens[layer_index][hidden_index];
 
-                    if (input_image_depth == 3) {
+                    if (input_img_depth == 3) {
                         for (int c = 0; c < 3; c++) {
                             /* convert weight to an unsigned char */
                             img[in++] =
@@ -708,7 +708,7 @@ int features_plot_weights(bp * net,
                         }
                     }
 
-                    if (input_image_depth == 1) {
+                    if (input_img_depth == 1) {
                         /* convert weight to an unsigned char */
                         img[in] =
                             (unsigned char)((n->weights[pn] -
@@ -724,8 +724,8 @@ int features_plot_weights(bp * net,
     }
 
     deeplearn_write_png_file(filename,
-                             (unsigned int)image_width,
-                             (unsigned int)image_height,
+                             (unsigned int)img_width,
+                             (unsigned int)img_height,
                              24, img);
 
     /* deallocate memory */
