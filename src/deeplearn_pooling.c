@@ -77,8 +77,8 @@ int pooling_from_flt_to_flt(int depth,
         }
     }
 
-    float factorx = layer1_across / layer0_across;
-    float factory = layer1_down / layer0_down;
+    float factorx = layer1_across / (float)layer0_across;
+    float factory = layer1_down / (float)layer0_down;
     float factor = factorx * factory;
 
     for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
