@@ -104,6 +104,24 @@ static void test_conv_image()
         BPerror = conv.BPerror;
     }
 
+    /* move to hte next layer */
+    conv.BPerror = -1;
+    conv.current_layer++;
+    
+    for (int i = 0; i < 4; i++) {
+        assert(conv_img(img, &conv) == 0);
+        /* error should be >= 0 */
+        if (!(conv.BPerror >= 0)) {
+            printf("\nBPerror: %f\n",conv.BPerror);
+        }
+        assert(conv.BPerror >= 0);
+        /* error should be reducing */
+        if (i > 0) {
+            assert(conv.BPerror < BPerror);
+        }
+        BPerror = conv.BPerror;
+    }
+
     sprintf(plot_filename,"/tmp/%s","libdeep_conv.png");
     sprintf(plot_title,"%s","Convolution Training Error");
 
