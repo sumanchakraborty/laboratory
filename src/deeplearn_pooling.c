@@ -63,7 +63,7 @@ int pooling_from_flt_to_flt(int depth,
     }
 
     memset((void*)layer1,'\0',layer1_across*layer1_down*depth*sizeof(float));
-    
+
     /*#pragma omp parallel for*/
     for (int y0 = 0; y0 < layer0_down; y0++) {
         int y1 = y0 * layer1_down / layer0_down;
@@ -73,7 +73,6 @@ int pooling_from_flt_to_flt(int depth,
             int n1 = (y1*layer1_across + x1)*depth;
             for (int d = 0; d < depth; d++) {
                 layer1[n1+d] += layer0[n0+d];
-				printf("p %f\n",layer1[n0+d]);
             }
         }
     }
@@ -81,7 +80,7 @@ int pooling_from_flt_to_flt(int depth,
     float factorx = layer1_across / layer0_across;
     float factory = layer1_down / layer0_down;
     float factor = factorx * factory;
-    
+
     for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
         layer1[i] *= factor;
     }
