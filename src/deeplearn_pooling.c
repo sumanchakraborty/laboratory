@@ -62,29 +62,28 @@ int pooling_from_flt_to_flt(int depth,
         return 0;
     }
 
+    memset((void*)layer1,'\0',layer1_across*layer1_down*depth*sizeof(float));
+    
     /*#pragma omp parallel for*/
-    for (int y = 0; y < layer1_down; y++) {
-        int ty = y * layer0_down / layer1_down;
-        int by = (y+1) * layer0_down / layer1_down;
-        for (int x = 0; x < layer1_across; x++) {
-            int tx = x * layer0_across / layer1_across;
-            int bx = (x+1) * layer0_across / layer1_across;
-            /* for every depth */
+    for (int y0 = 0; y0 < layer0_down; y0++) {
+        int y1 = y0 * layer1_down / layer0_down;
+        for (int x0 = 0; x0 < layer0_across; x0++) {
+            int x1 = x0 * layer1_across / layer0_across;
+            int n0 = (y0*layer0_across + x0)*depth;
+            int n1 = (y1*layer1_across + x1)*depth;
             for (int d = 0; d < depth; d++) {
-                /* average the inputs in the first layer */
-                float tot = 0;
-                for (int y_layer0 = ty; y_layer0 < by; y_layer0++) {
-                    for (int x_layer0 = tx; x_layer0 < bx; x_layer0++) {
-                        tot +=
-                            layer0[(y_layer0*layer0_across + x_layer0)*
-                                   depth + d];
-                    }
-                }
-                /* set the averaged second layer value */
-                layer1[(y*layer1_across + x)*depth + d] =
-                    tot / ((bx-tx)*(by-ty));
+                layer1[n1+d] += layer0[n0+d];
+				printf("p %f\n",layer1[n0+d]);
             }
         }
+    }
+
+    float factorx = layer1_across / layer0_across;
+    float factory = layer1_down / layer0_down;
+    float factor = factorx * factory;
+    
+    for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
+        layer1[i] *= factor;
     }
     return 0;
 }

@@ -311,22 +311,21 @@ static int conv_img_initial(unsigned char img[],
         }
         *BPerror = *BPerror + currBPerror;
     }
-	else {
-        /* do the convolution for this layer */
-        retval =
-            features_conv_img_to_flt(conv_layer_width(0,conv,0),
-                                     conv_layer_height(0,conv,0),
-                                     patch_radius,
-                                     conv->inputs_across,
-                                     conv->inputs_down,
-                                     conv->inputs_depth, img,
-                                     convolution_layer_units(0,conv),
-                                     conv->layer[0].convolution,
-                                     conv->layer[0].autocoder);
-        if (retval != 0) {
-            return -2;
-        }
-    }
+	
+	/* do the convolution for this layer */
+	retval =
+		features_conv_img_to_flt(conv_layer_width(0,conv,0),
+								 conv_layer_height(0,conv,0),
+								 patch_radius,
+								 conv->inputs_across,
+								 conv->inputs_down,
+								 conv->inputs_depth, img,
+								 convolution_layer_units(0,conv),
+								 conv->layer[0].convolution,
+								 conv->layer[0].autocoder);
+	if (retval != 0) {
+		return -2;
+	}
     return 0;
 }
 
@@ -368,23 +367,21 @@ static int conv_subsequent(deeplearn_conv * conv,
         }
         *BPerror = *BPerror + currBPerror;
     }
-	else {
-        /* do the convolution for this layer */
-        retval =
-            features_conv_flt_to_flt(conv_layer_width(layer_index,conv,0),
-                                     conv_layer_height(layer_index,conv,0),
-                                     patch_radius,
-                                     conv_layer_width(layer_index-1,conv,1),
-                                     conv_layer_height(layer_index-1,conv,1),
-                                     conv->max_features,
-                                     conv->layer[layer_index-1].pooling,
-                                     convolution_layer_units(layer_index,conv),
-                                     conv->layer[layer_index].convolution,
-                                     conv->layer[layer_index].autocoder);
-        if (retval != 0) {
-            return -5;
-        }
-    }
+	/* do the convolution for this layer */
+	retval =
+		features_conv_flt_to_flt(conv_layer_width(layer_index,conv,0),
+								 conv_layer_height(layer_index,conv,0),
+								 patch_radius,
+								 conv_layer_width(layer_index-1,conv,1),
+								 conv_layer_height(layer_index-1,conv,1),
+								 conv->max_features,
+								 conv->layer[layer_index-1].pooling,
+								 convolution_layer_units(layer_index,conv),
+								 conv->layer[layer_index].convolution,
+								 conv->layer[layer_index].autocoder);
+	if (retval != 0) {
+		return -5;
+	}
     return 0;
 }
 
