@@ -93,8 +93,23 @@ static void test_conv_image()
                      reduction_factor, pooling_factor,
                      &conv, error_threshold,
                      &random_seed) == 0);
+
+    int conv0_size =
+        conv.layer[0].units_across *
+        conv.layer[0].units_down * max_features;
+
     for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < conv0_size; j++) {
+            conv.layer[0].convolution[j] = -9999;
+        }
+
         assert(conv_img(img, &conv) == 0);
+
+        /* check that some convolution happened */
+        for (int j = 0; j < conv0_size; j++) {
+            assert(conv.layer[0].convolution[j] != -9999);
+        }
+
         /* error should be >= 0 */
         assert(conv.BPerror >= 0);
         /* error should be reducing */
@@ -107,9 +122,23 @@ static void test_conv_image()
     /* move to hte next layer */
     conv.BPerror = -1;
     conv.current_layer++;
-    
+
+    int conv1_size =
+        conv.layer[1].units_across *
+        conv.layer[1].units_down * max_features;
+
     for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < conv1_size; j++) {
+            conv.layer[1].convolution[j] = -9999;
+        }
+
         assert(conv_img(img, &conv) == 0);
+
+        /* check that some convolution happened */
+        for (int j = 0; j < conv1_size; j++) {
+            assert(conv.layer[1].convolution[j] != -9999);
+        }
+
         /* error should be >= 0 */
         if (!(conv.BPerror >= 0)) {
             printf("\nBPerror: %f\n",conv.BPerror);
