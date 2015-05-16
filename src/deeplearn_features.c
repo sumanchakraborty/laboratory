@@ -427,12 +427,19 @@ int features_conv_img_to_flt(int samples_across,
 
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
+            int index_layer0 =
+                (fy * samples_across + fx) *
+                no_of_learned_features;
+
             int tx=0, ty=0, bx=0, by=0;
             if (features_patch_coords(fx, fy,
                                       samples_across, samples_down,
                                       patch_radius,
                                       img_width, img_height,
                                       &tx, &ty, &bx, &by) != 0) {
+				for (int f = 0; f < no_of_learned_features; f++) {
+					layer0[index_layer0+f] = 0;
+				}
                 continue;
             }
 
@@ -443,9 +450,6 @@ int features_conv_img_to_flt(int samples_across,
             }
 
             bp_feed_forward_layers(feature_autocoder, 0);
-            int index_layer0 =
-                (fy * samples_across + fx) *
-                no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer0[index_layer0+f] =
                     bp_get_hidden(feature_autocoder, 0, f);
@@ -503,12 +507,18 @@ int features_conv_flt_to_flt(int samples_across,
 
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
+            int index_layer1 =
+                (fy * samples_across + fx) *
+                no_of_learned_features;
             int tx=0, ty=0, bx=0, by=0;
             if (features_patch_coords(fx, fy,
                                       samples_across, samples_down,
                                       patch_radius,
                                       floats_width, floats_height,
                                       &tx, &ty, &bx, &by) != 0) {
+				for (int f = 0; f < no_of_learned_features; f++) {
+					layer1[index_layer1+f] = 0;
+				}
                 continue;
             }
 
@@ -520,9 +530,6 @@ int features_conv_flt_to_flt(int samples_across,
             }
 
             bp_feed_forward_layers(feature_autocoder, 0);
-            int index_layer1 =
-                (fy * samples_across + fx) *
-                no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer1[index_layer1+f] =
                     bp_get_hidden(feature_autocoder, 0, f);
