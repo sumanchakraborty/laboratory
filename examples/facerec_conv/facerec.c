@@ -76,7 +76,7 @@ static void facerec_training()
 	int no_of_learned_features = 20;
 	int convolution_reduction_factor = 2;
 	int convolution_pooling_factor = 2;
-	float convolution_error_threshold[] = { 0.014f, 0.0f };
+	float convolution_error_threshold[] = { 0.014f, 0.005f };
 
     sprintf(weights_filename,"%s","weights.png");
     sprintf(title, "%s", "Face Image Training");
