@@ -175,7 +175,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
 	}
 
 	if (convnet->convolution->training_complete == 0) {
-		return -2;
+		return 0;
 	}
 
 	if (deepconvnet_set_inputs_conv(convnet->learner,
