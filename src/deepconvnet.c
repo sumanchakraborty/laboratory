@@ -2,6 +2,13 @@
  libdeep - a library for deep learning
  Copyright (C) 2015  Bob Mottram <bob@robotics.uk.to>
 
+ A deep convolution network combines a convolutional net as a
+ preprocessing stage together with a deep learning system as the
+ final stage. The use of convolution greatly reduces the
+ dimensionality of the problem for image processing, since the
+ neural nets at each convolution layer only handle a small patch
+ of the input surface.
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -29,6 +36,23 @@
 
 #include "deepconvnet.h"
 
+/**
+* @brief Initialise a deep convnet
+* @param no_of_convolutions Number of layers in the convolution
+*        preprocessing stage
+* @param no_of_deep_layers Number of layers in the deep learner
+* @param inputs_across Horizontal resolution of input images
+* @param inputs_down Vertical resolution of input images
+* @param inputs_depth Depth of input images in bytes
+* @param max_features The number of features learned at each convolution layer
+* @param reduction_factor Reduction factor for convolution layers
+* @param no_of_outputs Number of outputs of the deep learner
+* @param convnet Deep convnet object
+* @param error_threshold Array containing learning thresholds (percent error)
+*        for each layer of both the convolution stage and the deep learner
+* @param random_seed Random number generator seed
+* @return zero on success
+*/
 int deepconvnet_init(int no_of_convolutions,
                      int no_of_deep_layers,
                      int inputs_across,
@@ -54,7 +78,7 @@ int deepconvnet_init(int no_of_convolutions,
                   random_seed) != 0) {
         return -2;
     }
- 
+
     convnet->learner = (deeplearn*)malloc(sizeof(deeplearn));
     if (!convnet->learner) return -3;
     if (deeplearn_init(convnet->learner,
@@ -70,6 +94,10 @@ int deepconvnet_init(int no_of_convolutions,
     return 0;
 }
 
+/**
+* @brief Frees memory
+* @param convnet Deep convnet object
+*/
 void deepconvnet_free(deepconvnet * convnet)
 {
     conv_free(convnet->convolution);
@@ -79,6 +107,12 @@ void deepconvnet_free(deepconvnet * convnet)
     free(convnet->learner);
 }
 
+/**
+* @brief Saves the given deep convnet object to a file
+* @param fp File pointer
+* @param convnet Deep convnet object
+* @return zero value on success
+*/
 int deepconvnet_save(FILE * fp, deepconvnet * convnet)
 {
     if (conv_save(fp, convnet->convolution) != 0) return -1;
@@ -86,6 +120,13 @@ int deepconvnet_save(FILE * fp, deepconvnet * convnet)
     return 0;
 }
 
+/**
+* @brief Loads a deep convnet object from file
+* @param fp File pointer
+* @param convnet Deep convnet object
+* @param random_seed Random number generator seed
+* @return zero value on success
+*/
 int deepconvnet_load(FILE * fp, deepconvnet * convnet,
                      unsigned int * random_seed)
 {
@@ -140,7 +181,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
 									convnet->convolution) != 0) {
 		return -3;
 	}
-	
+
 	deeplearn_update(convnet->learner);
 	return 0;
 }
