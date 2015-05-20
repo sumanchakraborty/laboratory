@@ -56,9 +56,9 @@ deeplearn learner;
 */
 static void facerec_training()
 {
-    int no_of_inputs = image_width*image_height;
-    int no_of_hiddens = 6*6;
-    int hidden_layers=4;
+    int no_of_inputs;
+    int no_of_hiddens;
+    int hidden_layers=2;
     int no_of_outputs=5*5;
     int itt,i,index,retval;
     unsigned int random_seed = 123;
@@ -114,6 +114,9 @@ static void facerec_training()
 		}
 	}
 
+	no_of_inputs = conv_outputs(&convolution);
+	no_of_hiddens = no_of_inputs*8/10;
+	
     /* create the learner */
     deeplearn_init(&learner,
                    no_of_inputs, no_of_hiddens,
@@ -128,11 +131,16 @@ static void facerec_training()
     /* perform pre-training with an autocoder */
     itt = 0;
     while (learner.current_hidden_layer < hidden_layers) {
-        /* load the patch into the network inputs */
-        deeplearn_inputs_from_image(&learner,
-                                    images[rand_num(&random_seed)%no_of_images],
-                                    image_width, image_height);
+		retval = conv_img(images[rand_num(&random_seed)%no_of_images], &convolution);
+		if (retval != 0) {
+			printf("Unable to update convolutional network, error %d\n", retval);
+			return;
+		}
 
+		for (int i = 0; i < no_of_inputs; i++) {
+			deeplearn_set_input(&learner, i,
+								get_conv_output(&convolution,i);
+		}
 
         deeplearn_update(&learner);
         itt++;

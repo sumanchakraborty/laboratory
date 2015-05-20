@@ -89,12 +89,12 @@ int conv_init(int no_of_layers,
     conv->max_features = max_features;
 
     for (int i = 0; i < no_of_layers; i++) {
-		/* reduce the array dimensions */
+        /* reduce the array dimensions */
         across /= reduction_factor;
         down /= reduction_factor;
         if (across < 4) across = 4;
         if (down < 4) down = 4;
-		
+        
         conv->layer[i].units_across = across;
         conv->layer[i].units_down = down;
         conv->layer[i].pooling_factor = pooling_factor;
@@ -126,8 +126,8 @@ int conv_init(int no_of_layers,
 
         /* initialise the autocoder for this layer */
         if (bp_init_autocoder(conv->layer[i].autocoder,
-							  patch_pixels*depth, max_features,
-							  random_seed) != 0) {
+                              patch_pixels*depth, max_features,
+                              random_seed) != 0) {
             return -3;
         }
 
@@ -247,6 +247,16 @@ int conv_layer_width(int layer_index,
 }
 
 /**
+ * @brief Returns the width of the final output
+ * @param conv Preprocessing object
+ * @return Width of the final output of the convolution system
+ */
+int conv_output_width(deeplearn_conv * conv)
+{
+    return conv_layer_width(conv->no_of_layers-1, conv, 1);
+}
+
+/**
  * @brief Returns the height of the layer
  * @param layer_index Index number of the convolution layer
  * @param conv Preprocessing object
@@ -262,6 +272,40 @@ int conv_layer_height(int layer_index,
     }
     return conv->layer[layer_index].units_down /
         conv->layer[layer_index].pooling_factor;
+}
+
+/**
+ * @brief Returns the width of the final output
+ * @param conv Preprocessing object
+ * @return Height of the final output of the convolution system
+ */
+int conv_output_height(deeplearn_conv * conv)
+{
+    return conv_layer_height(conv->no_of_layers-1, conv, 1);
+}
+
+/**
+ * @brief Returns the size of the final pooling array
+ *        which is the ultimate output of the convolution system
+ * @param conv Preprocessing object
+ * @return Size of the final pooling array (number of floats)
+ */
+int conv_outputs(deeplearn_conv * conv)
+{
+    return conv_output_width(conv)*
+        conv_output_height(conv)*
+        conv->max_features;
+}
+
+/**
+ * @brief Returns a value from the final pooling layer
+ * @param conv Preprocessing object
+ * @param index Index within the pooling array of the final convolution layer
+ * @return Value from the final pooling layer
+ */
+float get_conv_output(deeplearn_conv * conv, int index)
+{
+    return conv->layer[conv->no_of_layers-1].pooling[index];
 }
 
 /**
@@ -311,21 +355,21 @@ static int conv_img_initial(unsigned char img[],
         }
         *BPerror = *BPerror + currBPerror;
     }
-	
-	/* do the convolution for this layer */
-	retval =
-		features_conv_img_to_flt(conv_layer_width(0,conv,0),
-								 conv_layer_height(0,conv,0),
-								 patch_radius,
-								 conv->inputs_across,
-								 conv->inputs_down,
-								 conv->inputs_depth, img,
-								 convolution_layer_units(0,conv),
-								 conv->layer[0].convolution,
-								 conv->layer[0].autocoder);
-	if (retval != 0) {
-		return -2;
-	}
+    
+    /* do the convolution for this layer */
+    retval =
+        features_conv_img_to_flt(conv_layer_width(0,conv,0),
+                                 conv_layer_height(0,conv,0),
+                                 patch_radius,
+                                 conv->inputs_across,
+                                 conv->inputs_down,
+                                 conv->inputs_depth, img,
+                                 convolution_layer_units(0,conv),
+                                 conv->layer[0].convolution,
+                                 conv->layer[0].autocoder);
+    if (retval != 0) {
+        return -2;
+    }
     return 0;
 }
 
@@ -367,21 +411,21 @@ static int conv_subsequent(deeplearn_conv * conv,
         }
         *BPerror = *BPerror + currBPerror;
     }
-	/* do the convolution for this layer */
-	retval =
-		features_conv_flt_to_flt(conv_layer_width(layer_index,conv,0),
-								 conv_layer_height(layer_index,conv,0),
-								 patch_radius,
-								 conv_layer_width(layer_index-1,conv,1),
-								 conv_layer_height(layer_index-1,conv,1),
-								 conv->max_features,
-								 conv->layer[layer_index-1].pooling,
-								 convolution_layer_units(layer_index,conv),
-								 conv->layer[layer_index].convolution,
-								 conv->layer[layer_index].autocoder);
-	if (retval != 0) {
-		return -5;
-	}
+    /* do the convolution for this layer */
+    retval =
+        features_conv_flt_to_flt(conv_layer_width(layer_index,conv,0),
+                                 conv_layer_height(layer_index,conv,0),
+                                 patch_radius,
+                                 conv_layer_width(layer_index-1,conv,1),
+                                 conv_layer_height(layer_index-1,conv,1),
+                                 conv->max_features,
+                                 conv->layer[layer_index-1].pooling,
+                                 convolution_layer_units(layer_index,conv),
+                                 conv->layer[layer_index].convolution,
+                                 conv->layer[layer_index].autocoder);
+    if (retval != 0) {
+        return -5;
+    }
     return 0;
 }
 

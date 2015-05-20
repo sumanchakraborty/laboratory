@@ -39,6 +39,7 @@
 #include "backprop_neuron.h"
 #include "encoding.h"
 #include "backprop.h"
+#include "deeplearn.h"
 #include "deeplearn_features.h"
 #include "deeplearn_pooling.h"
 
@@ -108,5 +109,9 @@ int conv_plot_history(deeplearn_conv * conv,
                       int img_width, int img_height);
 int conv_save(FILE * fp, deeplearn_conv * conv);
 int conv_load(FILE * fp, deeplearn_conv * conv);
+int conv_output_width(deeplearn_conv * conv);
+int conv_output_height(deeplearn_conv * conv);
+float get_conv_output(deeplearn_conv * conv, int index);
+int conv_outputs(deeplearn_conv * conv);
 
 #endif

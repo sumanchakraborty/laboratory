@@ -36,6 +36,7 @@
 #include <limits.h>
 #include "globals.h"
 #include "deeplearn.h"
+#include "deepconvnet.h"
 
 int deeplearndata_add(deeplearndata ** datalist,
                       int data_samples[],
