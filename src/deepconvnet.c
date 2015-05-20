@@ -138,7 +138,9 @@ int deepconvnet_load(FILE * fp, deepconvnet * convnet,
 }
 
 /**
-* @brief Sets the input values to the outputs of convolutional net
+* @brief Sets the input values to the outputs of convolutional net.
+*        This provides the glue sticking the preprocessing convolutional
+*        stage together with the final deep learning stage.
 * @param learner Deep learner object
 * @param conv Convolution object
 * @return zero on success
