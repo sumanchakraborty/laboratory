@@ -72,78 +72,12 @@ int pooling_from_flt_to_flt(int depth,
             int n0 = (y0*layer0_across + x0)*depth;
             int n1 = (y1*layer1_across + x1)*depth;
             for (int d = 0; d < depth; d++) {
-                layer1[n1+d] += layer0[n0+d];
+				if (layer0[n0+d] > layer1[n1+d]) {
+					layer1[n1+d] = layer0[n0+d];
+				}
             }
         }
     }
 
-    float factorx = layer1_across / (float)layer0_across;
-    float factory = layer1_down / (float)layer0_down;
-    float factor = factorx * factory;
-
-    for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
-        layer1[i] *= factor;
-    }
-    return 0;
-}
-
-/**
-* @brief Pools the first layer into the second
-* @param depth Depth of the two layers
-* @param layer0_across Number of units across the first layer
-* @param layer0_down Number of units down the first layer
-* @param layer0 Array containing the first layer values
-* @param layer1_across Number of units across the second layer
-* @param layer1_down Number of units down the second layer
-* @param layer1 Array containing the second layer values
-* @returns zero on success
-*/
-int pooling_from_flt_to_nrn(int depth,
-                            int layer0_across,
-                            int layer0_down,
-                            float layer0[],
-                            int layer1_across,
-                            int layer1_down,
-                            bp_neuron ** layer1)
-{
-    /* second layer must be smaller than the first */
-    if (layer1_across*layer1_down >
-        layer0_across*layer0_down) {
-        return -1;
-    }
-
-    /* if layers are the same size then copy the array */
-    if (layer1_across*layer1_down ==
-        layer0_across*layer0_down) {
-        for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
-            layer1[i]->value = layer0[i];
-        }
-        return 0;
-    }
-
-    /*#pragma omp parallel for*/
-    for (int y = 0; y < layer1_down; y++) {
-        int ty = y * layer0_down / layer1_down;
-        int by = (y+1) * layer0_down / layer1_down;
-        for (int x = 0; x < layer1_across; x++) {
-            int tx = x * layer0_across / layer1_across;
-            int bx = (x+1) * layer0_across / layer1_across;
-            /* for every depth */
-            for (int d = 0; d < depth; d++) {
-                /* average the inputs in the first layer */
-                float tot = 0;
-                for (int y_layer0 = ty; y_layer0 < by; y_layer0++) {
-                    for (int x_layer0 = tx; x_layer0 < bx; x_layer0++) {
-                        tot +=
-                            layer0[(y_layer0*layer0_across + x_layer0)*
-                                   depth + d];
-                    }
-                }
-                /* set the averaged second layer value */
-                layer1[(y*layer1_across + x)*depth + d]->value =
-                    tot / ((bx-tx)*(by-ty));
-            }
-        }
-    }
     return 0;
 }

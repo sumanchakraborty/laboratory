@@ -70,67 +70,11 @@ static void test_pooling_from_floats_to_floats()
     printf("Ok\n");
 }
 
-static void test_pooling_from_floats_to_neurons()
-{
-    printf("test_pooling_from_floats_to_neurons...");
-
-    float layer0[20*10*3];
-    bp_neuron ** layer1;
-    int depth = 3;
-    int layer0_across = 20;
-    int layer0_down = 10;
-    int layer1_across = 2;
-    int layer1_down = 2;
-
-    layer1 = (bp_neuron**)malloc(layer1_across*layer1_down*depth*
-                                 sizeof(bp_neuron*));
-    assert(layer1);
-    for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
-        layer1[i] = (bp_neuron*)malloc(sizeof(bp_neuron));
-        assert(layer1[i]);
-    }
-
-    /* set some values in the first layer */
-    for (int y = 0; y < layer0_down; y++) {
-        for (int x = 0; x < layer0_across; x++) {
-            for (int d = 0; d < depth; d++) {
-                layer0[(y*layer0_across + x)*depth + d] = d+1;
-            }
-        }
-    }
-
-    assert(pooling_from_flt_to_nrn(depth,
-                                   layer0_across,
-                                   layer0_down,
-                                   layer0,
-                                   layer1_across,
-                                   layer1_down,
-                                   layer1)==0);
-
-    for (int y = 0; y < layer1_down; y++) {
-        for (int x = 0; x < layer1_across; x++) {
-            for (int d = 0; d < depth; d++) {
-                float v = layer1[(y*layer1_across + x)*depth + d]->value;
-                assert(v > (d+1)-0.01f);
-                assert(v < (d+1)+0.01f);
-            }
-        }
-    }
-
-    for (int i = 0; i < layer1_across*layer1_down*depth; i++) {
-        free(layer1[i]);
-    }
-    free(layer1);
-
-    printf("Ok\n");
-}
-
 int run_tests_pooling()
 {
     printf("\nRunning pooling tests\n");
 
     test_pooling_from_floats_to_floats();
-    test_pooling_from_floats_to_neurons();
 
     printf("All pooling tests completed\n");
     return 1;
