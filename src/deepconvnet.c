@@ -155,6 +155,7 @@ static int deepconvnet_set_inputs_conv(deeplearn * learner, deeplearn_conv * con
         width * height * conv->max_features) {
         return -1;
     }
+    /* NOTE: can this be done with memcpy ? */
     for (int i = 0; i < learner->net->NoOfInputs; i++) {
         deeplearn_set_input(learner, i, conv->layer[layer_index].pooling[i]);
     }
