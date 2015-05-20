@@ -163,8 +163,7 @@ static int deepconvnet_set_inputs_conv(deeplearn * learner, deeplearn_conv * con
 }
 
 /**
-* @brief Performs training initially using autocoders for each hidden
-*        layer and eventually for the entire network.
+* @brief Update routine for training the system
 * @param learner Deep learner object
 * @param img Array containing input image
 * @return Zero on success
