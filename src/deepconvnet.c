@@ -180,7 +180,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
 
 	if (deepconvnet_set_inputs_conv(convnet->learner,
 									convnet->convolution) != 0) {
-		return -3;
+		return -2;
 	}
 
 	deeplearn_update(convnet->learner);
