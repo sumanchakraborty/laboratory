@@ -54,20 +54,6 @@ typedef struct {
 	char ** classifications;
 	int * classification_number;
 
-    deeplearndata * data;
-    int data_samples;
-    deeplearndata_meta * training_data;
-    int training_data_samples;
-    deeplearndata_meta * training_data_labeled;
-    int training_data_labeled_samples;
-    deeplearndata_meta * test_data;
-    int test_data_samples;
-
-    float * input_range_min;
-    float * input_range_max;
-    float * output_range_min;
-    float * output_range_max;
-
     unsigned int training_ctr;
     unsigned int history_plot_interval;
     char history_plot_filename[256];
@@ -93,5 +79,7 @@ int deepconvnet_save(FILE * fp, deepconvnet * convnet);
 int deepconvnet_load(FILE * fp, deepconvnet * convnet,
                      unsigned int * random_seed);
 int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[]);
+void deepconvnet_set_learning_rate(deepconvnet * convnet, float rate);
+void deepconvnet_set_dropouts(deepconvnet * convnet, float dropout_percent);
 
 #endif

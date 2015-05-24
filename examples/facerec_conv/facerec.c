@@ -31,22 +31,13 @@
 #include "libdeep/globals.h"
 #include "libdeep/deeplearn.h"
 #include "libdeep/deeplearn_images.h"
+#include "libdeep/deepconvnet.h"
 
 /* the dimensions of each face image */
 int image_width = 32;
 int image_height = 32;
 
-/* the number of face images */
-int no_of_images;
-
-/* array storing the face images */
-unsigned char **images;
-
-/* image classification labels */
-char ** classifications;
-
-/* the classification number assigned to each image */
-int * class_number;
+deepconvnet convnet;
 
 deeplearn_conv convolution;
 deeplearn learner;
@@ -56,229 +47,55 @@ deeplearn learner;
 */
 static void facerec_training()
 {
-    int no_of_inputs;
-    int no_of_hiddens;
-    int hidden_layers=2;
-    int no_of_outputs=5*5;
-    int itt,i,index,retval;
-    unsigned int random_seed = 123;
-    char filename[256];
-    char convolution_filename[256];
-    char title[256];
-    char weights_filename[256];
-    int weights_image_width = 480;
-    int weights_image_height = 800;
-    float error_threshold[] = { 7.5f, 7.5f, 9.0f, 9.0f, 6.0f};
-    const int logging_interval = 7000;
-	const int convolution_logging_interval = 100;
-	int no_of_convolution_layers = 2;
-	int bitsperpixel = 8;
-	int no_of_learned_features = 20;
-	int convolution_reduction_factor = 2;
-	int convolution_pooling_factor = 2;
-	float convolution_error_threshold[] = { 0.014f, 0.005f };
+	int no_of_convolutions = 2;
+	int max_features_per_convolution = 20;
+	int reduction_factor = 2;
+	int no_of_deep_layers = 2;
+	int no_of_outputs = 5*5;
+	int output_classes = 25;
+	float error_threshold[] = { 0.01, 0.01, 0.01, 0.01, 0.01 ];
+	unsigned int random_seed = 34217;
 
-    sprintf(weights_filename,"%s","weights.png");
-    sprintf(title, "%s", "Face Image Training");
-
-	/* create a convolutional net */
-    retval = conv_init(no_of_convolution_layers,
-					   image_width, image_height,
-					   bitsperpixel/8, no_of_learned_features,
-					   convolution_reduction_factor,
-					   convolution_pooling_factor,
-					   &convolution, convolution_error_threshold,
-					   &random_seed);
-	if (retval != 0) {
-		printf("Unable to initialise convolutional network, error %d\n", retval);
+	if (deeplearndata_read_images("../facerec/images",
+								  &convnet,
+								  image_width, image_height,
+								  no_of_convolutions,
+								  max_features_per_convolution,
+								  reduction_factor,
+								  no_of_deep_layers,
+								  no_of_outputs,
+								  output_classes,
+								  error_threshold,
+								  &random_seed) != 0) {
 		return;
 	}
 
-	sprintf(convolution_filename,"%s","convolution.png");
+	printf("Number of images: %d\n", convnet.no_of_images);
+    printf("Number of labeled training examples: %d\n",convnet.training_data_labeled_samples);
+    printf("Number of test examples: %d\n",convnet.test_data_samples);
 
-	itt = 0;
-	while (convolution.training_complete == 0) {
-		retval = conv_img(images[rand_num(&random_seed)%no_of_images], &convolution);
-		if (retval != 0) {
-			printf("Unable to update convolutional network, error %d\n", retval);
-			return;
-		}
-		itt++;
-        if ((itt % convolution_logging_interval == 0) && (itt>0)) {
-            printf("Conv %d/%d: %.5f\n",
-                   convolution.current_layer+1, no_of_convolution_layers,
-				   convolution.BPerror);
-			assert(conv_plot_history(&convolution, convolution_filename,
-									 "Convolution Training",
-									 1024, 640) == 0);
-		}
+	if ((convnet.training_data_labeled_samples == 0) ||
+		(convnet.test_data_samples == 0)) {
+		return;
 	}
 
-	no_of_inputs = conv_outputs(&convolution);
-	no_of_hiddens = no_of_inputs*8/10;
-	
-    /* create the learner */
-    deeplearn_init(&learner,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers,
-                   no_of_outputs,
-                   error_threshold,
-                   &random_seed);
+    deepconvnet_set_learning_rate(&convnet, 0.2f);
 
-    /* set learning rate */
-    deeplearn_set_learning_rate(&learner, 1.0f);
+    deepconvnet_set_dropouts(&convnet, 0.001f);
 
-    /* perform pre-training with an autocoder */
-    itt = 0;
-    while (learner.current_hidden_layer < hidden_layers) {
-		retval = conv_img(images[rand_num(&random_seed)%no_of_images], &convolution);
-		if (retval != 0) {
-			printf("Unable to update convolutional network, error %d\n", retval);
-			return;
-		}
+    convnet.history_plot_interval = 900000;
 
-		for (int i = 0; i < no_of_inputs; i++) {
-			deeplearn_set_input(&learner, i,
-								get_conv_output(&convolution,i);
-		}
+    sprintf(convnet.history_plot_title, "%s", TITLE);
 
-        deeplearn_update(&learner);
-        itt++;
-        if ((itt % logging_interval == 0) && (itt>0)) {
-            printf("Deep %d: %.5f\n",
-                   learner.current_hidden_layer, learner.BPerror);
-
-            /* save a graph */
-            sprintf(filename,"%s","training_error.png");
-            deeplearn_plot_history(&learner,
-                                   filename, title,
-                                   1024, 480);
-            /* plot the weights */
-            if ((&learner)->autocoder[learner.current_hidden_layer] != 0) {
-                if (learner.current_hidden_layer==0) {
-                    bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
-                                    weights_filename,
-                                    weights_image_width,
-                                    weights_image_height,
-                                    image_width);
-                }
-                else {
-                    bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
-                                    weights_filename,
-                                    weights_image_width,
-                                    weights_image_height,
-                                    0);
-                }
-            }
-        }
+    while (deeplearndata_training_convnet(&convnet) != 0) {
     }
 
-    /* save a graph */
-    sprintf(filename,"%s","training_error.png");
-    deeplearn_plot_history(&learner,
-                           filename, title,
-                           1024, 480);
-    /* plot the weights */
-    bp_plot_weights((&learner)->net,
-                    weights_filename,
-                    weights_image_width,
-                    weights_image_height,
-                    image_width);
+    printf("Training Completed\n");
 
-    /* perform the final training between the last
-       hidden layer and the outputs */
-    while (learner.training_complete == 0) {
-        index = rand_num(&random_seed)%no_of_images;
-        /* load the patch into the network inputs */
-        deeplearn_inputs_from_image(&learner,
-                                    images[index],
-                                    image_width, image_height);
+    printf("Test data set performance is %.1f%%\n",
+		   deeplearndata_get_performance_convnet(&convnet));
 
-        for (i = 0; i < no_of_outputs; i++) {
-            if (i == class_number[index]) {
-                deeplearn_set_output(&learner,i, 0.8f);
-            }
-            else {
-                deeplearn_set_output(&learner,i, 0.2f);
-            }
-        }
-        deeplearn_update(&learner);
-
-        itt++;
-        if ((itt % logging_interval == 0) && (itt>0)) {
-            printf("Final: %.5f\n",learner.BPerror);
-
-            /* save a graph */
-            sprintf(filename,"%s","training_error.png");
-            deeplearn_plot_history(&learner,
-                                   filename, title,
-                                   1024, 480);
-            /* plot the weights */
-            if ((&learner)->autocoder!=0) {
-                bp_plot_weights((&learner)->autocoder[learner.current_hidden_layer],
-                                weights_filename,
-                                weights_image_width,
-                                weights_image_height,
-                                image_width);
-            }
-        }
-    }
-
-    /* save a graph */
-    sprintf(filename,"%s","training_error.png");
-    deeplearn_plot_history(&learner,
-                           filename, title,
-                           1024, 480);
-    /* plot the weights */
-    bp_plot_weights((&learner)->net,
-                    weights_filename,
-                    weights_image_width,
-                    weights_image_height,
-                    image_width);
-}
-
-/**
-* @brief Deallocate memory used to store images
-* @param images Array containing images
-* @param classifications Array containing descriptions (labels)
-* @param class_number Array containing class numbers
-* @param no_of_images The number of images in the array
-*/
-static void free_mem(unsigned char ** images,
-                     char ** classifications,
-                     int * class_number,
-                     int no_of_images)
-{
-    int i;
-
-    if (images==NULL) return;
-
-    for (i = 0; i < no_of_images; i++) {
-        if (images[i] != NULL) {
-            free(images[i]);
-            images[i] = 0;
-        }
-        free(classifications[i]);
-    }
-    free(images);
-    free(classifications);
-    free(class_number);
-
-    deeplearn_free(&learner);
-}
-
-/**
-* @brief Saves the training examples as an image
-*/
-static void plot_training_images()
-{
-    int max_images = no_of_images;
-
-    if (max_images > 4) max_images = 4;
-
-    bp_plot_images(images, max_images,
-                   image_width, image_height,
-                   "training_images.png");
+	deepconvnet_free(&convnet);
 }
 
 /**
@@ -286,20 +103,6 @@ static void plot_training_images()
 */
 int main(int argc, char* argv[])
 {
-    images = NULL;
-
-    /* load training images into an array */
-    no_of_images =
-        deeplearn_load_training_images("../facerec/images", &images, &classifications,
-                                       &class_number,
-                                       image_width, image_height);
-
-    printf("No of images: %d\n", no_of_images);
-
-    plot_training_images();
-
     facerec_training();
-
-    free_mem(images, classifications, class_number, no_of_images);
-    return 1;
+    return 0;
 }

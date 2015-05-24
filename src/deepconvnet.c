@@ -206,3 +206,25 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
     deeplearn_update(convnet->learner);
     return 0;
 }
+
+/**
+* @brief Sets the learning rate
+* @param convnet Deep convnet object
+* @param rate the learning rate in the range 0.0 to 1.0
+*/
+void deepconvnet_set_learning_rate(deepconvnet * convnet, float rate)
+{
+    conv_set_learning_rate(convnet->convolution, rate);
+    deeplearn_set_learning_rate(convnet->learner, rate);
+}
+
+/**
+* @brief Sets the percentage of units which drop out during training
+* @param convnet Deep convnet object
+* @param dropout_percent Percentage of units which drop out in the range 0 to 100
+*/
+void deepconvnet_set_dropouts(deepconvnet * convnet, float dropout_percent)
+{
+    conv_set_dropouts(convnet->convolution, dropout_percent);
+    deeplearn_set_dropouts(convnet->learner, dropout_percent);
+}

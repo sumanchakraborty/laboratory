@@ -94,7 +94,7 @@ int conv_init(int no_of_layers,
         down /= reduction_factor;
         if (across < 4) across = 4;
         if (down < 4) down = 4;
-        
+
         conv->layer[i].units_across = across;
         conv->layer[i].units_down = down;
         conv->layer[i].pooling_factor = pooling_factor;
@@ -355,7 +355,7 @@ static int conv_img_initial(unsigned char img[],
         }
         *BPerror = *BPerror + currBPerror;
     }
-    
+
     /* do the convolution for this layer */
     retval =
         features_conv_img_to_flt(conv_layer_width(0,conv,0),
@@ -810,4 +810,28 @@ int conv_load(FILE * fp, deeplearn_conv * conv)
     }
 
     return 0;
+}
+
+/**
+* @brief Sets the learning rate for the neural net at each convolution layer
+* @param conv Convolution object
+* @param rate the learning rate in the range 0.0 to 1.0
+*/
+void conv_set_learning_rate(deeplearn_conv * conv, float rate)
+{
+    for (int i = 0; i < conv->no_of_layers; i++) {
+        conv->layer[i].autocoder->learningRate = rate;
+    }
+}
+
+/**
+* @brief Sets the percentage of units which drop out during feature learning
+* @param conv Convolution object
+* @param dropout_percent Percentage of units which drop out in the range 0 to 100
+*/
+void conv_set_dropouts(deeplearn_conv * conv, float dropout_percent)
+{
+    for (int i = 0; i < conv->no_of_layers; i++) {
+        conv->layer[i].autocoder->DropoutPercent = dropout_percent;
+    }
 }

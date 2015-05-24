@@ -113,5 +113,7 @@ int conv_output_width(deeplearn_conv * conv);
 int conv_output_height(deeplearn_conv * conv);
 float get_conv_output(deeplearn_conv * conv, int index);
 int conv_outputs(deeplearn_conv * conv);
+void conv_set_learning_rate(deeplearn_conv * conv, float rate);
+void conv_set_dropouts(deeplearn_conv * conv, float dropout_percent);
 
 #endif
