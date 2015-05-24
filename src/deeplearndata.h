@@ -72,15 +72,4 @@ int deeplearndata_read_csv(char * filename,
                            int output_classes,
                            float error_threshold[],
                            unsigned int * random_seed);
-int deeplearndata_read_images(char * directory,
-                              deepconvnet * convnet,
-                              int image_width, int image_height,
-                              int no_of_convolutions,
-                              int max_features_per_convolution,
-                              int reduction_factor,
-                              int no_of_deep_layers,
-                              int no_of_outputs,
-                              int output_classes,
-                              float error_threshold[],
-                              unsigned int * random_seed);
 #endif

@@ -215,16 +215,16 @@ static void test_read_images()
 
     printf("test_read_images...");
 
-    assert(deeplearndata_read_images((char*)".", &convnet,
-                                     image_width, image_height,
-                                     no_of_convolutions,
-                                     max_features_per_convolution,
-                                     reduction_factor,
-                                     no_of_deep_layers,
-                                     no_of_outputs,
-                                     output_classes,
-                                     error_threshold,
-                                     &random_seed) == 0);
+    assert(deepconvnet_read_images((char*)".", &convnet,
+                                   image_width, image_height,
+                                   no_of_convolutions,
+                                   max_features_per_convolution,
+                                   reduction_factor,
+                                   no_of_deep_layers,
+                                   no_of_outputs,
+                                   output_classes,
+                                   error_threshold,
+                                   &random_seed) == 0);
     assert(convnet.no_of_images == 1);
     deepconvnet_free(&convnet);
 

@@ -100,6 +100,44 @@ int deepconvnet_init(int no_of_convolutions,
 }
 
 /**
+* @brief Update the learning history
+* @param convnet Deep convnet object
+*/
+static void deepconvnet_update_history(deepconvnet * convnet)
+{
+    int i;
+    float error_value;
+
+    if (convnet->history_step == 0) return;
+
+    convnet->history_ctr++;
+    if (convnet->history_ctr >= convnet->history_step) {
+        if (convnet->convolution->training_complete == 0) {
+            error_value = convnet->convolution->BPerror;
+        }
+        else {
+            error_value = convnet->learner->BPerror;
+        }
+        if (error_value == DEEPLEARN_UNKNOWN_ERROR) {
+            error_value = 0;
+        }
+
+        convnet->history[convnet->history_index] =
+            error_value;
+        convnet->history_index++;
+        convnet->history_ctr = 0;
+
+        if (convnet->history_index >= DEEPLEARN_HISTORY_SIZE) {
+            for (i = 0; i < convnet->history_index; i++) {
+                convnet->history[i/2] = convnet->history[i];
+            }
+            convnet->history_index /= 2;
+            convnet->history_step *= 2;
+        }
+    }
+}
+
+/**
 * @brief Frees memory
 * @param convnet Deep convnet object
 */
@@ -227,4 +265,158 @@ void deepconvnet_set_dropouts(deepconvnet * convnet, float dropout_percent)
 {
     conv_set_dropouts(convnet->convolution, dropout_percent);
     deeplearn_set_dropouts(convnet->learner, dropout_percent);
+}
+
+/**
+* @brief Uses gnuplot to plot the training error for the given learner
+* @param convnet Deep convnet object
+* @param filename Filename for the image to save as
+* @param title Title of the graph
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @return zero on success
+*/
+int deepconvnet_plot_history(deepconvnet * convnet,
+                             int image_width, int image_height)
+{
+    int index,retval=0;
+    FILE * fp;
+    char data_filename[256];
+    char plot_filename[256];
+    char command_str[256];
+    float value;
+    float max_value = 0.01f;
+
+    sprintf(data_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_data.dat");
+    sprintf(plot_filename,"%s%s",DEEPLEARN_TEMP_DIRECTORY,
+            "libdeep_data.plot");
+
+    /* save the data */
+    fp = fopen(data_filename,"w");
+    if (!fp) return -1;
+    for (index = 0; index < convnet->history_index; index++) {
+        value = convnet->history[index];
+        fprintf(fp,"%d    %.10f\n",
+                index*convnet->history_step,value);
+        /* record the maximum error value */
+        if (value > max_value) {
+            max_value = value;
+        }
+    }
+    fclose(fp);
+
+    /* create a plot file */
+    fp = fopen(plot_filename,"w");
+    if (!fp) return -1;
+    fprintf(fp,"%s","reset\n");
+    fprintf(fp,"set title \"%s\"\n",convnet->history_plot_title);
+    fprintf(fp,"set xrange [0:%d]\n",
+            convnet->history_index * convnet->history_step);
+    fprintf(fp,"set yrange [0:%f]\n", max_value*102/100);
+    fprintf(fp,"%s","set lmargin 9\n");
+    fprintf(fp,"%s","set rmargin 2\n");
+    fprintf(fp,"%s","set xlabel \"Time Step\"\n");
+    fprintf(fp,"%s","set ylabel \"Training Error Percent\"\n");
+
+    fprintf(fp,"%s","set grid\n");
+    fprintf(fp,"%s","set key right top\n");
+
+    fprintf(fp,"set terminal png size %d,%d\n",
+            image_width, image_height);
+    fprintf(fp,"set output \"%s\"\n", convnet->history_plot_filename);
+    fprintf(fp,"plot \"%s\" using 1:2 notitle with lines\n",
+            data_filename);
+    fclose(fp);
+
+    /* run gnuplot using the created files */
+    sprintf(command_str,"gnuplot %s", plot_filename);
+    retval = system(command_str); /* I assume this is synchronous */
+
+    /* remove temporary files */
+    sprintf(command_str,"rm %s %s", data_filename, plot_filename);
+    retval = system(command_str);
+
+    return retval;
+}
+
+/**
+* @brief Performs training
+* @param convnet Deep convnet object
+*/
+int deepconvnet_training(deepconvnet * convnet)
+{
+    if (convnet->learner->training_complete != 0) return 0;
+    if (convnet->no_of_images == 0) return 0;
+
+    /* pick an image at random */
+    int training_images = convnet->no_of_images*8/10;
+    int index = rand_num(&convnet->learner->net->random_seed)%training_images;
+    unsigned char * img = convnet->images[index];
+    int retval = deepconvnet_update_img(convnet, img);
+
+    deepconvnet_update_history(convnet);
+
+    /* plot a graph showing training progress */
+    if (convnet->training_ctr > convnet->history_plot_interval) {
+        if (strlen(convnet->history_plot_filename) > 0) {
+            deepconvnet_plot_history(convnet, 1024, 480);
+        }
+        convnet->training_ctr = 0;
+    }
+    convnet->training_ctr++;
+
+    return retval;
+}
+
+/**
+* @brief Reads images from a given directory and creates a deep convnet
+* @param directory Directory containing png images
+* @param convnet Deep convnet object
+* @param image_width Image width
+* @param image_height Image height
+* @param no_of_convolutions The number of convolution layers
+* @param max_features_per_convolution Number of features learned at
+*        each convolution layer
+* @param no_of_deep_layers Number of layers for the deep learner
+* @param no_of_outputs Number of output units
+* @param output_classes The number of output classes if the output in the
+*        data set is a single integer value
+* @param error_threshold Training error thresholds for each hidden layer
+* @param random_seed Random number seed
+* @return zero on success
+*/
+int deepconvnet_read_images(char * directory,
+                            deepconvnet * convnet,
+                            int image_width, int image_height,
+                            int no_of_convolutions,
+                            int max_features_per_convolution,
+                            int reduction_factor,
+                            int no_of_deep_layers,
+                            int no_of_outputs,
+                            int output_classes,
+                            float error_threshold[],
+                            unsigned int * random_seed)
+{
+    if (deepconvnet_init(no_of_convolutions,
+                         no_of_deep_layers,
+                         image_width, image_height, 3,
+                         max_features_per_convolution,
+                         reduction_factor,
+                         no_of_outputs, convnet,
+                         error_threshold,
+                         random_seed) != 0) {
+        return -1;
+    }
+
+    convnet->no_of_images =
+        deeplearn_load_training_images(directory, &convnet->images,
+                                       &convnet->classifications,
+                                       &convnet->classification_number,
+                                       image_width, image_height);
+    if (convnet->no_of_images <= 0) {
+        return -2;
+    }
+
+    return 0;
 }

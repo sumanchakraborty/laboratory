@@ -33,6 +33,8 @@
 #include "libdeep/deeplearn_images.h"
 #include "libdeep/deepconvnet.h"
 
+#define TITLE "Face Recognition"
+
 /* the dimensions of each face image */
 int image_width = 32;
 int image_height = 32;
@@ -47,37 +49,36 @@ deeplearn learner;
 */
 static void facerec_training()
 {
-	int no_of_convolutions = 2;
-	int max_features_per_convolution = 20;
-	int reduction_factor = 2;
-	int no_of_deep_layers = 2;
-	int no_of_outputs = 5*5;
-	int output_classes = 25;
-	float error_threshold[] = { 0.01, 0.01, 0.01, 0.01, 0.01 ];
-	unsigned int random_seed = 34217;
+    int no_of_convolutions = 2;
+    int no_of_deep_layers = 2;
+    int max_features_per_convolution = 20;
+    int reduction_factor = 2;
+    int no_of_outputs = 5*5;
+    int output_classes = 25;
+    float error_threshold[] = { 0.001, 0.001, 0.001, 0.001, 0.001 };
+    unsigned int random_seed = 34217;
 
-	if (deeplearndata_read_images("../facerec/images",
-								  &convnet,
-								  image_width, image_height,
-								  no_of_convolutions,
-								  max_features_per_convolution,
-								  reduction_factor,
-								  no_of_deep_layers,
-								  no_of_outputs,
-								  output_classes,
-								  error_threshold,
-								  &random_seed) != 0) {
-		return;
-	}
+    if (deepconvnet_read_images("../facerec/images",
+                                &convnet,
+                                image_width, image_height,
+                                no_of_convolutions,
+                                max_features_per_convolution,
+                                reduction_factor,
+                                no_of_deep_layers,
+                                no_of_outputs,
+                                output_classes,
+                                error_threshold,
+                                &random_seed) != 0) {
+        return;
+    }
 
-	printf("Number of images: %d\n", convnet.no_of_images);
-    printf("Number of labeled training examples: %d\n",convnet.training_data_labeled_samples);
-    printf("Number of test examples: %d\n",convnet.test_data_samples);
+    printf("Number of images: %d\n", convnet.no_of_images);
+    printf("Number of labeled training examples: %d\n",convnet.no_of_images*8/10);
+    printf("Number of test examples: %d\n",convnet.no_of_images*2/10);
 
-	if ((convnet.training_data_labeled_samples == 0) ||
-		(convnet.test_data_samples == 0)) {
-		return;
-	}
+    if (convnet.no_of_images == 0) {
+        return;
+    }
 
     deepconvnet_set_learning_rate(&convnet, 0.2f);
 
@@ -87,15 +88,15 @@ static void facerec_training()
 
     sprintf(convnet.history_plot_title, "%s", TITLE);
 
-    while (deeplearndata_training_convnet(&convnet) != 0) {
+    while (deepconvnet_training(&convnet) != 0) {
     }
 
     printf("Training Completed\n");
 
-    printf("Test data set performance is %.1f%%\n",
-		   deeplearndata_get_performance_convnet(&convnet));
+    /*printf("Test data set performance is %.1f%%\n",
+      deeplearndata_get_performance_convnet(&convnet));*/
 
-	deepconvnet_free(&convnet);
+    deepconvnet_free(&convnet);
 }
 
 /**
