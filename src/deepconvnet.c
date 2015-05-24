@@ -224,9 +224,10 @@ static int deepconvnet_set_inputs_conv(deeplearn * learner, deeplearn_conv * con
 * @brief Update routine for training the system
 * @param learner Deep learner object
 * @param img Array containing input image
+* @param class_number Desired class number
 * @return Zero on success
 */
-int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
+int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class_number)
 {
     if (conv_img(img, convnet->convolution) != 0) {
         return -1;
@@ -239,6 +240,18 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
     if (deepconvnet_set_inputs_conv(convnet->learner,
                                     convnet->convolution) != 0) {
         return -2;
+    }
+
+    /* set output values */
+    if (class_number > -1) {
+        for (int i = 0; i < convnet->learner->net->NoOfOutputs; i++) {
+            if (i == class_number) {
+                deeplearn_set_output(convnet->learner,i, 0.8f);
+            }
+            else {
+                deeplearn_set_output(convnet->learner,i, 0.2f);
+            }
+        }
     }
 
     deeplearn_update(convnet->learner);
@@ -351,9 +364,12 @@ int deepconvnet_training(deepconvnet * convnet)
 
     /* pick an image at random */
     int training_images = convnet->no_of_images*8/10;
-    int index = rand_num(&convnet->learner->net->random_seed)%training_images;
+    int index =
+        rand_num(&convnet->learner->net->random_seed)%training_images;
     unsigned char * img = convnet->images[index];
-    int retval = deepconvnet_update_img(convnet, img);
+    int retval =
+        deepconvnet_update_img(convnet, img,
+                               convnet->classification_number[index]);
 
     deepconvnet_update_history(convnet);
 
