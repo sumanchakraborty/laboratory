@@ -1142,7 +1142,9 @@ void bp_get_classification_from_filename(char * filename,
 
     /* find the first full stop */
     for (i = start; i < strlen(filename); i++) {
-        if (filename[i] == '.') break;
+        if ((filename[i] == '.') ||
+            (filename[i] == '-') ||
+            (filename[i] == '_')) break;
         classification[i-start] = filename[i];
     }
 

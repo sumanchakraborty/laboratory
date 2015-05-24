@@ -34,9 +34,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <dirent.h>
 #include "globals.h"
 #include "deeplearn.h"
 #include "deepconvnet.h"
+#include "deeplearn_images.h"
 
 int deeplearndata_add(deeplearndata ** datalist,
                       int data_samples[],
@@ -57,6 +59,12 @@ int deeplearndata_add_training_sample(deeplearn * learner, deeplearndata * sampl
 int deeplearndata_add_labeled_training_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_add_test_sample(deeplearn * learner, deeplearndata * sample);
 int deeplearndata_create_datasets(deeplearn * learner, int test_data_percentage);
+int deeplearndata_training(deeplearn * learner);
+float deeplearndata_get_performance(deeplearn * learner);
+int deeplearndata_get_field_length(deeplearndata * data, int field_index);
+int deeplearndata_update_field_lengths(int no_of_input_fields,
+                                       int field_length[],
+                                       deeplearndata * data);
 int deeplearndata_read_csv(char * filename,
                            deeplearn * learner,
                            int no_of_hiddens, int hidden_layers,
@@ -64,11 +72,15 @@ int deeplearndata_read_csv(char * filename,
                            int output_classes,
                            float error_threshold[],
                            unsigned int * random_seed);
-int deeplearndata_training(deeplearn * learner);
-float deeplearndata_get_performance(deeplearn * learner);
-int deeplearndata_get_field_length(deeplearndata * data, int field_index);
-int deeplearndata_update_field_lengths(int no_of_input_fields,
-                                       int field_length[],
-                                       deeplearndata * data);
-
+int deeplearndata_read_images(char * directory,
+                              deepconvnet * convnet,
+                              int image_width, int image_height,
+                              int no_of_convolutions,
+                              int max_features_per_convolution,
+                              int reduction_factor,
+                              int no_of_deep_layers,
+                              int no_of_outputs,
+                              int output_classes,
+                              float error_threshold[],
+                              unsigned int * random_seed);
 #endif

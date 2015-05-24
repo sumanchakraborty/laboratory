@@ -91,6 +91,11 @@ int deepconvnet_init(int no_of_convolutions,
         return -4;
     }
 
+    convnet->no_of_images = 0;
+    convnet->images = NULL;
+    convnet->classifications = NULL;
+    convnet->classification_number = NULL;
+
     return 0;
 }
 
@@ -105,6 +110,20 @@ void deepconvnet_free(deepconvnet * convnet)
 
     deeplearn_free(convnet->learner);
     free(convnet->learner);
+
+    if (convnet->no_of_images > 0) {
+        for (int i = 0; i < convnet->no_of_images; i++) {
+            if (convnet->images[i] != NULL) {
+                free(convnet->images[i]);
+                convnet->images[i] = 0;
+            }
+            free(convnet->classifications[i]);
+        }
+        free(convnet->images);
+        free(convnet->classifications);
+        free(convnet->classification_number);
+        convnet->no_of_images = 0;
+    }
 }
 
 /**
@@ -171,19 +190,19 @@ static int deepconvnet_set_inputs_conv(deeplearn * learner, deeplearn_conv * con
 */
 int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[])
 {
-	if (conv_img(img, convnet->convolution) != 0) {
-		return -1;
-	}
+    if (conv_img(img, convnet->convolution) != 0) {
+        return -1;
+    }
 
-	if (convnet->convolution->training_complete == 0) {
-		return 0;
-	}
+    if (convnet->convolution->training_complete == 0) {
+        return 0;
+    }
 
-	if (deepconvnet_set_inputs_conv(convnet->learner,
-									convnet->convolution) != 0) {
-		return -2;
-	}
+    if (deepconvnet_set_inputs_conv(convnet->learner,
+                                    convnet->convolution) != 0) {
+        return -2;
+    }
 
-	deeplearn_update(convnet->learner);
-	return 0;
+    deeplearn_update(convnet->learner);
+    return 0;
 }

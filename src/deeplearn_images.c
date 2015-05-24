@@ -175,7 +175,7 @@ void deeplearn_downsample(unsigned char img[],
 * @brief Loads a set of training images and automatically creates
 *        classification descriptions from the filenames and
 *        classification numbers
-* @param images_directory The directpry to search for images
+* @param images_directory The directory to search for images
 * @param images Array which will be used to store the images (1 byte per pixel)
 * @param classifications Description of each image, taken from the filename
 * @param classification_number Class number of each image

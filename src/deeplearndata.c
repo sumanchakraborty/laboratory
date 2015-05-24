@@ -790,3 +790,54 @@ int deeplearndata_update_field_lengths(int no_of_input_fields,
     }
     return no_of_inputs;
 }
+
+/**
+* @brief Reads images from a given directory and creates a deep convnet
+* @param directory Directory containing png images
+* @param image_width Image width
+* @param image_height Image height
+* @param no_of_convolutions The number of convolution layers
+* @param max_features_per_convolution Number of features learned at
+*        each convolution layer
+* @param no_of_deep_layers Number of layers for the deep learner
+* @param no_of_outputs Number of output units
+* @param output_classes The number of output classes if the output in the
+*        data set is a single integer value
+* @param error_threshold Training error thresholds for each hidden layer
+* @param random_seed Random number seed
+* @return zero on success
+*/
+int deeplearndata_read_images(char * directory,
+                              deepconvnet * convnet,
+                              int image_width, int image_height,
+                              int no_of_convolutions,
+                              int max_features_per_convolution,
+                              int reduction_factor,
+                              int no_of_deep_layers,
+                              int no_of_outputs,
+                              int output_classes,
+                              float error_threshold[],
+                              unsigned int * random_seed)
+{
+    if (deepconvnet_init(no_of_convolutions,
+                         no_of_deep_layers,
+                         image_width, image_height, 3,
+                         max_features_per_convolution,
+                         reduction_factor,
+                         no_of_outputs, convnet,
+                         error_threshold,
+                         random_seed) != 0) {
+        return -1;
+    }
+
+    convnet->no_of_images =
+        deeplearn_load_training_images(directory, &convnet->images,
+                                       &convnet->classifications,
+                                       &convnet->classification_number,
+                                       image_width, image_height);
+    if (convnet->no_of_images <= 0) {
+        return -2;
+    }
+
+    return 0;
+}

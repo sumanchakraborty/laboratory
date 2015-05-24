@@ -48,6 +48,12 @@ typedef struct {
     deeplearn_conv *convolution;
     deeplearn * learner;
 
+	/* training/test images */
+	int no_of_images;
+	unsigned char ** images;
+	char ** classifications;
+	int * classification_number;
+
     deeplearndata * data;
     int data_samples;
     deeplearndata_meta * training_data;
