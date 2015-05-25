@@ -547,6 +547,7 @@ int conv_img(unsigned char img[],
         if (retval != 0) {
             return retval;
         }
+
         conv_update_training_error(i, BPerror, conv);
 
         /* pooling */

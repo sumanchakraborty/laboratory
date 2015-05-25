@@ -47,6 +47,7 @@
 typedef struct {
     deeplearn_conv *convolution;
     deeplearn * learner;
+    int training_complete;
 
     /* training/test images */
     int no_of_images;
@@ -95,5 +96,6 @@ int deepconvnet_read_images(char * directory,
 int deepconvnet_training(deepconvnet * convnet);
 int deepconvnet_plot_history(deepconvnet * convnet,
                              int image_width, int image_height);
+float deepconvnet_get_performance(deepconvnet * convnet);
 
 #endif

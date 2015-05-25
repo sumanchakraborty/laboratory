@@ -55,7 +55,7 @@ static void facerec_training()
     int reduction_factor = 2;
     int no_of_outputs = 5*5;
     int output_classes = 25;
-    float error_threshold[] = { 0.001, 0.001, 0.001, 0.001, 0.001 };
+    float error_threshold[] = { 0.0025, 0.001, 0.001, 0.001, 10.0 };
     unsigned int random_seed = 34217;
 
     if (deepconvnet_read_images("../facerec/images",
@@ -84,7 +84,7 @@ static void facerec_training()
 
     deepconvnet_set_dropouts(&convnet, 0.001f);
 
-    convnet.history_plot_interval = 900000;
+    convnet.history_plot_interval = 100;
 
     sprintf(convnet.history_plot_title, "%s", TITLE);
 
@@ -92,9 +92,8 @@ static void facerec_training()
     }
 
     printf("Training Completed\n");
-
-    /*printf("Test data set performance is %.1f%%\n",
-      deeplearndata_get_performance_convnet(&convnet));*/
+    printf("Test data set performance is %.2f\n",
+           deepconvnet_get_performance(&convnet));
 
     deepconvnet_free(&convnet);
 }

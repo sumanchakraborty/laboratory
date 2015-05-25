@@ -91,10 +91,22 @@ int deepconvnet_init(int no_of_convolutions,
         return -4;
     }
 
+    convnet->training_complete = 0;
     convnet->no_of_images = 0;
     convnet->images = NULL;
     convnet->classifications = NULL;
     convnet->classification_number = NULL;
+
+    /* clear history */
+    convnet->history_index = 0;
+    convnet->history_ctr = 0;
+    convnet->history_step = 1;
+
+    /* default history settings */
+    convnet->training_ctr = 0;
+    convnet->history_plot_interval = 30;
+    sprintf(convnet->history_plot_filename,"%s","training.png");
+    sprintf(convnet->history_plot_title,"%s","Training History");
 
     return 0;
 }
@@ -242,8 +254,8 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
         return -2;
     }
 
-    /* set output values */
-    if (class_number > -1) {
+    if (convnet->learner->training_complete == 0) {
+        /* set output values */
         for (int i = 0; i < convnet->learner->net->NoOfOutputs; i++) {
             if (i == class_number) {
                 deeplearn_set_output(convnet->learner,i, 0.8f);
@@ -252,9 +264,12 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
                 deeplearn_set_output(convnet->learner,i, 0.2f);
             }
         }
+        deeplearn_update(convnet->learner);
     }
-
-    deeplearn_update(convnet->learner);
+    else {
+        /* feed forward only */
+        deeplearn_feed_forward(convnet->learner);
+    }
     return 0;
 }
 
@@ -367,9 +382,10 @@ int deepconvnet_training(deepconvnet * convnet)
     int index =
         rand_num(&convnet->learner->net->random_seed)%training_images;
     unsigned char * img = convnet->images[index];
-    int retval =
-        deepconvnet_update_img(convnet, img,
-                               convnet->classification_number[index]);
+    if (deepconvnet_update_img(convnet, img,
+                               convnet->classification_number[index]) != 0) {
+        return -1;
+    }
 
     deepconvnet_update_history(convnet);
 
@@ -382,7 +398,41 @@ int deepconvnet_training(deepconvnet * convnet)
     }
     convnet->training_ctr++;
 
-    return retval;
+    /* update the completion status */
+    convnet->training_complete = convnet->learner->training_complete;
+    if (convnet->training_complete == 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/**
+* @brief Returns performance on the test set
+* @param convnet Deep convnet object
+* @return Percentage of correct classifications
+*/
+float deepconvnet_get_performance(deepconvnet * convnet)
+{
+    float performance = 0;
+    int ctr = 0;
+
+    if (convnet->no_of_images == 0) return -1;
+
+    for (int index = convnet->no_of_images*8/10;
+         index < convnet->no_of_images; index++) {
+        unsigned char * img = convnet->images[index];
+        deepconvnet_update_img(convnet, img, -1);
+        if (deeplearn_get_class(convnet->learner) ==
+            convnet->classification_number[index]) {
+            performance += 100;
+        }
+        ctr++;
+    }
+    if (ctr > 0) {
+        performance /= ctr;
+    }
+    return performance;
 }
 
 /**
