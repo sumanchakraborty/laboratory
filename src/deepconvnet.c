@@ -115,6 +115,40 @@ int deepconvnet_init(int no_of_convolutions,
 }
 
 /**
+* @brief Frees memory
+* @param convnet Deep convnet object
+*/
+void deepconvnet_free(deepconvnet * convnet)
+{
+    conv_free(convnet->convolution);
+    free(convnet->convolution);
+
+    deeplearn_free(convnet->learner);
+    free(convnet->learner);
+
+    if (convnet->no_of_images > 0) {
+        for (int i = 0; i < convnet->no_of_images; i++) {
+            if (convnet->images[i] != NULL) {
+                free(convnet->images[i]);
+                convnet->images[i] = 0;
+            }
+            free(convnet->classifications[i]);
+        }
+        free(convnet->images);
+        free(convnet->classifications);
+        free(convnet->classification_number);
+        convnet->no_of_images = 0;
+    }
+
+    if (convnet->training_set_index != NULL) {
+        free(convnet->training_set_index);
+    }
+    if (convnet->test_set_index != NULL) {
+        free(convnet->test_set_index);
+    }
+}
+
+/**
 * @brief Update the learning history
 * @param convnet Deep convnet object
 */
@@ -149,40 +183,6 @@ static void deepconvnet_update_history(deepconvnet * convnet)
             convnet->history_index /= 2;
             convnet->history_step *= 2;
         }
-    }
-}
-
-/**
-* @brief Frees memory
-* @param convnet Deep convnet object
-*/
-void deepconvnet_free(deepconvnet * convnet)
-{
-    conv_free(convnet->convolution);
-    free(convnet->convolution);
-
-    deeplearn_free(convnet->learner);
-    free(convnet->learner);
-
-    if (convnet->no_of_images > 0) {
-        for (int i = 0; i < convnet->no_of_images; i++) {
-            if (convnet->images[i] != NULL) {
-                free(convnet->images[i]);
-                convnet->images[i] = 0;
-            }
-            free(convnet->classifications[i]);
-        }
-        free(convnet->images);
-        free(convnet->classifications);
-        free(convnet->classification_number);
-        convnet->no_of_images = 0;
-    }
-
-    if (convnet->training_set_index != NULL) {
-        free(convnet->training_set_index);
-    }
-    if (convnet->test_set_index != NULL) {
-        free(convnet->test_set_index);
     }
 }
 
