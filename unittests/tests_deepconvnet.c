@@ -77,6 +77,9 @@ static void test_update_img()
     unsigned char * img =
         (unsigned char*)malloc(inputs_across*inputs_down*
                                inputs_depth*sizeof(unsigned char));
+    float * conv_output =
+        (float*)malloc(inputs_across*inputs_down*
+                       inputs_depth*sizeof(float));
     float diff = 0, test_output[10];
 
     printf("test_update_img...");
@@ -116,6 +119,11 @@ static void test_update_img()
         assert(test_output[i] != 0.5f);
     }
 
+    /* store the outputs of the convolution stage */
+    for (i = 0; i < convnet.learner->net->NoOfInputs; i++) {
+        conv_output[i] = convnet.convolution->layer[no_of_convolutions-1].pooling[i];
+    }
+
     /* set some different input values */
     for (i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
         img[i] = 210;
@@ -123,7 +131,15 @@ static void test_update_img()
 
     assert(deepconvnet_update_img(&convnet, img, -1)==0);
 
+    /* check that the outputs of the convolution stage have changed */
+    diff = 0;
+    for (i = 0; i < convnet.learner->net->NoOfInputs; i++) {
+        diff += fabs(conv_output[i] - convnet.convolution->layer[no_of_convolutions-1].pooling[i]);
+    }
+    assert(diff > 0);
+
     /* check that the outputs have changed */
+    diff = 0;
     for (i = 0; i < no_of_outputs; i++) {
         diff += fabs(deepconvnet_get_output(&convnet, i) - test_output[i]);
     }
@@ -131,6 +147,7 @@ static void test_update_img()
 
     deepconvnet_free(&convnet);
     free(img);
+    free(conv_output);
 
     printf("Ok\n");
 }
