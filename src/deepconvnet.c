@@ -276,6 +276,17 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
 }
 
 /**
+* @brief Sets a desired output value
+* @param convnet Deep convnet object
+* @param index Index of the output unit
+* @param value Value to set in the range 0.0 - 1.0
+*/
+void deepconvnet_set_output(deepconvnet * convnet, int index, float value)
+{
+	deeplearn_set_input(convnet->learner, index, value);
+}
+
+/**
 * @brief Sets the learning rate
 * @param convnet Deep convnet object
 * @param rate the learning rate in the range 0.0 to 1.0

@@ -63,7 +63,49 @@ static void test_init()
 
 static void test_update_img()
 {
+	int no_of_convolutions = 2;
+	int no_of_deep_layers = 2;
+	int inputs_across = 320;
+	int inputs_down = 240;
+	int inputs_depth = 3;
+	int max_features = 20;
+	int reduction_factor = 2;
+	int no_of_outputs = 10;
+	deepconvnet convnet;
+	float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+	unsigned int random_seed = 7423;
+	unsigned char * img =
+		(unsigned char*)malloc(inputs_across*inputs_dowm*
+							   inputs_depth*sizeof(unsigned char));
+
     printf("test_update_img...");
+
+	assert(deepconvnet_init(no_of_convolutions,
+							no_of_deep_layers,
+							inputs_across,
+							inputs_down,
+							inputs_depth,
+							max_features,
+							reduction_factor,
+							no_of_outputs,
+							&convnet,
+							error_threshold,
+							&random_seed) == 0);
+
+	/* after training */
+	convnet.convolution->training_complete = 1;
+	convnet.learner->training_complete = 1;
+	convnet.training_complete = 1;
+
+	/* set some input value */
+    for (int i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
+		img[i] = 127;
+	}
+
+	assert(deepconvnet_update_img(&convnet, img, 1)==0);
+
+	deepconvnet_free(&convnet);
+    free(img);
 
     printf("Ok\n");
 }
