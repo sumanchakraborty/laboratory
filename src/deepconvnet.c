@@ -265,7 +265,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
     }
 
     if (convnet->learner->training_complete == 0) {
-        deeplearn_set_class(convnet->learner, class_number);
+        deepconvnet_set_class(convnet, class_number);
         deeplearn_update(convnet->learner);
     }
     else {
@@ -305,6 +305,16 @@ void deepconvnet_set_class(deepconvnet * convnet, int class_number)
 float deepconvnet_get_output(deepconvnet * convnet, int index)
 {
     return deeplearn_get_output(convnet->learner, index);
+}
+
+/**
+* @brief Returns the output class
+* @param convnet Deep convnet object
+* @return The class number (output index to be set active)
+*/
+int deepconvnet_get_class(deepconvnet * convnet)
+{
+    return deeplearn_get_class(convnet->learner);
 }
 
 /**
