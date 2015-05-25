@@ -30,81 +30,106 @@
 
 static void test_init()
 {
-	int no_of_convolutions = 2;
-	int no_of_deep_layers = 2;
-	int inputs_across = 320;
-	int inputs_down = 240;
-	int inputs_depth = 3;
-	int max_features = 20;
-	int reduction_factor = 2;
-	int no_of_outputs = 10;
-	deepconvnet convnet;
-	float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-	unsigned int random_seed = 7423;
+    int no_of_convolutions = 2;
+    int no_of_deep_layers = 2;
+    int inputs_across = 320;
+    int inputs_down = 240;
+    int inputs_depth = 3;
+    int max_features = 20;
+    int reduction_factor = 2;
+    int no_of_outputs = 10;
+    deepconvnet convnet;
+    float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    unsigned int random_seed = 7423;
 
-	printf("test_init...");
+    printf("test_init...");
 
-	assert(deepconvnet_init(no_of_convolutions,
-							no_of_deep_layers,
-							inputs_across,
-							inputs_down,
-							inputs_depth,
-							max_features,
-							reduction_factor,
-							no_of_outputs,
-							&convnet,
-							error_threshold,
-							&random_seed) == 0);
+    assert(deepconvnet_init(no_of_convolutions,
+                            no_of_deep_layers,
+                            inputs_across,
+                            inputs_down,
+                            inputs_depth,
+                            max_features,
+                            reduction_factor,
+                            no_of_outputs,
+                            &convnet,
+                            error_threshold,
+                            &random_seed) == 0);
 
-	deepconvnet_free(&convnet);
+    deepconvnet_free(&convnet);
 
     printf("Ok\n");
 }
 
 static void test_update_img()
 {
-	int no_of_convolutions = 2;
-	int no_of_deep_layers = 2;
-	int inputs_across = 320;
-	int inputs_down = 240;
-	int inputs_depth = 3;
-	int max_features = 20;
-	int reduction_factor = 2;
-	int no_of_outputs = 10;
-	deepconvnet convnet;
-	float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-	unsigned int random_seed = 7423;
-	unsigned char * img =
-		(unsigned char*)malloc(inputs_across*inputs_dowm*
-							   inputs_depth*sizeof(unsigned char));
+    int i, no_of_convolutions = 2;
+    int no_of_deep_layers = 2;
+    int inputs_across = 320;
+    int inputs_down = 240;
+    int inputs_depth = 3;
+    int max_features = 20;
+    int reduction_factor = 2;
+    int no_of_outputs = 10;
+    deepconvnet convnet;
+    float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    unsigned int random_seed = 7423;
+    unsigned char * img =
+        (unsigned char*)malloc(inputs_across*inputs_down*
+                               inputs_depth*sizeof(unsigned char));
+    float diff = 0, test_output[10];
 
     printf("test_update_img...");
 
-	assert(deepconvnet_init(no_of_convolutions,
-							no_of_deep_layers,
-							inputs_across,
-							inputs_down,
-							inputs_depth,
-							max_features,
-							reduction_factor,
-							no_of_outputs,
-							&convnet,
-							error_threshold,
-							&random_seed) == 0);
+    assert(deepconvnet_init(no_of_convolutions,
+                            no_of_deep_layers,
+                            inputs_across,
+                            inputs_down,
+                            inputs_depth,
+                            max_features,
+                            reduction_factor,
+                            no_of_outputs,
+                            &convnet,
+                            error_threshold,
+                            &random_seed) == 0);
 
-	/* after training */
-	convnet.convolution->training_complete = 1;
-	convnet.learner->training_complete = 1;
-	convnet.training_complete = 1;
+    /* after training */
+    convnet.convolution->training_complete = 1;
+    convnet.learner->training_complete = 1;
+    convnet.training_complete = 1;
 
-	/* set some input value */
-    for (int i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
-		img[i] = 127;
-	}
+    /* set some input value */
+    for (i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
+        img[i] = 20;
+    }
 
-	assert(deepconvnet_update_img(&convnet, img, 1)==0);
+    /* clear the outputs */
+    for (i = 0; i < no_of_outputs; i++) {
+        deepconvnet_set_output(&convnet, i, 0.0f);
+    }
 
-	deepconvnet_free(&convnet);
+    assert(deepconvnet_update_img(&convnet, img, -1)==0);
+
+    for (i = 0; i < no_of_outputs; i++) {
+        test_output[i] = deepconvnet_get_output(&convnet, i);
+        assert(test_output[i] > 0.0f);
+        assert(test_output[i] != 0.5f);
+    }
+
+    /* set some different input values */
+    for (i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
+        img[i] = 210;
+    }
+
+    assert(deepconvnet_update_img(&convnet, img, -1)==0);
+
+    /* check that the outputs have changed */
+    for (i = 0; i < no_of_outputs; i++) {
+        diff += fabs(deepconvnet_get_output(&convnet, i) - test_output[i]);
+    }
+    assert(diff > 0);
+
+    deepconvnet_free(&convnet);
     free(img);
 
     printf("Ok\n");
@@ -114,8 +139,8 @@ int run_tests_deepconvnet()
 {
     printf("\nRunning deepconvnet tests\n");
 
-	test_init();
-	test_update_img();
+    test_init();
+    test_update_img();
 
     printf("All deepconvnet tests completed\n");
     return 1;
