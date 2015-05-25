@@ -287,6 +287,16 @@ void deepconvnet_set_output(deepconvnet * convnet, int index, float value)
 }
 
 /**
+* @brief Sets a desired output class
+* @param convnet Deep convnet object
+* @param class_number The class number (output index to be set active)
+*/
+void deepconvnet_set_class(deepconvnet * convnet, int class_number)
+{
+    deeplearn_set_class(convnet->learner, class_number);
+}
+
+/**
 * @brief Returns the value of an output
 * @param convnet Deep convnet object
 * @param index Index of the output unit
