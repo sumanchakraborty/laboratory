@@ -283,7 +283,18 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
 */
 void deepconvnet_set_output(deepconvnet * convnet, int index, float value)
 {
-	deeplearn_set_input(convnet->learner, index, value);
+    deeplearn_set_output(convnet->learner, index, value);
+}
+
+/**
+* @brief Returns the value of an output
+* @param convnet Deep convnet object
+* @param index Index of the output unit
+* @return Value of the output
+*/
+float deepconvnet_get_output(deepconvnet * convnet, int index)
+{
+    return deeplearn_get_output(convnet->learner, index);
 }
 
 /**

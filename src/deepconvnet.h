@@ -103,5 +103,6 @@ int deepconvnet_plot_history(deepconvnet * convnet,
                              int image_width, int image_height);
 float deepconvnet_get_performance(deepconvnet * convnet);
 void deepconvnet_set_output(deepconvnet * convnet, int index, float value);
+float deepconvnet_get_output(deepconvnet * convnet, int index);
 
 #endif
