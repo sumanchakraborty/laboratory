@@ -199,12 +199,75 @@ static void test_learn_from_flt()
     printf("Ok\n");
 }
 
+static void test_features_conv_img_to_flt()
+{
+    int patch_radius = 4;
+    int img_width = 320;
+    int img_height = 240;
+    int samples_across = img_width/patch_radius;
+    int samples_down = img_height/patch_radius;
+    int img_depth=1;
+    unsigned char * img =
+        (unsigned char*)malloc(img_width*img_height*img_depth*sizeof(unsigned char));
+    int max_features = 20;
+    int layer0_units = samples_across*samples_down*max_features;
+    float * layer0 = (float*)malloc(layer0_units*sizeof(float));
+    bp feature_autocoder;
+    int no_of_inputs = patch_radius*patch_radius*4*img_depth;
+    int no_of_hiddens = max_features;
+    int hidden_layers = 1;
+    int no_of_outputs = no_of_inputs;
+    unsigned int random_seed = 2389;
+
+    printf("test_features_conv_img_to_flt...");
+
+    assert(bp_init(&feature_autocoder,
+                   no_of_inputs, no_of_hiddens,
+                   hidden_layers, no_of_outputs,
+                   &random_seed) == 0);
+
+    /* set some input values */
+    for (int i = 0; i < img_width*img_height*img_depth; i++) {
+        img[i] = 100;
+    }
+
+    /* clear the outputs */
+    for (int i = 0; i < layer0_units; i++) {
+        layer0[i] = 0.0f;
+    }
+
+    int retval =
+        features_conv_img_to_flt(samples_across, samples_down,
+                                 patch_radius,
+                                 img_width, img_height,
+                                 img_depth,
+                                 img, layer0_units,
+                                 layer0, &feature_autocoder);
+    if (retval != 0) {
+        printf("\nretval = %d\n", retval);
+    }
+    assert(retval == 0);
+
+    float tot = 0.0f;
+    for (int i = 0; i < layer0_units; i++) {
+        tot += layer0[i];
+    }
+    assert(tot > 0.0f);
+
+    bp_free(&feature_autocoder);
+    free(img);
+    free(layer0);
+
+    printf("Ok\n");
+}
+
 int run_tests_features()
 {
     printf("\nRunning feature learning tests\n");
 
     test_learn_from_image();
     test_learn_from_flt();
+    test_features_conv_img_to_flt();
 
     printf("All feature learning tests completed\n");
     return 1;
