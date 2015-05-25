@@ -131,5 +131,6 @@ int deeplearn_export(deeplearn * learner, char * filename);
 float deeplearn_get_error_threshold(deeplearn * learner, int index);
 void deeplearn_set_error_threshold(deeplearn * learner, int index, float value);
 void deeplearn_update_continuous(deeplearn * learner);
+int deeplearn_training_last_layer(deeplearn * learner);
 
 #endif

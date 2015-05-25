@@ -265,7 +265,9 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
     }
 
     if (convnet->learner->training_complete == 0) {
-        deepconvnet_set_class(convnet, class_number);
+        if (deeplearn_training_last_layer(convnet->learner)) {
+            deepconvnet_set_class(convnet, class_number);
+        }
         deeplearn_update(convnet->learner);
     }
     else {
@@ -474,6 +476,22 @@ float deepconvnet_get_performance(deepconvnet * convnet)
         int index = convnet->test_set_index[i];
         unsigned char * img = convnet->images[index];
         deepconvnet_update_img(convnet, img, -1);
+		/*
+        printf("\n1. ");
+        for (int j = 0; j < convnet->learner->net->NoOfOutputs; j++) {
+            printf("%.4f\t", deepconvnet_get_output(convnet, j));
+        }
+        printf("\n2. ");
+        for (int j = 0; j < convnet->learner->net->NoOfOutputs; j++) {
+            if (j != convnet->classification_number[index]) {
+                printf("-----\t");
+            }
+            else {
+                printf("1.000\t");
+            }
+        }
+        printf("\n");
+		*/
         if (deeplearn_get_class(convnet->learner) ==
             convnet->classification_number[index]) {
             performance += 100.0f;
@@ -505,7 +523,7 @@ int deepconvnet_create_training_test_sets(deepconvnet * convnet)
     i = 0;
     while (i < training_images) {
         int index =
-            rand_num(&convnet->learner->net->random_seed)%training_images;
+            rand_num(&convnet->learner->net->random_seed)%convnet->no_of_images;
         for (j = 0; j < i; j++) {
             if (convnet->training_set_index[j] == index) {
                 break;

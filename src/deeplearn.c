@@ -217,6 +217,17 @@ void deeplearn_feed_forward(deeplearn * learner)
 }
 
 /**
+* @brief Returns true if currently training the final layer
+* @param learner Deep learner object
+* @returns True if training the last layer
+*/
+int deeplearn_training_last_layer(deeplearn * learner)
+{
+	return (learner->current_hidden_layer >=
+			learner->net->HiddenLayers);
+}
+
+/**
 * @brief Performs training initially using autocoders for each hidden
 *        layer and eventually for the entire network.
 * @param learner Deep learner object
@@ -267,7 +278,6 @@ void deeplearn_update(deeplearn * learner)
         bp_update(learner->net,0);
 
         /* update the backprop error value */
-        /*learner->BPerror = learner->net->BPerrorAverage;*/
         learner->BPerror = learner->net->BPerrorPercent;
 
         /* set the training completed flag */

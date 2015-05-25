@@ -55,7 +55,7 @@ static void facerec_training()
     int reduction_factor = 2;
     int no_of_outputs = 5*5;
     int output_classes = 25;
-    float error_threshold[] = { 0.0025, 1.0, 1.0, 9.0 };
+    float error_threshold[] = { 0.002, 15.0, 8.0, 8.0 };
     unsigned int random_seed = 34217;
 
     if (deepconvnet_read_images("../facerec/images",
