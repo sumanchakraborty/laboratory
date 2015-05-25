@@ -449,7 +449,7 @@ int features_conv_img_to_flt(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 0);
+            bp_feed_forward_layers(feature_autocoder, 1);
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer0[index_layer0+f] =
                     bp_get_hidden(feature_autocoder, 0, f);
@@ -529,7 +529,7 @@ int features_conv_flt_to_flt(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 0);
+            bp_feed_forward_layers(feature_autocoder, 1);
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer1[index_layer1+f] =
                     bp_get_hidden(feature_autocoder, 0, f);
@@ -603,7 +603,7 @@ int features_conv_floats_to_neurons(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 0);
+            bp_feed_forward_layers(feature_autocoder, 1);
             int index_net_inputs =
                 (fy * samples_across + fx) *
                 no_of_learned_features;
