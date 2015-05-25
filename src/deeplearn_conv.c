@@ -184,11 +184,12 @@ static void conv_update_history(deeplearn_conv * conv)
         conv->history_ctr = 0;
 
         /* show the learned features */
+		/*
         if (conv->current_layer == 0) {
             features_plot_weights(conv->layer[0].autocoder,
                                   "/tmp/learned_features.png",3,
                                   800, 800);
-        }
+								  }*/
 
         if (conv->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < conv->history_index; i++) {

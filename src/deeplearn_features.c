@@ -641,7 +641,7 @@ int features_plot_weights(bp * net,
     const int test_pattern = 0;
 
     /* allocate memory for the image */
-    img = (unsigned char*)malloc(img_width*img_height*3);
+    img = (unsigned char*)malloc(img_width*img_height*3*sizeof(unsigned char));
     if (!img) {
         return -1;
     }

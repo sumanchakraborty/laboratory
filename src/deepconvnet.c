@@ -108,6 +108,9 @@ int deepconvnet_init(int no_of_convolutions,
     sprintf(convnet->history_plot_filename,"%s","training.png");
     sprintf(convnet->history_plot_title,"%s","Training History");
 
+    convnet->current_layer = 0;
+    convnet->training_set_index = NULL;
+    convnet->test_set_index = NULL;
     return 0;
 }
 
@@ -173,6 +176,13 @@ void deepconvnet_free(deepconvnet * convnet)
         free(convnet->classifications);
         free(convnet->classification_number);
         convnet->no_of_images = 0;
+    }
+
+    if (convnet->training_set_index != NULL) {
+        free(convnet->training_set_index);
+    }
+    if (convnet->test_set_index != NULL) {
+        free(convnet->test_set_index);
     }
 }
 
@@ -379,13 +389,19 @@ int deepconvnet_training(deepconvnet * convnet)
 
     /* pick an image at random */
     int training_images = convnet->no_of_images*8/10;
-    int index =
+    int index0 =
         rand_num(&convnet->learner->net->random_seed)%training_images;
+    int index = convnet->training_set_index[index0];
     unsigned char * img = convnet->images[index];
     if (deepconvnet_update_img(convnet, img,
                                convnet->classification_number[index]) != 0) {
         return -1;
     }
+
+    /* set the current layer being trained */
+    convnet->current_layer =
+        convnet->learner->current_hidden_layer +
+        convnet->convolution->current_layer;
 
     deepconvnet_update_history(convnet);
 
@@ -419,8 +435,8 @@ float deepconvnet_get_performance(deepconvnet * convnet)
 
     if (convnet->no_of_images == 0) return -1;
 
-    for (int index = convnet->no_of_images*8/10;
-         index < convnet->no_of_images; index++) {
+    for (int i = 0; i < convnet->no_of_images*2/10; i++) {
+        int index = convnet->test_set_index[i];
         unsigned char * img = convnet->images[index];
         deepconvnet_update_img(convnet, img, -1);
         if (deeplearn_get_class(convnet->learner) ==
@@ -434,6 +450,54 @@ float deepconvnet_get_performance(deepconvnet * convnet)
     }
     return performance;
 }
+
+/**
+* @brief Creates training and test arrays which contain randomly ordered
+*        indexes to the main images array. This tries to ensure that there
+*        is no bias depending on the sequences of inputs during training.
+* @param convnet Deep convnet object
+*/
+int deepconvnet_create_training_test_sets(deepconvnet * convnet)
+{
+    int i, j;
+
+    /* create arrays to store randomly ordered array indexes
+       for training and test sets */
+    int training_images = convnet->no_of_images*8/10;
+    convnet->training_set_index =
+        (int*)malloc((training_images+1)*sizeof(int));
+    if (!convnet->training_set_index) return -1;
+    i = 0;
+    while (i < training_images) {
+        int index =
+            rand_num(&convnet->learner->net->random_seed)%training_images;
+        for (j = 0; j < i; j++) {
+            if (convnet->training_set_index[j] == index) {
+                break;
+            }
+        }
+        if (j == i) {
+            convnet->training_set_index[i] = index;
+            i++;
+        }
+    }
+    int test_images = 0;
+    convnet->test_set_index =
+        (int*)malloc((convnet->no_of_images - training_images+1)*sizeof(int));
+    if (!convnet->test_set_index) return -2;
+    for (i = 0; i < convnet->no_of_images; i++) {
+        for (j = 0; j < training_images; j++) {
+            if (convnet->training_set_index[j] == i) {
+                break;
+            }
+        }
+        if (j == training_images) {
+            convnet->test_set_index[test_images++] = i;
+        }
+    }
+    return 0;
+}
+
 
 /**
 * @brief Reads images from a given directory and creates a deep convnet
@@ -482,6 +546,10 @@ int deepconvnet_read_images(char * directory,
                                        image_width, image_height);
     if (convnet->no_of_images <= 0) {
         return -2;
+    }
+
+    if (deepconvnet_create_training_test_sets(convnet) != 0) {
+        return -3;
     }
 
     return 0;

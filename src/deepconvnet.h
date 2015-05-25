@@ -48,6 +48,7 @@ typedef struct {
     deeplearn_conv *convolution;
     deeplearn * learner;
     int training_complete;
+    int current_layer;
 
     /* training/test images */
     int no_of_images;
@@ -62,6 +63,10 @@ typedef struct {
 
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
+
+	/* array index numbers for training and test set */
+    int * training_set_index;
+    int * test_set_index;
 } deepconvnet;
 
 int deepconvnet_init(int no_of_convolutions,
