@@ -61,9 +61,11 @@ static void test_init()
     printf("Ok\n");
 }
 
-static void set_test_pattern(unsigned char img[], int img_width, int img_height, int shape)
+static void set_test_pattern(unsigned char img[],
+                             int img_width, int img_height,
+                             int depth, int shape)
 {
-    memset((void*)img,'\0',img_width*img_height*3*sizeof(unsigned char));
+    memset((void*)img,'\0',img_width*img_height*depth*sizeof(unsigned char));
 
     switch(shape%5) {
     case 0: {
@@ -80,10 +82,10 @@ static void set_test_pattern(unsigned char img[], int img_width, int img_height,
             int yy = y * 7 / img_height;
             for (int x = 0; x < img_width; x++) {
                 int xx = x * 7 / img_width;
-                int n0 = (y*img_width + x) * 3;
+                int n0 = (y*img_width + x) * depth;
                 int n1 = yy*7 + xx;
                 if (pattern[n1] != 0) {
-                    for (int c = 0; c < 3; c++) {
+                    for (int c = 0; c < depth; c++) {
                         img[n0+c] = 255;
                     }
                 }
@@ -105,10 +107,10 @@ static void set_test_pattern(unsigned char img[], int img_width, int img_height,
             int yy = y * 7 / img_height;
             for (int x = 0; x < img_width; x++) {
                 int xx = x * 7 / img_width;
-                int n0 = (y*img_width + x) * 3;
+                int n0 = (y*img_width + x) * depth;
                 int n1 = yy*7 + xx;
                 if (pattern[n1] != 0) {
-                    for (int c = 0; c < 3; c++) {
+                    for (int c = 0; c < depth; c++) {
                         img[n0+c] = 255;
                     }
                 }
@@ -130,10 +132,10 @@ static void set_test_pattern(unsigned char img[], int img_width, int img_height,
             int yy = y * 7 / img_height;
             for (int x = 0; x < img_width; x++) {
                 int xx = x * 7 / img_width;
-                int n0 = (y*img_width + x) * 3;
+                int n0 = (y*img_width + x) * depth;
                 int n1 = yy*7 + xx;
                 if (pattern[n1] != 0) {
-                    for (int c = 0; c < 3; c++) {
+                    for (int c = 0; c < depth; c++) {
                         img[n0+c] = 255;
                     }
                 }
@@ -155,10 +157,10 @@ static void set_test_pattern(unsigned char img[], int img_width, int img_height,
             int yy = y * 7 / img_height;
             for (int x = 0; x < img_width; x++) {
                 int xx = x * 7 / img_width;
-                int n0 = (y*img_width + x) * 3;
+                int n0 = (y*img_width + x) * depth;
                 int n1 = yy*7 + xx;
                 if (pattern[n1] != 0) {
-                    for (int c = 0; c < 3; c++) {
+                    for (int c = 0; c < depth; c++) {
                         img[n0+c] = 255;
                     }
                 }
@@ -180,10 +182,10 @@ static void set_test_pattern(unsigned char img[], int img_width, int img_height,
             int yy = y * 7 / img_height;
             for (int x = 0; x < img_width; x++) {
                 int xx = x * 7 / img_width;
-                int n0 = (y*img_width + x) * 3;
+                int n0 = (y*img_width + x) * depth;
                 int n1 = yy*7 + xx;
                 if (pattern[n1] != 0) {
-                    for (int c = 0; c < 3; c++) {
+                    for (int c = 0; c < depth; c++) {
                         img[n0+c] = 255;
                     }
                 }
@@ -235,7 +237,7 @@ static void test_update_img()
     convnet.training_complete = 1;
 
     /* set some input value */
-    set_test_pattern(img, inputs_across, inputs_down, 1);
+    set_test_pattern(img, inputs_across, inputs_down, inputs_depth, 1);
 
     /* clear the outputs */
     for (i = 0; i < no_of_outputs; i++) {
@@ -256,7 +258,7 @@ static void test_update_img()
     }
 
     /* set some different input values */
-    set_test_pattern(img, inputs_across, inputs_down, 2);
+    set_test_pattern(img, inputs_across, inputs_down, inputs_depth, 2);
 
     assert(deepconvnet_update_img(&convnet, img, -1)==0);
 
