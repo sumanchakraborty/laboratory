@@ -349,7 +349,7 @@ static int conv_img_initial(unsigned char img[],
                                     conv->inputs_across,
                                     conv->inputs_down,
                                     conv->inputs_depth, img,
-                                    convolution_layer_units(0,conv),
+                                    convolution_layer_units(0, conv),
                                     conv->layer[0].autocoder,
                                     &currBPerror);
 

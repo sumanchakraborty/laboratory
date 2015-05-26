@@ -482,6 +482,30 @@ void bp_set_input(bp * net, int index, float value)
 }
 
 /**
+* @brief Normalises the input values
+* @param net Backprop neural net object
+*/
+void bp_normalise_inputs(bp * net)
+{
+    float max = 0,  min = 1;
+    for (int i = 0; i < net->NoOfInputs; i++) {
+        if (net->inputs[i]->value > max) {
+            max = net->inputs[i]->value;
+        }
+        if (net->inputs[i]->value < min) {
+            min = net->inputs[i]->value;
+        }
+    }
+    float range = max - min;
+    if (range > 0.00001f) {
+        for (int i = 0; i < net->NoOfInputs; i++) {
+            net->inputs[i]->value =
+                0.25f + ((net->inputs[i]->value-min)*0.5f/range);
+        }
+    }
+}
+
+/**
 * @brief Sets the inputs to a text string
 * @param net Backprop neural net object
 * @param text The text string

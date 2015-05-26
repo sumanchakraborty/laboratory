@@ -61,6 +61,8 @@ static int scan_img_patch(unsigned char img[],
         }
     }
 
+	bp_normalise_inputs(feature_autocoder);
+
     /* check that the patch size is the same as the autocoder inputs */
     if (index_feature_input != feature_autocoder->NoOfInputs) {
         return -1;
