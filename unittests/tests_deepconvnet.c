@@ -61,6 +61,139 @@ static void test_init()
     printf("Ok\n");
 }
 
+static void set_test_pattern(unsigned char img[], int img_width, int img_height, int shape)
+{
+    memset((void*)img,'\0',img_width*img_height*3*sizeof(unsigned char));
+
+    switch(shape%5) {
+    case 0: {
+        int pattern[] = {
+            0,0,0,0,0,0,0,
+            0,0,1,1,1,0,0,
+            0,1,0,0,0,1,0,
+            0,1,0,0,0,1,0,
+            0,1,0,0,0,1,0,
+            0,0,1,1,1,0,0,
+            0,0,0,0,0,0,0
+        };
+        for (int y = 0; y < img_height; y++) {
+            int yy = y * 7 / img_height;
+            for (int x = 0; x < img_width; x++) {
+                int xx = x * 7 / img_width;
+                int n0 = (y*img_width + x) * 3;
+                int n1 = yy*7 + xx;
+                if (pattern[n1] != 0) {
+                    for (int c = 0; c < 3; c++) {
+                        img[n0+c] = 255;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 1: {
+        int pattern[] = {
+            0,0,0,0,0,0,0,
+            0,0,0,1,0,0,0,
+            0,0,0,1,0,0,0,
+            0,1,1,1,1,1,0,
+            0,1,0,1,0,0,0,
+            0,0,0,1,0,0,0,
+            0,0,0,0,0,0,0
+        };
+        for (int y = 0; y < img_height; y++) {
+            int yy = y * 7 / img_height;
+            for (int x = 0; x < img_width; x++) {
+                int xx = x * 7 / img_width;
+                int n0 = (y*img_width + x) * 3;
+                int n1 = yy*7 + xx;
+                if (pattern[n1] != 0) {
+                    for (int c = 0; c < 3; c++) {
+                        img[n0+c] = 255;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 2: {
+        int pattern[] = {
+            0,0,0,0,0,0,0,
+            1,0,1,0,1,0,0,
+            0,1,0,1,0,1,0,
+            1,0,1,0,1,0,0,
+            0,1,0,1,0,1,0,
+            1,0,1,0,1,0,0,
+            0,0,0,0,0,0,0
+        };
+        for (int y = 0; y < img_height; y++) {
+            int yy = y * 7 / img_height;
+            for (int x = 0; x < img_width; x++) {
+                int xx = x * 7 / img_width;
+                int n0 = (y*img_width + x) * 3;
+                int n1 = yy*7 + xx;
+                if (pattern[n1] != 0) {
+                    for (int c = 0; c < 3; c++) {
+                        img[n0+c] = 255;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 3: {
+        int pattern[] = {
+            0,0,0,0,0,0,0,
+            0,1,1,1,1,1,0,
+            0,1,0,0,0,1,0,
+            0,1,0,0,0,1,0,
+            0,1,0,0,0,1,0,
+            0,1,1,1,1,1,0,
+            0,0,0,0,0,0,0
+        };
+        for (int y = 0; y < img_height; y++) {
+            int yy = y * 7 / img_height;
+            for (int x = 0; x < img_width; x++) {
+                int xx = x * 7 / img_width;
+                int n0 = (y*img_width + x) * 3;
+                int n1 = yy*7 + xx;
+                if (pattern[n1] != 0) {
+                    for (int c = 0; c < 3; c++) {
+                        img[n0+c] = 255;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 4: {
+        int pattern[] = {
+            0,0,0,0,0,0,0,
+            0,0,0,1,0,0,0,
+            0,0,1,1,1,0,0,
+            0,1,1,1,1,1,0,
+            0,0,1,1,1,0,0,
+            0,0,1,0,1,0,0,
+            0,0,0,0,0,0,0
+        };
+        for (int y = 0; y < img_height; y++) {
+            int yy = y * 7 / img_height;
+            for (int x = 0; x < img_width; x++) {
+                int xx = x * 7 / img_width;
+                int n0 = (y*img_width + x) * 3;
+                int n1 = yy*7 + xx;
+                if (pattern[n1] != 0) {
+                    for (int c = 0; c < 3; c++) {
+                        img[n0+c] = 255;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    }
+}
+
 static void test_update_img()
 {
     int i, no_of_convolutions = 2;
@@ -102,9 +235,7 @@ static void test_update_img()
     convnet.training_complete = 1;
 
     /* set some input value */
-    for (i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
-        img[i] = 20;
-    }
+    set_test_pattern(img, inputs_across, inputs_down, 1);
 
     /* clear the outputs */
     for (i = 0; i < no_of_outputs; i++) {
@@ -125,9 +256,7 @@ static void test_update_img()
     }
 
     /* set some different input values */
-    for (i = 0; i < inputs_across*inputs_down*inputs_depth; i++) {
-        img[i] = 210;
-    }
+    set_test_pattern(img, inputs_across, inputs_down, 2);
 
     assert(deepconvnet_update_img(&convnet, img, -1)==0);
 
