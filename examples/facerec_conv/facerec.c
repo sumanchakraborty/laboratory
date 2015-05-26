@@ -51,11 +51,11 @@ static void facerec_training()
 {
     int no_of_convolutions = 1;
     int no_of_deep_layers = 2;
-    int max_features_per_convolution = 20;
+    int max_features_per_convolution = 8*8;
     int reduction_factor = 2;
     int no_of_outputs = 5*5;
     int output_classes = 25;
-    float error_threshold[] = { 0.002, 15.0, 8.0, 8.0 };
+    float error_threshold[] = { 0.0002, 15.0, 8.0, 8.0 };
     unsigned int random_seed = 34217;
 
     if (deepconvnet_read_images("../facerec/images",

@@ -29,6 +29,9 @@
 
 #include "deeplearn_conv.h"
 
+#define BEFORE_POOLING 0
+#define AFTER_POOLING  1
+
 /**
  * @brief Initialise a preprocessing system
  * @param no_of_layers The number of convolutional layers
@@ -184,12 +187,11 @@ static void conv_update_history(deeplearn_conv * conv)
         conv->history_ctr = 0;
 
         /* show the learned features */
-		/*
         if (conv->current_layer == 0) {
             features_plot_weights(conv->layer[0].autocoder,
-                                  "/tmp/learned_features.png",3,
+                                  "learned_features.png",3,
                                   800, 800);
-								  }*/
+        }
 
         if (conv->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < conv->history_index; i++) {
@@ -239,7 +241,7 @@ int conv_layer_width(int layer_index,
                      deeplearn_conv * conv,
                      int after_pooling)
 {
-    if (after_pooling == 0) {
+    if (after_pooling == BEFORE_POOLING) {
         return conv->layer[layer_index].units_across;
     }
 
@@ -268,7 +270,7 @@ int conv_layer_height(int layer_index,
                       deeplearn_conv * conv,
                       int after_pooling)
 {
-    if (after_pooling == 0) {
+    if (after_pooling == BEFORE_POOLING) {
         return conv->layer[layer_index].units_down;
     }
     return conv->layer[layer_index].units_down /
@@ -341,8 +343,8 @@ static int conv_img_initial(unsigned char img[],
     if (conv->enable_learning != 0) {
         /* do feature learning */
         retval =
-            features_learn_from_img(conv_layer_width(0,conv,0),
-                                    conv_layer_height(0,conv,0),
+            features_learn_from_img(conv_layer_width(0,conv,BEFORE_POOLING),
+                                    conv_layer_height(0,conv,BEFORE_POOLING),
                                     patch_radius,
                                     conv->inputs_across,
                                     conv->inputs_down,
@@ -359,8 +361,8 @@ static int conv_img_initial(unsigned char img[],
 
     /* do the convolution for this layer */
     retval =
-        features_conv_img_to_flt(conv_layer_width(0,conv,0),
-                                 conv_layer_height(0,conv,0),
+        features_conv_img_to_flt(conv_layer_width(0,conv,BEFORE_POOLING),
+                                 conv_layer_height(0,conv,BEFORE_POOLING),
                                  patch_radius,
                                  conv->inputs_across,
                                  conv->inputs_down,
@@ -396,11 +398,11 @@ static int conv_subsequent(deeplearn_conv * conv,
     if (conv->enable_learning != 0) {
         /* do feature learning */
         retval =
-            features_learn_from_flt(conv_layer_width(layer_index,conv,0),
-                                    conv_layer_height(layer_index,conv,0),
+            features_learn_from_flt(conv_layer_width(layer_index,conv,BEFORE_POOLING),
+                                    conv_layer_height(layer_index,conv,BEFORE_POOLING),
                                     patch_radius,
-                                    conv_layer_width(layer_index-1,conv,1),
-                                    conv_layer_height(layer_index-1,conv,1),
+                                    conv_layer_width(layer_index-1,conv,AFTER_POOLING),
+                                    conv_layer_height(layer_index-1,conv,AFTER_POOLING),
                                     conv->max_features,
                                     conv->layer[layer_index-1].pooling,
                                     convolution_layer_units(layer_index,conv),
@@ -414,11 +416,11 @@ static int conv_subsequent(deeplearn_conv * conv,
     }
     /* do the convolution for this layer */
     retval =
-        features_conv_flt_to_flt(conv_layer_width(layer_index,conv,0),
-                                 conv_layer_height(layer_index,conv,0),
+        features_conv_flt_to_flt(conv_layer_width(layer_index,conv,BEFORE_POOLING),
+                                 conv_layer_height(layer_index,conv,BEFORE_POOLING),
                                  patch_radius,
-                                 conv_layer_width(layer_index-1,conv,1),
-                                 conv_layer_height(layer_index-1,conv,1),
+                                 conv_layer_width(layer_index-1,conv,AFTER_POOLING),
+                                 conv_layer_height(layer_index-1,conv,AFTER_POOLING),
                                  conv->max_features,
                                  conv->layer[layer_index-1].pooling,
                                  convolution_layer_units(layer_index,conv),
@@ -554,11 +556,11 @@ int conv_img(unsigned char img[],
         /* pooling */
         retval =
             pooling_from_flt_to_flt(conv->max_features,
-                                    conv_layer_width(i,conv,0),
-                                    conv_layer_height(i,conv,0),
+                                    conv_layer_width(i,conv,BEFORE_POOLING),
+                                    conv_layer_height(i,conv,BEFORE_POOLING),
                                     conv->layer[i].convolution,
-                                    conv_layer_width(i,conv,1),
-                                    conv_layer_height(i,conv,1),
+                                    conv_layer_width(i,conv,AFTER_POOLING),
+                                    conv_layer_height(i,conv,AFTER_POOLING),
                                     conv->layer[i].pooling);
         if (retval != 0) {
             return -6;
