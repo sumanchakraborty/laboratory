@@ -53,7 +53,6 @@ struct autocode {
     float BPerrorAverage;
     float learningRate;
     float noise;
-    float dropoutsPercent;
     unsigned int random_seed;
     unsigned int itterations;
 };
@@ -67,5 +66,7 @@ void autocoder_free(ac * autocoder);
 void autocoder_feed_forward(ac * autocoder);
 void autocoder_backprop(ac * autocoder);
 void autocoder_learn(ac * autocoder);
+int autocoder_save(FILE * fp, ac * autocoder);
+int autocoder_load(FILE * fp, ac * autocoder);
 
 #endif
