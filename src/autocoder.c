@@ -344,3 +344,24 @@ int autocoder_load(FILE * fp, ac * autocoder)
     }
     return 0;
 }
+
+/**
+* @brief Sets the input of an autocoder
+* @param autocoder Autocoder object
+* @param index Array index of the input
+* @param value The value to set the input to
+*/
+void autocoder_set_input(ac * autocoder, int index, float value)
+{
+    autocoder->inputs[index] = value;
+}
+
+/**
+* @brief Sets autocoder inputs from an array
+* @param autocoder Autocoder object
+* @param inputs Array containing input values
+*/
+void autocoder_set_inputs(ac * autocoder, float inputs[])
+{
+    memcpy((void*)autocoder->inputs, inputs, autocoder->NoOfInputs*sizeof(float));
+}
