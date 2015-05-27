@@ -365,3 +365,14 @@ void autocoder_set_inputs(ac * autocoder, float inputs[])
 {
     memcpy((void*)autocoder->inputs, inputs, autocoder->NoOfInputs*sizeof(float));
 }
+
+/**
+* @brief Returns the value of a hidden unit
+* @param autocoder Autocoder object
+* @param index Array index of the hidden (encoder) unit
+* @return Value of the hidden (encoder) unit
+*/
+float autocoder_get_hidden(ac * autocoder, int index)
+{
+    return autocoder->hiddens[index];
+}
