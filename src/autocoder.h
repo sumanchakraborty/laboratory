@@ -49,6 +49,8 @@ struct autocode {
     float * bperr;
     float lastBiasChange;
     float BPerror;
+    float BPerrorPercent;
+    float BPerrorAverage;
     float learningRate;
     float noise;
     float dropoutsPercent;

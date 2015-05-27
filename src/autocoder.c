@@ -29,7 +29,8 @@
 
 #include "autocoder.h"
 
-#define DROPPED_OUT -9999
+#define AUTOCODER_UNKNOWN      -9999
+#define AUTOCODER_DROPPED_OUT  -9999
 
 /**
 * @brief Initialise an autocoder
@@ -76,6 +77,7 @@ int autocoder_init(ac * autocoder,
            autocoder->NoOfHiddens*sizeof(float));
     autocoder->lastBiasChange = 0;
     autocoder->BPerror = 0;
+    autocoder->BPerrorAverage = AUTOCODER_UNKNOWN;
     autocoder->learningRate = 0.2f;
     autocoder->noise = 0;
     autocoder->random_seed = random_seed;
@@ -118,7 +120,7 @@ void autocoder_feed_forward(ac * autocoder)
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
         if (rand_num(&autocoder->random_seed)%10000 <
             autocoder->dropoutsPercent*100) {
-            autocoder->hiddens[h] = DROPPED_OUT;
+            autocoder->hiddens[h] = AUTOCODER_DROPPED_OUT;
             continue;
         }
 
@@ -144,7 +146,7 @@ void autocoder_feed_forward(ac * autocoder)
         /* weighted sum of hidden inputs */
         float adder = 0;
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-            if (autocoder->hiddens[h] == DROPPED_OUT) continue;
+            if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT) continue;
             adder +=
                 autocoder->weights[h*autocoder->NoOfInputs + i] *
                 autocoder->hiddens[h];
@@ -171,12 +173,34 @@ void autocoder_backprop(ac * autocoder)
     memset((void*)autocoder->bperr,'\0',autocoder->NoOfHiddens*sizeof(float));
 
     /* backprop from outputs to hiddens */
+    autocoder->BPerror = 0;
+    float errorPercent = 0;
     for (int i = 0; i < autocoder->NoOfInputs; i++) {
         float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
+        autocoder->BPerror += BPerror;
+        errorPercent += fabs(BPerror);
         float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
             autocoder->bperr[h] +=
                 BPerror * afact * autocoder->weights[h*autocoder->NoOfInputs + i];
         }
+    }
+
+    /* error percentage assuming an encoding range
+       of 0.25 -> 0.75 */
+    errorPercent = errorPercent * 100 / (0.5f*autocoder->NoOfInputs);
+
+    /* update the running average */
+    if (autocoder->BPerrorAverage == AUTOCODER_UNKNOWN) {
+        autocoder->BPerrorAverage = autocoder->BPerror;
+        autocoder->BPerrorPercent = errorPercent;
+    }
+    else {
+        autocoder->BPerrorAverage =
+            (autocoder->BPerrorAverage*0.999f) +
+            (autocoder->BPerror*0.001f);
+        autocoder->BPerrorPercent =
+            (autocoder->BPerrorPercent*0.999f) +
+            (errorPercent*0.001f);
     }
 }
