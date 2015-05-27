@@ -32,13 +32,13 @@
 #define DROPPED_OUT -9999
 
 /**
- * @brief Initialise an autocoder
- * @param autocoder Autocoder object
- * @param no_of_inputs The number of inputs
- * @param no_of_hiddens The number of hidden (encoder) units
- * @param random_seed Random number generator seed
- * @return zero on success
- */
+* @brief Initialise an autocoder
+* @param autocoder Autocoder object
+* @param no_of_inputs The number of inputs
+* @param no_of_hiddens The number of hidden (encoder) units
+* @param random_seed Random number generator seed
+* @return zero on success
+*/
 int autocoder_init(ac * autocoder,
                    int no_of_inputs,
                    int no_of_hiddens,
@@ -64,11 +64,16 @@ int autocoder_init(ac * autocoder,
     autocoder->outputs =
         (float*)malloc(no_of_inputs*sizeof(float));
     if (!autocoder->outputs) return -6;
+    autocoder->bperr =
+        (float*)malloc(no_of_hiddens*sizeof(float));
+    if (!autocoder->bperr) return -7;
     memset((void*)autocoder->inputs,'\0',no_of_inputs*sizeof(float));
     memset((void*)autocoder->hiddens,'\0',
            no_of_hiddens*sizeof(float));
     memset((void*)autocoder->lastWeightChange,'\0',
            no_of_hiddens*no_of_inputs*sizeof(float));
+    memset((void*)autocoder->bperr,'\0',
+           autocoder->NoOfHiddens*sizeof(float));
     autocoder->lastBiasChange = 0;
     autocoder->BPerror = 0;
     autocoder->learningRate = 0.2f;
@@ -90,9 +95,9 @@ int autocoder_init(ac * autocoder,
 }
 
 /**
- * @brief frees memory for an autocoder
- * @param autocoder Autocoder object
- */
+* @brief frees memory for an autocoder
+* @param autocoder Autocoder object
+*/
 void autocoder_free(ac * autocoder)
 {
     free(autocoder->inputs);
@@ -101,6 +106,7 @@ void autocoder_free(ac * autocoder)
     free(autocoder->bias);
     free(autocoder->weights);
     free(autocoder->lastWeightChange);
+    free(autocoder->bperr);
 }
 
 /**
@@ -152,5 +158,25 @@ void autocoder_feed_forward(ac * autocoder)
 
         /* activation function */
         autocoder->outputs[i] = 1.0f / (1.0f + exp(-adder));
+    }
+}
+
+/**
+* @brief Back propogate the error
+* @param autocoder Autocoder object
+*/
+void autocoder_backprop(ac * autocoder)
+{
+    /* clear the backptop error for each hidden unit */
+    memset((void*)autocoder->bperr,'\0',autocoder->NoOfHiddens*sizeof(float));
+
+    /* backprop from outputs to hiddens */
+    for (int i = 0; i < autocoder->NoOfInputs; i++) {
+        float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
+        float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
+        for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+            autocoder->bperr[h] +=
+                BPerror * afact * autocoder->weights[h*autocoder->NoOfInputs + i];
+        }
     }
 }

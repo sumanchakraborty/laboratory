@@ -46,6 +46,7 @@ struct autocode {
     float * lastWeightChange;
     float * hiddens;
     float * bias;
+    float * bperr;
     float lastBiasChange;
     float BPerror;
     float learningRate;
@@ -62,5 +63,6 @@ int autocoder_init(ac * autocoder,
                    unsigned int random_seed);
 void autocoder_free(ac * autocoder);
 void autocoder_feed_forward(ac * autocoder);
+void autocoder_backprop(ac * autocoder);
 
 #endif
