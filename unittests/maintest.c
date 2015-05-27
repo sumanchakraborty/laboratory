@@ -40,9 +40,11 @@
 #include "tests_pooling.h"
 #include "tests_conv.h"
 #include "tests_deepconvnet.h"
+#include "tests_autocoder.h"
 
 int main(int argc, char* argv[])
 {
+    run_tests_autocoder();
     run_tests_backprop();
     run_tests_images();
     run_tests_random();

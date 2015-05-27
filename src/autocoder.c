@@ -376,3 +376,14 @@ float autocoder_get_hidden(ac * autocoder, int index)
 {
     return autocoder->hiddens[index];
 }
+
+/**
+* @brief Main update routine for training
+* @param autocoder Autocoder object
+*/
+void autocoder_update(ac * autocoder)
+{
+    autocoder_feed_forward(autocoder);
+    autocoder_backprop(autocoder);
+    autocoder_learn(autocoder);
+}

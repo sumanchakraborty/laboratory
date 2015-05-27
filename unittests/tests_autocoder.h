@@ -1,6 +1,6 @@
 /*
  libdeep - a library for deep learning
- Copyright (C) 2013-2015  Bob Mottram <bob@robotics.uk.to>
+ Copyright (C) 2015  Bob Mottram <bob@robotics.uk.to>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -27,50 +27,18 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DEEPLEARN_AUTOCODER_H
-#define DEEPLEARN_AUTOCODER_H
+#ifndef DEEPLEARN_TESTS_AUTOCODER_H
+#define DEEPLEARN_TESTS_AUTOCODER_H
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <assert.h>
+#include <ctype.h>
+#include <math.h>
 #include "globals.h"
-#include "deeplearn_random.h"
-#include "backprop_neuron.h"
+#include "autocoder.h"
 
-struct autocode {
-    int NoOfInputs,NoOfHiddens;
-    float DropoutPercent;
-    float * inputs;
-    float * outputs;
-    float * weights;
-    float * lastWeightChange;
-    float * hiddens;
-    float * bias;
-    float * bperr;
-    float * lastBiasChange;
-    float BPerror;
-    float BPerrorPercent;
-    float BPerrorAverage;
-    float learningRate;
-    float noise;
-    unsigned int random_seed;
-    unsigned int itterations;
-};
-typedef struct autocode ac;
-
-int autocoder_init(ac * autocoder,
-                   int no_of_inputs,
-                   int no_of_hiddens,
-                   unsigned int random_seed);
-void autocoder_free(ac * autocoder);
-void autocoder_feed_forward(ac * autocoder);
-void autocoder_backprop(ac * autocoder);
-void autocoder_learn(ac * autocoder);
-int autocoder_save(FILE * fp, ac * autocoder);
-int autocoder_load(FILE * fp, ac * autocoder);
-void autocoder_set_input(ac * autocoder, int index, float value);
-void autocoder_set_inputs(ac * autocoder, float inputs[]);
-float autocoder_get_hidden(ac * autocoder, int index);
-void autocoder_update(ac * autocoder);
+int run_tests_autocoder();
 
 #endif
