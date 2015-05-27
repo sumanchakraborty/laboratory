@@ -68,6 +68,9 @@ int autocoder_init(ac * autocoder,
     autocoder->bperr =
         (float*)malloc(no_of_hiddens*sizeof(float));
     if (!autocoder->bperr) return -7;
+    autocoder->lastBiasChange =
+        (float*)malloc(no_of_hiddens*sizeof(float));
+    if (!autocoder->lastBiasChange) return -8;
     memset((void*)autocoder->inputs,'\0',no_of_inputs*sizeof(float));
     memset((void*)autocoder->hiddens,'\0',
            no_of_hiddens*sizeof(float));
@@ -75,7 +78,8 @@ int autocoder_init(ac * autocoder,
            no_of_hiddens*no_of_inputs*sizeof(float));
     memset((void*)autocoder->bperr,'\0',
            autocoder->NoOfHiddens*sizeof(float));
-    autocoder->lastBiasChange = 0;
+    memset((void*)autocoder->lastBiasChange,'\0',
+           autocoder->NoOfHiddens*sizeof(float));
     autocoder->BPerror = 0;
     autocoder->BPerrorAverage = AUTOCODER_UNKNOWN;
     autocoder->learningRate = 0.2f;
@@ -109,6 +113,7 @@ void autocoder_free(ac * autocoder)
     free(autocoder->weights);
     free(autocoder->lastWeightChange);
     free(autocoder->bperr);
+    free(autocoder->lastBiasChange);
 }
 
 /**
@@ -202,5 +207,44 @@ void autocoder_backprop(ac * autocoder)
         autocoder->BPerrorPercent =
             (autocoder->BPerrorPercent*0.999f) +
             (errorPercent*0.001f);
+    }
+}
+
+/**
+* @brief Adjusts weights and biases
+* @param autocoder Autocoder object
+*/
+void autocoder_learn(ac * autocoder)
+{
+    /* weights between outputs and hiddens */
+    float e = autocoder->learningRate / (1.0f + autocoder->NoOfHiddens);
+    for (int i = 0; i < autocoder->NoOfInputs; i++) {
+        float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
+        float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
+        float gradient = afact * BPerror;
+        for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+            int n = h*autocoder->NoOfInputs + i;
+            autocoder->lastWeightChange[n] =
+                e * (autocoder->lastWeightChange[n] + 1) *
+                gradient * autocoder->hiddens[h];
+            autocoder->weights[n] += autocoder->lastWeightChange[n];
+        }
+    }
+
+    /* weights between hiddens and inputs */
+    e = autocoder->learningRate / (1.0f + autocoder->NoOfInputs);
+    for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+        float afact = autocoder->hiddens[h] * (1.0f - autocoder->hiddens[h]);
+        float BPerror = autocoder->bperr[h];
+        float gradient = afact * BPerror;
+        autocoder->lastBiasChange[h] = e * (autocoder->lastBiasChange[h] + 1.0f) * gradient;
+        autocoder->bias[h] += autocoder->lastBiasChange[h];
+        for (int i = 0; i < autocoder->NoOfInputs; i++) {
+            int n = h*autocoder->NoOfInputs + i;
+            autocoder->lastWeightChange[n] =
+                e * (autocoder->lastWeightChange[n] + 1) *
+                gradient * autocoder->inputs[i];
+            autocoder->weights[n] += autocoder->lastWeightChange[n];
+        }
     }
 }

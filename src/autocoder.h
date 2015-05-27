@@ -47,7 +47,7 @@ struct autocode {
     float * hiddens;
     float * bias;
     float * bperr;
-    float lastBiasChange;
+    float * lastBiasChange;
     float BPerror;
     float BPerrorPercent;
     float BPerrorAverage;
@@ -66,5 +66,6 @@ int autocoder_init(ac * autocoder,
 void autocoder_free(ac * autocoder);
 void autocoder_feed_forward(ac * autocoder);
 void autocoder_backprop(ac * autocoder);
+void autocoder_learn(ac * autocoder);
 
 #endif
