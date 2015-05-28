@@ -165,23 +165,6 @@ int bp_init(bp * net,
 }
 
 /**
-* @brief Initialise an autocoder
-* @param net Backprop neural net object
-* @param no_of_inputs The number of input units
-* @param no_of_features The number of features to be learned
-* @param random_seed The random number generator seed
-* @returns zero on success
-*/
-int bp_init_autocoder(bp * net,
-                      int no_of_inputs,
-                      int no_of_features,
-                      unsigned int * random_seed)
-{
-    return bp_init(net, no_of_inputs, no_of_features, 1,
-                   no_of_inputs, random_seed);
-}
-
-/**
 * @brief Deallocate the memory for a backprop neural net object
 * @param net Backprop neural net object
 */
@@ -748,7 +731,7 @@ int bp_plot_weights(bp * net,
 * @param index Index of the input unit
 * @return value in the range 0.0 to 1.0
 */
-static float bp_get_input(bp * net, int index)
+float bp_get_input(bp * net, int index)
 {
     return net->inputs[index]->value;
 }
@@ -846,117 +829,6 @@ void bp_update(bp * net, int current_hidden_layer)
     bp_backprop(net, current_hidden_layer);
     bp_learn(net, current_hidden_layer);
     bp_clear_dropouts(net);
-}
-
-/**
-* @brief Update an autocoder neural net
-* @param net Backprop neural net object
-*/
-void bp_update_autocoder(bp * net)
-{
-    /* set the target outputs to be the same as the inputs */
-    for (int i = 0; i < net->NoOfInputs; i++) {
-        bp_set_output(net, i, net->inputs[i]->value);
-    }
-
-    /* run the autocoder */
-    bp_update(net,0);
-}
-
-/**
-* @brief Copies the hidden layer from the autocoder to the main network
-* @param net Backprop neural net object
-* @param autocoder Autocoder neural net object
-* @param hidden_layer The layer within the neural net to be replaced with
-*        autocoder hidden units
-*/
-void bp_update_from_autocoder(bp * net,
-                              bp * autocoder,
-                              int hidden_layer)
-{
-    int i;
-
-    /* for each unit on the hidden layer */
-    for (i = 0; i < bp_hiddens_in_layer(net,hidden_layer); i++) {
-        /* copy the neuron parameters from the autocoder hidden layer */
-        bp_neuron_copy(autocoder->hiddens[0][i],
-                       net->hiddens[hidden_layer][i]);
-    }
-}
-
-/**
-* @brief Generates an autocoder for the given neural net layer
-* @param net Backprop neural net object
-* @param hidden_layer The layer within the neural net to be autocoded
-* @param autocoder Autocoder neural net object
-*/
-int bp_create_autocoder(bp * net,
-                        int hidden_layer,
-                        bp * autocoder)
-{
-    /* number of inputs for the autocoder is the same as
-        the number of hidden units */
-    int no_of_inputs;
-
-    if (hidden_layer == 0) {
-        /* if this is the first hidden layer then number of inputs
-            for the autocoder is the same as the number of
-            neural net input units */
-        no_of_inputs = net->NoOfInputs;
-    }
-    else {
-        no_of_inputs = bp_hiddens_in_layer(net,hidden_layer-1);
-    }
-
-    /* create the autocoder */
-    if (bp_init(autocoder,
-                no_of_inputs,
-                bp_hiddens_in_layer(net,hidden_layer),1,
-                no_of_inputs,
-                &net->random_seed) != 0) {
-        return -1;
-    }
-
-    /* assign parameters to the autocoder */
-    autocoder->DropoutPercent = net->DropoutPercent;
-    autocoder->learningRate = net->learningRate;
-    return 0;
-}
-
-/**
-* @brief Pre-trains a hidden layer using an autocoder
-* @param net Backprop neural net object
-* @param autocoder Autocoder neural net object
-* @param hidden_layer The layer within the neural net to be autocoded
-*/
-void bp_pretrain(bp * net,
-                 bp * autocoder,
-                 int hidden_layer)
-{
-    int i;
-    float hidden_value;
-
-    /* feed forward to the given hidden layer */
-    bp_feed_forward_layers(net, hidden_layer);
-
-    if (hidden_layer > 0) {
-        /* copy the hidden unit values to the inputs
-            of the autocoder */
-        for (i = 0; i < bp_hiddens_in_layer(net,hidden_layer-1); i++) {
-            hidden_value = bp_get_hidden(net, hidden_layer-1, i);
-            bp_set_input(autocoder, i, hidden_value);
-        }
-    }
-    else {
-        /* copy the input unit values to the inputs
-            of the autocoder */
-        for (i = 0; i < net->NoOfInputs; i++) {
-            bp_set_input(autocoder, i, bp_get_input(net, i));
-        }
-    }
-
-    /* run the autocoder */
-    bp_update_autocoder(autocoder);
 }
 
 /**

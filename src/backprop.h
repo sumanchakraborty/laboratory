@@ -73,10 +73,6 @@ void bp_set_output(bp * net, int index, float value);
 float bp_get_hidden(bp * net, int layer, int index);
 float bp_get_output(bp * net, int index);
 void bp_update(bp * net, int current_hidden_layer);
-void bp_update_autocoder(bp * net);
-int bp_create_autocoder(bp * net, int hidden_layer, bp * autocoder);
-void bp_pretrain(bp * net, bp * autocoder, int hidden_layer);
-void bp_update_from_autocoder(bp * net, bp * autocoder, int hidden_layer);
 int bp_save(FILE * fp, bp * net);
 int bp_load(FILE * fp, bp * net,
             unsigned int * random_seed);
@@ -100,5 +96,6 @@ int bp_classifications_to_numbers(int no_of_instances,
 int bp_hiddens_in_layer(bp * net, int layer);
 void bp_reproject(bp * net, int layer, int neuron_index);
 void bp_normalise_inputs(bp * net);
+float bp_get_input(bp * net, int index);
 
 #endif

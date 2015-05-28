@@ -485,51 +485,6 @@ static void test_backprop_autocoder()
     printf("Ok\n");
 }
 
-
-static void test_backprop_deep()
-{
-    bp net;
-    bp autocoder;
-    int l,itt,i;
-    int no_of_inputs=10;
-    int no_of_hiddens=4;
-    int hidden_layers=3;
-    int no_of_outputs=2;
-    unsigned int random_seed = 123;
-
-    printf("test_backprop_deep...");
-
-    bp_init(&net,
-            no_of_inputs, no_of_hiddens,
-            hidden_layers,
-            no_of_outputs, &random_seed);
-    assert((&net)->inputs!=0);
-    assert((&net)->hiddens!=0);
-    assert((&net)->outputs!=0);
-
-    for (l = 0; l < hidden_layers; l++) {
-        /* create an autocoder for this layer */
-        bp_create_autocoder(&net,l,&autocoder);
-        /* do some training */
-        for (itt = 0; itt < 100; itt++) {
-            /* set the inputs */
-            for (i = 0; i < no_of_inputs; i++) {
-                bp_set_input(&net,i,i/(float)no_of_inputs);
-            }
-            /* update */
-            bp_pretrain(&net,&autocoder,l);
-        }
-        /* move the autocoder hidden weights into the main network */
-        bp_update_from_autocoder(&net,&autocoder,l);
-        /* delete the autocoder */
-        bp_free(&autocoder);
-    }
-
-    bp_free(&net);
-
-    printf("Ok\n");
-}
-
 static void test_backprop_neuron_save_load()
 {
     bp_neuron n1, n2;
@@ -662,7 +617,6 @@ int run_tests_backprop()
     test_backprop2();
     test_backprop_update();
     test_backprop_training();
-    test_backprop_deep();
     test_backprop_neuron_save_load();
     test_backprop_save_load();
     test_backprop_inputs_from_image();

@@ -35,6 +35,7 @@
 #include <limits.h>
 #include "globals.h"
 #include "backprop.h"
+#include "autocoder.h"
 #include "encoding.h"
 #include "deeplearn_conv.h"
 
@@ -56,7 +57,7 @@ typedef struct {
 
 struct deepl {
     bp * net;
-    bp ** autocoder;
+    ac ** autocoder;
     int current_hidden_layer;
     float BPerror;
     unsigned int itterations;
@@ -132,5 +133,7 @@ float deeplearn_get_error_threshold(deeplearn * learner, int index);
 void deeplearn_set_error_threshold(deeplearn * learner, int index, float value);
 void deeplearn_update_continuous(deeplearn * learner);
 int deeplearn_training_last_layer(deeplearn * learner);
+void copy_autocoder_to_hidden_layer(deeplearn * learner, int hidden_layer);
+void deeplearn_pretrain(bp * net, ac * autocoder, int current_layer);
 
 #endif

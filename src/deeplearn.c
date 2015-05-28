@@ -188,19 +188,34 @@ int deeplearn_init(deeplearn * learner,
     }
 
     /* create the autocoder */
-    learner->autocoder = (bp**)malloc(sizeof(bp*)*hidden_layers);
+    learner->autocoder = (ac**)malloc(sizeof(ac*)*hidden_layers);
     if (!learner->autocoder) {
         return -8;
     }
     for (i = 0; i < hidden_layers; i++) {
-        learner->autocoder[i] = (bp*)malloc(sizeof(bp));
+        learner->autocoder[i] = (ac*)malloc(sizeof(ac));
         if (!learner->autocoder[i]) {
             return -9;
         }
-        if (bp_create_autocoder(learner->net, i,
-                                learner->autocoder[i]) != 0) {
-            return -10;
+        if (i == 0) {
+            /* if this is the first hidden layer then number of inputs
+               for the autocoder is the same as the number of
+               neural net input units */
+            if (autocoder_init(learner->autocoder[i], no_of_inputs,
+                               bp_hiddens_in_layer(learner->net,i),
+                               learner->net->random_seed) != 0) {
+                return -10;
+            }
         }
+        else {
+            if (autocoder_init(learner->autocoder[i],
+                               bp_hiddens_in_layer(learner->net,i-1),
+                               bp_hiddens_in_layer(learner->net,i),
+                               learner->net->random_seed) != 0) {
+                return -11;
+            }
+        }
+
     }
 
     learner->BPerror = DEEPLEARN_UNKNOWN_ERROR;
@@ -223,8 +238,54 @@ void deeplearn_feed_forward(deeplearn * learner)
 */
 int deeplearn_training_last_layer(deeplearn * learner)
 {
-	return (learner->current_hidden_layer >=
-			learner->net->HiddenLayers);
+    return (learner->current_hidden_layer >=
+            learner->net->HiddenLayers);
+}
+
+/**
+* @brief Copy autocoder hidden units to a hidden layer of the deep learner
+* @param learner Deep learner object
+* @param hidden_layer Index of the layer to be copied
+*/
+void copy_autocoder_to_hidden_layer(deeplearn * learner, int hidden_layer)
+{
+    ac * autocoder = learner->autocoder[hidden_layer];
+    /* for each unit on the hidden layer */
+    for (int i = 0; i < bp_hiddens_in_layer(learner->net,hidden_layer); i++) {
+        bp_neuron * nrn  = learner->net->hiddens[hidden_layer][i];
+        nrn->bias = autocoder->bias[i];
+        memcpy((void*)nrn->weights,
+               &autocoder->weights[i*autocoder->NoOfInputs],
+               autocoder->NoOfInputs*sizeof(float));
+    }
+}
+
+/**
+* @brief Trains the autocoder for a given hidden layer
+* @param net Backprop object
+* @param autocoder Autocoder object
+* @param current_layer Index of the current hidden layer
+*/
+void deeplearn_pretrain(bp * net, ac * autocoder, int current_layer)
+{
+	bp_feed_forward_layers(net, current_layer);
+	if (current_layer > 0) {
+		/* copy the hidden unit values to the inputs
+		   of the autocoder */
+		for (int i = 0; i < bp_hiddens_in_layer(net,current_layer-1); i++) {
+			float hidden_value = bp_get_hidden(net, current_layer-1, i);
+			autocoder_set_input(autocoder, i, hidden_value);
+		}
+	}
+	else {
+		/* copy the input unit values to the inputs
+		   of the autocoder */
+		for (int i = 0; i < net->NoOfInputs; i++) {
+			autocoder_set_input(autocoder, i,
+								bp_get_input(net, i));
+		}
+	}
+	autocoder_update(autocoder);
 }
 
 /**
@@ -248,11 +309,11 @@ void deeplearn_update(deeplearn * learner)
     /* pretraining of autocoders */
     if (current_layer < learner->net->HiddenLayers) {
 
-        /* train the autocoder */
-        bp_pretrain(learner->net, learner->autocoder[current_layer],
-                    current_layer);
+		/* train the autocoder for this layer */
+		deeplearn_pretrain(learner->net,
+						   learner->autocoder[current_layer], current_layer);
 
-        /* update the backprop error value */
+        /* update the backprop error value from the autocoder */
         learner->BPerror = learner->autocoder[current_layer]->BPerrorPercent;
 
         /* If below the error threshold.
@@ -262,10 +323,7 @@ void deeplearn_update(deeplearn * learner)
             (learner->BPerror < minimum_error_percent) &&
             (learner->autocoder[current_layer]->itterations > 100)) {
 
-            /* copy the hidden units */
-            bp_update_from_autocoder(learner->net,
-                                     learner->autocoder[current_layer],
-                                     current_layer);
+            copy_autocoder_to_hidden_layer(learner, current_layer);
 
             /* advance to the next hidden layer */
             learner->current_hidden_layer++;
@@ -306,15 +364,13 @@ void deeplearn_update_continuous(deeplearn * learner)
     learner->BPerror = 0;
 
     for (i = 0; i < learner->net->HiddenLayers; i++) {
-        /* train the autocoder */
-        bp_pretrain(learner->net, learner->autocoder[i], i);
+		/* train the autocoder for this layer */
+		deeplearn_pretrain(learner->net, learner->autocoder[i], i);
 
         /* update the backprop error value */
         learner->BPerror += learner->autocoder[i]->BPerrorPercent;
 
-        /* copy the hidden units */
-        bp_update_from_autocoder(learner->net,
-                                 learner->autocoder[i], i);
+        copy_autocoder_to_hidden_layer(learner, i);
     }
 
     learner->BPerror /= learner->net->HiddenLayers;
@@ -394,7 +450,7 @@ void deeplearn_free(deeplearn * learner)
 
     /* free the autocoder */
     for (int i = 0; i < learner->net->HiddenLayers; i++) {
-        bp_free(learner->autocoder[i]);
+        autocoder_free(learner->autocoder[i]);
         free(learner->autocoder[i]);
         learner->autocoder[i] = 0;
     }
@@ -678,7 +734,7 @@ int deeplearn_save(FILE * fp, deeplearn * learner)
     }
 
     for (int i = 0; i < learner->net->HiddenLayers; i++) {
-        if (bp_save(fp, learner->autocoder[i]) != 0) {
+        if (autocoder_save(fp, learner->autocoder[i]) != 0) {
             return -8;
         }
     }
@@ -769,13 +825,13 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
         return -7;
     }
 
-    learner->autocoder = (bp**)malloc(sizeof(bp*)*learner->net->HiddenLayers);
+    learner->autocoder = (ac**)malloc(sizeof(ac*)*learner->net->HiddenLayers);
     if (!learner->autocoder) {
         return -8;
     }
     for (int i = 0; i < learner->net->HiddenLayers; i++) {
-        learner->autocoder[i] = (bp*)malloc(sizeof(bp));
-        if (bp_load(fp, learner->autocoder[i], random_seed) != 0) {
+        learner->autocoder[i] = (ac*)malloc(sizeof(ac));
+        if (autocoder_load(fp, learner->autocoder[i]) != 0) {
             return -9;
         }
     }

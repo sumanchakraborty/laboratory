@@ -52,11 +52,9 @@ static void test_deeplearn_init()
     assert((&learner)->autocoder!=0);
 
     assert((&learner)->autocoder[0]->NoOfInputs==no_of_inputs);
-    assert((&learner)->autocoder[0]->NoOfOutputs==no_of_inputs);
     assert((&learner)->autocoder[0]->NoOfHiddens==no_of_hiddens);
 
     assert((&learner)->autocoder[1]->NoOfInputs==no_of_hiddens);
-    assert((&learner)->autocoder[1]->NoOfOutputs==no_of_hiddens);
     assert((&learner)->autocoder[1]->NoOfHiddens==9);
 
     /* free memory */
