@@ -108,12 +108,13 @@ static void test_autocoder_update()
 
     /* set some inputs */
     for (int i = 0; i < no_of_inputs; i++) {
-        autocoder_set_input(&autocoder, i, rand_num(&random_seed)%10000/10000.0f);
+        autocoder_set_input(&autocoder, i, 0.25f + ((i/(float)no_of_inputs)*0.5f));
     }
 
     /* some initial updates, because sometimes error initially increases */
     for (int t = 0; t < 100; t++) {
         autocoder_update(&autocoder);
+		printf("%f\n",autocoder.BPerrorPercent);
     }
     float initialErrorPercent = autocoder.BPerrorPercent;
     assert(initialErrorPercent > 0);
