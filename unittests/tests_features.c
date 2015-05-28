@@ -246,7 +246,6 @@ static void test_features_conv_img_to_flt()
     float tot = 0.0f;
     for (int i = 0; i < layer0_units; i++) {
         tot += layer0[i];
-		printf("layer0[i] %f\n",tot);
     }
     assert(tot > 0.0f);
 

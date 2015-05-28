@@ -38,9 +38,6 @@
 #include "deeplearn_images.h"
 #include "backprop_neuron.h"
 
-#define AUTOCODER_UNKNOWN      -9999
-#define AUTOCODER_DROPPED_OUT  -9999
-
 struct autocode {
     int NoOfInputs,NoOfHiddens;
     float DropoutPercent;
@@ -67,6 +64,8 @@ int autocoder_init(ac * autocoder,
                    int no_of_hiddens,
                    unsigned int random_seed);
 void autocoder_free(ac * autocoder);
+void autocoder_encode(ac * autocoder, float * encoded, unsigned char use_dropouts);
+void autocoder_decode(ac * autocoder, float * decoded);
 void autocoder_feed_forward(ac * autocoder);
 void autocoder_backprop(ac * autocoder);
 void autocoder_learn(ac * autocoder);

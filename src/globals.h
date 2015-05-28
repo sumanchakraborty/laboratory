@@ -12,4 +12,7 @@
 /* The number of bits per character in a text string */
 #define CHAR_BITS (sizeof(char)*8)
 
+#define AUTOCODER_UNKNOWN      -9999
+#define AUTOCODER_DROPPED_OUT  -9999
+
 #endif

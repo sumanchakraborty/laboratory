@@ -115,17 +115,21 @@ void autocoder_free(ac * autocoder)
 }
 
 /**
-* @brief Feed forward
+* @brief Encodes the inputs to a given array
 * @param autocoder Autocoder object
+* @param encoded Array to store the encoded values
+* @param use_dropouts If non-zero then allow dropouts in the returned results
 */
-void autocoder_feed_forward(ac * autocoder)
+void autocoder_encode(ac * autocoder, float * encoded, unsigned char use_dropouts)
 {
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-        if (rand_num(&autocoder->random_seed)%10000 <
-            autocoder->DropoutPercent*100) {
-            autocoder->hiddens[h] = (int)AUTOCODER_DROPPED_OUT;
-            continue;
-        }
+		if (use_dropouts != 0) {
+			if (rand_num(&autocoder->random_seed)%10000 <
+				autocoder->DropoutPercent*100) {
+				autocoder->hiddens[h] = (int)AUTOCODER_DROPPED_OUT;
+				continue;
+			}
+		}
 
         /* weighted sum of inputs */
         float adder = autocoder->bias[h];
@@ -142,9 +146,17 @@ void autocoder_feed_forward(ac * autocoder)
         }
 
         /* activation function */
-        autocoder->hiddens[h] = 1.0f / (1.0f + exp(-adder));
+        encoded[h] = 1.0f / (1.0f + exp(-adder));
     }
+}
 
+/**
+* @brief Decodes the encoded (hidden) units to a given output array
+* @param autocoder Autocoder object
+* @param decoded Array to store the decoded output values
+*/
+void autocoder_decode(ac * autocoder, float * decoded)
+{
     for (int i = 0; i < autocoder->NoOfInputs; i++) {
         /* weighted sum of hidden inputs */
         float adder = 0;
@@ -164,8 +176,18 @@ void autocoder_feed_forward(ac * autocoder)
         }
 
         /* activation function */
-        autocoder->outputs[i] = 1.0f / (1.0f + exp(-adder));
+        decoded[i] = 1.0f / (1.0f + exp(-adder));
     }
+}
+
+/**
+* @brief Feed forward
+* @param autocoder Autocoder object
+*/
+void autocoder_feed_forward(ac * autocoder)
+{
+	autocoder_encode(autocoder, autocoder->hiddens,1);
+	autocoder_decode(autocoder, autocoder->outputs);
 }
 
 /**
@@ -405,7 +427,7 @@ void autocoder_normalise_inputs(ac * autocoder)
 {
     float min = autocoder->inputs[0];
     float max = autocoder->inputs[0];
-    
+
     for (int i = 1; i < autocoder->NoOfInputs; i++) {
         if (autocoder->inputs[i] < min)
             min = autocoder->inputs[i];
@@ -415,7 +437,7 @@ void autocoder_normalise_inputs(ac * autocoder)
 
     float range = max - min;
     if (range <= 0) return;
-    
+
     for (int i = 0; i < autocoder->NoOfInputs; i++) {
         autocoder->inputs[i] =
             0.25f + (((autocoder->inputs[i] - min)/range)*0.5f);
