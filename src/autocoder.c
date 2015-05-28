@@ -29,9 +29,6 @@
 
 #include "autocoder.h"
 
-#define AUTOCODER_UNKNOWN      -9999
-#define AUTOCODER_DROPPED_OUT  -9999
-
 /**
 * @brief Initialise an autocoder
 * @param autocoder Autocoder object
@@ -72,6 +69,7 @@ int autocoder_init(ac * autocoder,
         (float*)malloc(no_of_hiddens*sizeof(float));
     if (!autocoder->lastBiasChange) return -8;
     memset((void*)autocoder->inputs,'\0',no_of_inputs*sizeof(float));
+    memset((void*)autocoder->outputs,'\0',no_of_inputs*sizeof(float));
     memset((void*)autocoder->hiddens,'\0',
            no_of_hiddens*sizeof(float));
     memset((void*)autocoder->lastWeightChange,'\0',
@@ -80,21 +78,21 @@ int autocoder_init(ac * autocoder,
            autocoder->NoOfHiddens*sizeof(float));
     memset((void*)autocoder->lastBiasChange,'\0',
            autocoder->NoOfHiddens*sizeof(float));
-    autocoder->BPerror = 0;
+    autocoder->BPerror = AUTOCODER_UNKNOWN;
     autocoder->BPerrorAverage = AUTOCODER_UNKNOWN;
     autocoder->learningRate = 0.2f;
     autocoder->noise = 0;
     autocoder->random_seed = random_seed;
     autocoder->itterations = 0;
-    autocoder->DropoutPercent = 2;
+    autocoder->DropoutPercent = 0.01f;
 
     /* initial small random values */
     for (int h = 0; h < no_of_hiddens; h++) {
         autocoder->bias[h] =
-            (0.2f*(rand_num(&autocoder->random_seed)%10000/10000.0))-0.1f;
+            (0.2f*(rand_num(&autocoder->random_seed)%10000/10000.0f))-0.1f;
         for (int i = 0; i < no_of_inputs; i++) {
             autocoder->weights[h*no_of_inputs + i] =
-                (0.2f*(rand_num(&autocoder->random_seed)%10000/10000.0))-0.1f;
+                (0.2f*(rand_num(&autocoder->random_seed)%10000/10000.0f))-0.1f;
         }
     }
     return 0;
@@ -125,7 +123,7 @@ void autocoder_feed_forward(ac * autocoder)
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
         if (rand_num(&autocoder->random_seed)%10000 <
             autocoder->DropoutPercent*100) {
-            autocoder->hiddens[h] = AUTOCODER_DROPPED_OUT;
+            autocoder->hiddens[h] = (int)AUTOCODER_DROPPED_OUT;
             continue;
         }
 
@@ -151,7 +149,9 @@ void autocoder_feed_forward(ac * autocoder)
         /* weighted sum of hidden inputs */
         float adder = 0;
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-            if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT) continue;
+            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
+                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+                continue;
             adder +=
                 autocoder->weights[h*autocoder->NoOfInputs + i] *
                 autocoder->hiddens[h];
@@ -186,6 +186,9 @@ void autocoder_backprop(ac * autocoder)
         errorPercent += fabs(BPerror);
         float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
+                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+                continue;
             autocoder->bperr[h] +=
                 BPerror * afact * autocoder->weights[h*autocoder->NoOfInputs + i];
         }
@@ -193,7 +196,7 @@ void autocoder_backprop(ac * autocoder)
 
     /* error percentage assuming an encoding range
        of 0.25 -> 0.75 */
-    errorPercent = errorPercent * 100 / (0.5f*autocoder->NoOfInputs);
+    errorPercent = errorPercent * 100 / (0.6f*autocoder->NoOfInputs);
 
     /* update the running average */
     if (autocoder->BPerrorAverage == AUTOCODER_UNKNOWN) {
@@ -223,6 +226,9 @@ void autocoder_learn(ac * autocoder)
         float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
         float gradient = afact * BPerror;
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
+                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+                continue;
             int n = h*autocoder->NoOfInputs + i;
             autocoder->lastWeightChange[n] =
                 e * (autocoder->lastWeightChange[n] + 1) *
@@ -234,6 +240,9 @@ void autocoder_learn(ac * autocoder)
     /* weights between hiddens and inputs */
     e = autocoder->learningRate / (1.0f + autocoder->NoOfInputs);
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
+        if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
+            (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+            continue;
         float afact = autocoder->hiddens[h] * (1.0f - autocoder->hiddens[h]);
         float BPerror = autocoder->bperr[h];
         float gradient = afact * BPerror;
@@ -386,4 +395,97 @@ void autocoder_update(ac * autocoder)
     autocoder_feed_forward(autocoder);
     autocoder_backprop(autocoder);
     autocoder_learn(autocoder);
+}
+
+/**
+* @brief Normalises the inputs to the autocoder
+* @param autocoder Autocoder object
+*/
+void autocoder_normalise_inputs(ac * autocoder)
+{
+    float min = autocoder->inputs[0];
+    float max = autocoder->inputs[0];
+    
+    for (int i = 1; i < autocoder->NoOfInputs; i++) {
+        if (autocoder->inputs[i] < min)
+            min = autocoder->inputs[i];
+        if (autocoder->inputs[i] > max)
+            max = autocoder->inputs[i];
+    }
+
+    float range = max - min;
+    if (range <= 0) return;
+    
+    for (int i = 0; i < autocoder->NoOfInputs; i++) {
+        autocoder->inputs[i] =
+            0.25f + (((autocoder->inputs[i] - min)/range)*0.5f);
+    }
+}
+
+/**
+* @brief Returns zero if two autocoders are the same
+* @param autocoder0 The first autocoder
+* @param autocoder1 The second autocoder
+* @return zero on success
+*/
+int autocoder_compare(ac * autocoder0, ac * autocoder1)
+{
+    if (autocoder0->NoOfInputs != autocoder1->NoOfInputs) {
+        return -1;
+    }
+    if (autocoder0->NoOfHiddens != autocoder1->NoOfHiddens) {
+        return -2;
+    }
+    for (int h = 0; h < autocoder0->NoOfHiddens; h++) {
+        if (autocoder0->bias[h] != autocoder1->bias[h]) {
+            return -3;
+        }
+        for (int i = 0; i < autocoder0->NoOfInputs; i++) {
+            if (autocoder0->inputs[h*autocoder0->NoOfInputs + i] != autocoder1->inputs[h*autocoder1->NoOfInputs + i]) {
+                return -4;
+            }
+        }
+    }
+    return 0;
+}
+
+/**
+* @brief Plots weight matrices within an image
+* @param autocoder Autocoder object
+* @param filename Filename of the image to save as
+* @param image_width Width of the image in pixels
+* @param image_height Height of the image in pixels
+* @param input_image_width When displaying all inputs as an image this
+         is the number of inputs across.  Set this to zero for the
+         inputs image to be square.
+*/
+int autocoder_plot_weights(ac * autocoder,
+                           char * filename,
+                           int image_width, int image_height,
+                           int input_image_width)
+{
+    unsigned char * img;
+
+    /* allocate memory for the image */
+    img = (unsigned char*)malloc(image_width*image_height*3*
+                                 sizeof(unsigned char));
+    if (!img) {
+        return -1;
+    }
+
+    /* clear the image with a white background */
+    memset((void*)img,'\255',image_width*image_height*3*
+           sizeof(unsigned char));
+
+    /* TODO */
+
+    /* write the image to file */
+    deeplearn_write_png_file(filename,
+                             (unsigned int)image_width,
+                             (unsigned int)image_height,
+                             24, img);
+
+    /* free the image memory */
+    free(img);
+    return 0;
 }

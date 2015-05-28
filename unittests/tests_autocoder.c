@@ -41,6 +41,16 @@ static void test_autocoder_init()
                           no_of_inputs,
                           no_of_hiddens,
                           random_seed) == 0);
+
+    for (int i = 0; i < no_of_inputs*no_of_hiddens; i++) {
+        assert(autocoder.weights[i] > -0.3f);
+        assert(autocoder.weights[i] < 0.3f);
+    }
+    for (int h = 0; h < no_of_hiddens; h++) {
+        assert(autocoder.bias[h] > -0.3f);
+        assert(autocoder.bias[h] < 0.3f);
+    }
+	
     autocoder_free(&autocoder);
 
     printf("Ok\n");
@@ -99,13 +109,15 @@ static void test_autocoder_update()
     int no_of_hiddens = 24;
     unsigned int random_seed = 5322;
 
-    printf("test_autocoder_init...");
+    printf("test_autocoder_update...");
 
     assert(autocoder_init(&autocoder,
                           no_of_inputs,
                           no_of_hiddens,
                           random_seed) == 0);
-
+	autocoder.DropoutPercent = 0.1f;
+    autocoder.noise = 0;
+	
     /* set some inputs */
     for (int i = 0; i < no_of_inputs; i++) {
         autocoder_set_input(&autocoder, i, 0.25f + ((i/(float)no_of_inputs)*0.5f));
@@ -114,12 +126,11 @@ static void test_autocoder_update()
     /* some initial updates, because sometimes error initially increases */
     for (int t = 0; t < 100; t++) {
         autocoder_update(&autocoder);
-		printf("%f\n",autocoder.BPerrorPercent);
     }
     float initialErrorPercent = autocoder.BPerrorPercent;
     assert(initialErrorPercent > 0);
     assert(initialErrorPercent < 100);
-    for (int t = 0; t < 500; t++) {
+    for (int t = 0; t < 100; t++) {
         autocoder_update(&autocoder);
     }
     float secondErrorPercent = autocoder.BPerrorPercent;
@@ -131,7 +142,7 @@ static void test_autocoder_update()
     }
     assert(secondErrorPercent < initialErrorPercent);
 
-    for (int t = 0; t < 50; t++) {
+    for (int t = 0; t < 100; t++) {
         autocoder_update(&autocoder);
     }
     float thirdErrorPercent = autocoder.BPerrorPercent;

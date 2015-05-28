@@ -32,7 +32,7 @@ static void test_learn_from_image()
 {
     printf("test_learn_from_image...");
 
-    bp feature_autocoder;
+    ac feature_autocoder;
     unsigned int img_width = 10;
     unsigned int img_height = 10;
     int img_depth = 24/8;
@@ -68,16 +68,15 @@ static void test_learn_from_image()
     int no_of_inputs = samples_across*samples_down*no_of_features;
 
     /* create a network */
-    assert(bp_init_autocoder(&feature_autocoder,
-                             patch_radius*patch_radius*4*img_depth,
-                             no_of_features,
-                             &random_seed) == 0);
+    assert(autocoder_init(&feature_autocoder,
+						  patch_radius*patch_radius*4*img_depth,
+						  no_of_features,
+						  random_seed) == 0);
     assert(feature_autocoder.inputs!=0);
     assert(feature_autocoder.hiddens!=0);
     assert(feature_autocoder.outputs!=0);
-    assert(feature_autocoder.BPerror == DEEPLEARN_UNKNOWN_ERROR);
-    assert(feature_autocoder.BPerrorAverage == DEEPLEARN_UNKNOWN_ERROR);
-    assert(feature_autocoder.BPerrorTotal == DEEPLEARN_UNKNOWN_ERROR);
+    assert(feature_autocoder.BPerror == AUTOCODER_UNKNOWN);
+    assert(feature_autocoder.BPerrorAverage == AUTOCODER_UNKNOWN);
 
     for (i = 0; i < 8; i++) {
         result =
@@ -100,12 +99,12 @@ static void test_learn_from_image()
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] <
            error_value[0] + error_value[1]);
-    bp_plot_weights(&feature_autocoder,
-                    "/tmp/test_features_learn_from_image.png",
-                    480,800,8);
+    autocoder_plot_weights(&feature_autocoder,
+						   "/tmp/test_features_learn_from_image.png",
+						   480,800,8);
 
     /* free the memory */
-    bp_free(&feature_autocoder);
+    autocoder_free(&feature_autocoder);
     free(img);
 
     printf("Ok\n");
@@ -115,7 +114,7 @@ static void test_learn_from_flt()
 {
     printf("test_learn_from_flt...");
 
-    bp feature_autocoder;
+    ac feature_autocoder;
     unsigned int img_width = 10;
     unsigned int img_height = 10;
     int img_depth = 24/8;
@@ -158,16 +157,15 @@ static void test_learn_from_flt()
     int no_of_inputs = samples_across*samples_down*no_of_features;
 
     /* create a network */
-    assert(bp_init_autocoder(&feature_autocoder,
-                             patch_radius*patch_radius*4*img_depth,
-                             no_of_features,
-                             &random_seed) == 0);
+    assert(autocoder_init(&feature_autocoder,
+						  patch_radius*patch_radius*4*img_depth,
+						  no_of_features,
+						  random_seed) == 0);
     assert(feature_autocoder.inputs!=0);
     assert(feature_autocoder.hiddens!=0);
     assert(feature_autocoder.outputs!=0);
-    assert(feature_autocoder.BPerror == DEEPLEARN_UNKNOWN_ERROR);
-    assert(feature_autocoder.BPerrorAverage == DEEPLEARN_UNKNOWN_ERROR);
-    assert(feature_autocoder.BPerrorTotal == DEEPLEARN_UNKNOWN_ERROR);
+    assert(feature_autocoder.BPerror == AUTOCODER_UNKNOWN);
+    assert(feature_autocoder.BPerrorAverage == AUTOCODER_UNKNOWN);
 
     for (i = 0; i < 8; i++) {
         result =
@@ -189,12 +187,12 @@ static void test_learn_from_flt()
 
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
-    bp_plot_weights(&feature_autocoder,
-                    "/tmp/test_features_learn_from_flt.png",
-                    480,800,8);
+    autocoder_plot_weights(&feature_autocoder,
+						   "/tmp/test_features_learn_from_flt.png",
+						   480,800,8);
 
     /* free the memory */
-    bp_free(&feature_autocoder);
+    autocoder_free(&feature_autocoder);
 
     printf("Ok\n");
 }
@@ -212,19 +210,16 @@ static void test_features_conv_img_to_flt()
     int max_features = 20;
     int layer0_units = samples_across*samples_down*max_features;
     float * layer0 = (float*)malloc(layer0_units*sizeof(float));
-    bp feature_autocoder;
+    ac feature_autocoder;
     int no_of_inputs = patch_radius*patch_radius*4*img_depth;
     int no_of_hiddens = max_features;
-    int hidden_layers = 1;
-    int no_of_outputs = no_of_inputs;
     unsigned int random_seed = 2389;
 
     printf("test_features_conv_img_to_flt...");
 
-    assert(bp_init(&feature_autocoder,
-                   no_of_inputs, no_of_hiddens,
-                   hidden_layers, no_of_outputs,
-                   &random_seed) == 0);
+    assert(autocoder_init(&feature_autocoder,
+						  no_of_inputs, no_of_hiddens,
+						  random_seed) == 0);
 
     /* set some input values */
     for (int i = 0; i < img_width*img_height*img_depth; i++) {
@@ -251,10 +246,11 @@ static void test_features_conv_img_to_flt()
     float tot = 0.0f;
     for (int i = 0; i < layer0_units; i++) {
         tot += layer0[i];
+		printf("layer0[i] %f\n",tot);
     }
     assert(tot > 0.0f);
 
-    bp_free(&feature_autocoder);
+    autocoder_free(&feature_autocoder);
     free(img);
     free(layer0);
 

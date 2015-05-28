@@ -35,7 +35,11 @@
 #include <limits.h>
 #include "globals.h"
 #include "deeplearn_random.h"
+#include "deeplearn_images.h"
 #include "backprop_neuron.h"
+
+#define AUTOCODER_UNKNOWN      -9999
+#define AUTOCODER_DROPPED_OUT  -9999
 
 struct autocode {
     int NoOfInputs,NoOfHiddens;
@@ -72,5 +76,11 @@ void autocoder_set_input(ac * autocoder, int index, float value);
 void autocoder_set_inputs(ac * autocoder, float inputs[]);
 float autocoder_get_hidden(ac * autocoder, int index);
 void autocoder_update(ac * autocoder);
+void autocoder_normalise_inputs(ac * autocoder);
+int autocoder_compare(ac * autocoder0, ac * autocoder1);
+int autocoder_plot_weights(ac * autocoder,
+                           char * filename,
+                           int image_width, int image_height,
+                           int input_image_width);
 
 #endif

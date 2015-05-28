@@ -39,6 +39,7 @@
 #include "backprop_neuron.h"
 #include "encoding.h"
 #include "backprop.h"
+#include "autocoder.h"
 #include "deeplearn.h"
 #include "deeplearn_features.h"
 #include "deeplearn_pooling.h"
@@ -46,7 +47,7 @@
 #define PREPROCESS_MAX_LAYERS 100
 
 typedef struct {
-    bp * autocoder;
+    ac * autocoder;
     int units_across, units_down;
     float * convolution;
     int pooling_factor;

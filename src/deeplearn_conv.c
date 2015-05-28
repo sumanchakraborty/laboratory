@@ -110,7 +110,7 @@ int conv_init(int no_of_layers,
         rand_num(random_seed);
 
         /* create an autocoder for feature learning on this layer */
-        conv->layer[i].autocoder = (bp*)malloc(sizeof(bp));
+        conv->layer[i].autocoder = (ac*)malloc(sizeof(ac));
 
         /* the maximum number of learned features is the same
            for each layer */
@@ -128,9 +128,9 @@ int conv_init(int no_of_layers,
             conv_patch_radius(i,conv)*4;
 
         /* initialise the autocoder for this layer */
-        if (bp_init_autocoder(conv->layer[i].autocoder,
-                              patch_pixels*depth, max_features,
-                              random_seed) != 0) {
+        if (autocoder_init(conv->layer[i].autocoder,
+						   patch_pixels*depth, max_features,
+						   *random_seed) != 0) {
             return -3;
         }
 
@@ -158,7 +158,7 @@ void conv_free(deeplearn_conv * conv)
     for (int i = 0; i < conv->no_of_layers; i++) {
         free(conv->layer[i].convolution);
         free(conv->layer[i].pooling);
-        bp_free(conv->layer[i].autocoder);
+        autocoder_free(conv->layer[i].autocoder);
         free(conv->layer[i].autocoder);
     }
 }
@@ -187,11 +187,12 @@ static void conv_update_history(deeplearn_conv * conv)
         conv->history_ctr = 0;
 
         /* show the learned features */
+		/*
         if (conv->current_layer == 0) {
             features_plot_weights(conv->layer[0].autocoder,
                                   "learned_features.png",3,
                                   800, 800);
-        }
+								  }*/
 
         if (conv->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < conv->history_index; i++) {
@@ -704,8 +705,8 @@ int conv_save(FILE * fp, deeplearn_conv * conv)
         return -14;
     }
     for (int i = 0; i < conv->no_of_layers; i++) {
-        bp * net = conv->layer[i].autocoder;
-        if (bp_save(fp, net) != 0) {
+        ac * net = conv->layer[i].autocoder;
+        if (autocoder_save(fp, net) != 0) {
             return -15;
         }
         if (fwrite(&conv->layer[i].units_across,
@@ -795,8 +796,7 @@ int conv_load(FILE * fp, deeplearn_conv * conv)
     free(error_threshold);
 
     for (int i = 0; i < conv->no_of_layers; i++) {
-        if (bp_load(fp, conv->layer[i].autocoder,
-                    &conv->random_seed) != 0) {
+        if (autocoder_load(fp, conv->layer[i].autocoder) != 0) {
             return -17;
         }
         if (fread(&conv->layer[i].units_across,

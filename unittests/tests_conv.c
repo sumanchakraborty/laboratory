@@ -237,8 +237,8 @@ static void test_conv_save_load()
         assert(conv1.error_threshold[i] == conv2.error_threshold[i]);
         if ((conv1.layer[i].autocoder != NULL) &&
             (conv2.layer[i].autocoder != NULL)) {
-            assert(bp_compare(conv1.layer[i].autocoder,
-                              conv2.layer[i].autocoder) == 1);
+            assert(autocoder_compare(conv1.layer[i].autocoder,
+									 conv2.layer[i].autocoder) == 0);
         }
         assert(conv1.layer[i].units_across == conv2.layer[i].units_across);
         assert(conv1.layer[i].units_down == conv2.layer[i].units_down);

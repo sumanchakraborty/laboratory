@@ -39,6 +39,7 @@
 #include "backprop_neuron.h"
 #include "encoding.h"
 #include "backprop.h"
+#include "autocoder.h"
 
 /* learning of features */
 int features_patch_coords(int x, int y,
@@ -56,7 +57,7 @@ int features_learn_from_img(int samples_across,
                             int img_depth,
                             unsigned char img[],
                             int layer0_units,
-                            bp * feature_autocoder,
+                            ac * feature_autocoder,
                             float * BPerror);
 
 int features_learn_from_flt(int samples_across,
@@ -67,7 +68,7 @@ int features_learn_from_flt(int samples_across,
                             int inputs_depth,
                             float inputs_floats[],
                             int layer0_units,
-                            bp * feature_autocoder,
+                            ac * feature_autocoder,
                             float * BPerror);
 
 int features_conv_img_to_neurons(int samples_across,
@@ -78,7 +79,7 @@ int features_conv_img_to_neurons(int samples_across,
                                    int img_depth,
                                    unsigned char img[],
                                    bp * net,
-                                   bp * feature_autocoder);
+                                   ac * feature_autocoder);
 
 int features_conv_img_to_flt(int samples_across,
                              int samples_down,
@@ -89,7 +90,7 @@ int features_conv_img_to_flt(int samples_across,
                              unsigned char img[],
                              int layer0_units,
                              float layer0[],
-                             bp * feature_autocoder);
+                             ac * feature_autocoder);
 
 int features_conv_flt_to_flt(int samples_across,
                              int samples_down,
@@ -100,7 +101,7 @@ int features_conv_flt_to_flt(int samples_across,
                              float layer0[],
                              int layer1_units,
                              float layer1[],
-                             bp * feature_autocoder);
+                             ac * feature_autocoder);
 
 int features_conv_floats_to_neurons(int samples_across,
                                     int samples_down,
@@ -110,7 +111,7 @@ int features_conv_floats_to_neurons(int samples_across,
                                     int floats_depth,
                                     float layer0[],
                                     bp * net,
-                                    bp * feature_autocoder);
+                                    ac * feature_autocoder);
 int features_plot_weights(bp * net,
                           char * filename,
                           int input_img_depth,

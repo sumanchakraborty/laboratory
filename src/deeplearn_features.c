@@ -43,7 +43,7 @@
 static int scan_img_patch(unsigned char img[],
                           int img_width, int img_depth,
                           int tx, int ty, int bx, int by,
-                          bp * feature_autocoder)
+                          ac * feature_autocoder)
 {
     int index_feature_input = 0;
     for (int y = ty; y < by; y++) {
@@ -55,13 +55,13 @@ static int scan_img_patch(unsigned char img[],
                 /* convert from 8 bit to a neuron value */
                 float v =
                     0.25f + (img[index_img+d]/(2*255.0f));
-                bp_set_input(feature_autocoder,
-                             index_feature_input, v);
+                autocoder_set_input(feature_autocoder,
+									index_feature_input, v);
             }
         }
     }
 
-	bp_normalise_inputs(feature_autocoder);
+	autocoder_normalise_inputs(feature_autocoder);
 
     /* check that the patch size is the same as the autocoder inputs */
     if (index_feature_input != feature_autocoder->NoOfInputs) {
@@ -85,7 +85,7 @@ static int scan_img_patch(unsigned char img[],
 static int scan_floats_patch(float inputs_floats[],
                              int inputs_width, int inputs_depth,
                              int tx, int ty, int bx, int by,
-                             bp * feature_autocoder)
+                             ac * feature_autocoder)
 {
     int index_feature_input = 0;
     for (int y = ty; y < by; y++) {
@@ -95,9 +95,9 @@ static int scan_floats_patch(float inputs_floats[],
             for (int d = 0; d < inputs_depth;
                  d++, index_feature_input++) {
                 /* set the inputs of the autocoder */
-                bp_set_input(feature_autocoder,
-                             index_feature_input,
-                             inputs_floats[index_inputs+d]);
+                autocoder_set_input(feature_autocoder,
+									index_feature_input,
+									inputs_floats[index_inputs+d]);
             }
         }
     }
@@ -169,7 +169,7 @@ int features_learn_from_img(int samples_across,
                             int img_depth,
                             unsigned char img[],
                             int layer0_units,
-                            bp * feature_autocoder,
+                            ac * feature_autocoder,
                             float * BPerror)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
@@ -191,12 +191,6 @@ int features_learn_from_img(int samples_across,
         return -2;
     }
 
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
-    }
-
     for (int fy = 0; fy < samples_down; fy++) {
         for (int fx = 0; fx < samples_across; fx++) {
             int tx=0, ty=0, bx=0, by=0;
@@ -214,7 +208,7 @@ int features_learn_from_img(int samples_across,
                 return -4;
             }
 
-            bp_update_autocoder(feature_autocoder);
+            autocoder_update(feature_autocoder);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
@@ -247,7 +241,7 @@ int features_learn_from_flt(int samples_across,
                             int inputs_depth,
                             float inputs_floats[],
                             int layer0_units,
-                            bp * feature_autocoder,
+                            ac * feature_autocoder,
                             float * BPerror)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
@@ -264,12 +258,6 @@ int features_learn_from_flt(int samples_across,
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
-    }
-
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
@@ -290,7 +278,7 @@ int features_learn_from_flt(int samples_across,
                 return -4;
             }
 
-            bp_update_autocoder(feature_autocoder);
+            autocoder_update(feature_autocoder);
             *BPerror = *BPerror + feature_autocoder->BPerror;
         }
     }
@@ -324,7 +312,7 @@ int features_conv_img_to_neurons(int samples_across,
                                  int img_depth,
                                  unsigned char img[],
                                  bp * net,
-                                 bp * feature_autocoder)
+                                 ac * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -339,12 +327,6 @@ int features_conv_img_to_neurons(int samples_across,
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
-    }
-
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
@@ -365,13 +347,13 @@ int features_conv_img_to_neurons(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 0);
+            autocoder_feed_forward(feature_autocoder);
             int index_input_layer =
                 (fy * samples_across + fx) *
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 bp_set_input(net, index_input_layer+f,
-                             bp_get_hidden(feature_autocoder, 0, f));
+                             autocoder_get_hidden(feature_autocoder, f));
             }
         }
     }
@@ -404,7 +386,7 @@ int features_conv_img_to_flt(int samples_across,
                              unsigned char img[],
                              int layer0_units,
                              float layer0[],
-                             bp * feature_autocoder)
+                             ac * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -419,12 +401,6 @@ int features_conv_img_to_flt(int samples_across,
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
-    }
-
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
@@ -451,10 +427,11 @@ int features_conv_img_to_flt(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 1);
+            autocoder_feed_forward(feature_autocoder);
             for (int f = 0; f < no_of_learned_features; f++) {
-                layer0[index_layer0+f] =
-                    bp_get_hidden(feature_autocoder, 0, f);
+				float v = autocoder_get_hidden(feature_autocoder, f);
+				if (v == AUTOCODER_DROPOUT) continue;
+                layer0[index_layer0+f] = v;
             }
         }
     }
@@ -484,7 +461,7 @@ int features_conv_flt_to_flt(int samples_across,
                              float layer0[],
                              int layer1_units,
                              float layer1[],
-                             bp * feature_autocoder)
+                             ac * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -499,12 +476,6 @@ int features_conv_flt_to_flt(int samples_across,
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
-    }
-
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
@@ -531,10 +502,10 @@ int features_conv_flt_to_flt(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 1);
+            autocoder_feed_forward(feature_autocoder);
             for (int f = 0; f < no_of_learned_features; f++) {
                 layer1[index_layer1+f] =
-                    bp_get_hidden(feature_autocoder, 0, f);
+                    autocoder_get_hidden(feature_autocoder, f);
             }
         }
     }
@@ -564,7 +535,7 @@ int features_conv_floats_to_neurons(int samples_across,
                                     int floats_depth,
                                     float layer0[],
                                     bp * net,
-                                    bp * feature_autocoder)
+                                    ac * feature_autocoder)
 {
     int no_of_learned_features = feature_autocoder->NoOfHiddens;
 
@@ -579,12 +550,6 @@ int features_conv_floats_to_neurons(int samples_across,
         /* the patch size doesn't match the feature
            learner inputs */
         return -2;
-    }
-
-    if (feature_autocoder->NoOfInputs !=
-        feature_autocoder->NoOfOutputs) {
-        /* same number of inputs and outputs */
-        return -3;
     }
 
     for (int fy = 0; fy < samples_down; fy++) {
@@ -605,13 +570,13 @@ int features_conv_floats_to_neurons(int samples_across,
                 return -4;
             }
 
-            bp_feed_forward_layers(feature_autocoder, 1);
+            autocoder_feed_forward(feature_autocoder);
             int index_net_inputs =
                 (fy * samples_across + fx) *
                 no_of_learned_features;
             for (int f = 0; f < no_of_learned_features; f++) {
                 bp_set_input(net, index_net_inputs+f,
-                             bp_get_hidden(feature_autocoder, 0, f));
+ autocoder_get_hidden(feature_autocoder, f));
             }
         }
     }
