@@ -123,13 +123,13 @@ void autocoder_free(ac * autocoder)
 void autocoder_encode(ac * autocoder, float * encoded, unsigned char use_dropouts)
 {
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-		if (use_dropouts != 0) {
-			if (rand_num(&autocoder->random_seed)%10000 <
-				autocoder->DropoutPercent*100) {
-				autocoder->hiddens[h] = (int)AUTOCODER_DROPPED_OUT;
-				continue;
-			}
-		}
+        if (use_dropouts != 0) {
+            if (rand_num(&autocoder->random_seed)%10000 <
+                autocoder->DropoutPercent*100) {
+                autocoder->hiddens[h] = (int)AUTOCODER_DROPPED_OUT;
+                continue;
+            }
+        }
 
         /* weighted sum of inputs */
         float adder = autocoder->bias[h];
@@ -186,8 +186,8 @@ void autocoder_decode(ac * autocoder, float * decoded)
 */
 void autocoder_feed_forward(ac * autocoder)
 {
-	autocoder_encode(autocoder, autocoder->hiddens,1);
-	autocoder_decode(autocoder, autocoder->outputs);
+    autocoder_encode(autocoder, autocoder->hiddens,1);
+    autocoder_decode(autocoder, autocoder->outputs);
 }
 
 /**
@@ -294,32 +294,32 @@ int autocoder_save(FILE * fp, ac * autocoder)
     if (fwrite(&autocoder->NoOfHiddens, sizeof(int), 1, fp) == 0) {
         return -2;
     }
-    if (fwrite(&autocoder->DropoutPercent, sizeof(float), 1, fp) == 0) {
+    if (fwrite(&autocoder->random_seed, sizeof(unsigned int), 1, fp) == 0) {
         return -3;
+    }
+    if (fwrite(&autocoder->DropoutPercent, sizeof(float), 1, fp) == 0) {
+        return -4;
     }
     if (fwrite(autocoder->weights, sizeof(float),
                autocoder->NoOfInputs*autocoder->NoOfHiddens, fp) == 0) {
-        return -4;
+        return -5;
     }
     if (fwrite(autocoder->lastWeightChange, sizeof(float),
                autocoder->NoOfInputs*autocoder->NoOfHiddens, fp) == 0) {
-        return -5;
+        return -6;
     }
     if (fwrite(autocoder->bias, sizeof(float),
                autocoder->NoOfHiddens, fp) == 0) {
-        return -6;
+        return -7;
     }
     if (fwrite(autocoder->lastBiasChange, sizeof(float),
                autocoder->NoOfHiddens, fp) == 0) {
-        return -7;
-    }
-    if (fwrite(&autocoder->learningRate, sizeof(float), 1, fp) == 0) {
         return -8;
     }
-    if (fwrite(&autocoder->noise, sizeof(float), 1, fp) == 0) {
+    if (fwrite(&autocoder->learningRate, sizeof(float), 1, fp) == 0) {
         return -9;
     }
-    if (fwrite(&autocoder->random_seed, sizeof(unsigned int), 1, fp) == 0) {
+    if (fwrite(&autocoder->noise, sizeof(float), 1, fp) == 0) {
         return -10;
     }
     if (fwrite(&autocoder->itterations, sizeof(unsigned int), 1, fp) == 0) {
@@ -336,42 +336,55 @@ int autocoder_save(FILE * fp, ac * autocoder)
 */
 int autocoder_load(FILE * fp, ac * autocoder)
 {
-    if (fread(&autocoder->NoOfInputs, sizeof(int), 1, fp) == 0) {
+    int no_of_inputs = 0;
+    int no_of_hiddens = 0;
+    unsigned int random_seed = 0;
+                   
+    if (fread(&no_of_inputs, sizeof(int), 1, fp) == 0) {
         return -1;
     }
-    if (fread(&autocoder->NoOfHiddens, sizeof(int), 1, fp) == 0) {
+    if (fread(&no_of_hiddens, sizeof(int), 1, fp) == 0) {
         return -2;
     }
-    if (fread(&autocoder->DropoutPercent, sizeof(float), 1, fp) == 0) {
+    if (fread(&random_seed, sizeof(unsigned int), 1, fp) == 0) {
         return -3;
     }
+
+    /* create the autocoder */
+    if (autocoder_init(autocoder,
+                       no_of_inputs,
+                       no_of_hiddens,
+                       random_seed) != 0) {
+        return -4;
+    }
+
+    if (fread(&autocoder->DropoutPercent, sizeof(float), 1, fp) == 0) {
+        return -5;
+    }   
     if (fread(autocoder->weights, sizeof(float),
               autocoder->NoOfInputs*autocoder->NoOfHiddens, fp) == 0) {
-        return -4;
+        return -6;
     }
     if (fread(autocoder->lastWeightChange, sizeof(float),
               autocoder->NoOfInputs*autocoder->NoOfHiddens, fp) == 0) {
-        return -5;
+        return -7;
     }
     if (fread(autocoder->bias, sizeof(float),
               autocoder->NoOfHiddens, fp) == 0) {
-        return -6;
+        return -8;
     }
     if (fread(autocoder->lastBiasChange, sizeof(float),
               autocoder->NoOfHiddens, fp) == 0) {
-        return -7;
-    }
-    if (fread(&autocoder->learningRate, sizeof(float), 1, fp) == 0) {
-        return -8;
-    }
-    if (fread(&autocoder->noise, sizeof(float), 1, fp) == 0) {
         return -9;
     }
-    if (fread(&autocoder->random_seed, sizeof(unsigned int), 1, fp) == 0) {
+    if (fread(&autocoder->learningRate, sizeof(float), 1, fp) == 0) {
         return -10;
     }
-    if (fread(&autocoder->itterations, sizeof(unsigned int), 1, fp) == 0) {
+    if (fread(&autocoder->noise, sizeof(float), 1, fp) == 0) {
         return -11;
+    }
+    if (fread(&autocoder->itterations, sizeof(unsigned int), 1, fp) == 0) {
+        return -12;
     }
     return 0;
 }
