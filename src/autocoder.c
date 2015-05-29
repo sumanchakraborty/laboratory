@@ -233,6 +233,11 @@ void autocoder_backprop(ac * autocoder)
             (autocoder->BPerrorPercent*0.999f) +
             (errorPercent*0.001f);
     }
+
+    /* increment the number of training itterations */
+    if (autocoder->itterations < UINT_MAX) {
+        autocoder->itterations++;
+    }
 }
 
 /**
