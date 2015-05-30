@@ -831,7 +831,7 @@ int deeplearn_load(FILE * fp, deeplearn * learner,
     }
     for (int i = 0; i < learner->net->HiddenLayers; i++) {
         learner->autocoder[i] = (ac*)malloc(sizeof(ac));
-        if (autocoder_load(fp, learner->autocoder[i]) != 0) {
+        if (autocoder_load(fp, learner->autocoder[i], 1) != 0) {
             return -9;
         }
     }

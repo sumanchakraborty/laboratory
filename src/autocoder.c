@@ -337,14 +337,15 @@ int autocoder_save(FILE * fp, ac * autocoder)
 * @brief Load an autocoder from file
 * @param fp Pointer to the file
 * @param autocoder Autocoder object
+* @param initialise Whether to initialise
 * @return zero on success
 */
-int autocoder_load(FILE * fp, ac * autocoder)
+int autocoder_load(FILE * fp, ac * autocoder, int initialise)
 {
     int no_of_inputs = 0;
     int no_of_hiddens = 0;
     unsigned int random_seed = 0;
-                   
+
     if (fread(&no_of_inputs, sizeof(int), 1, fp) == 0) {
         return -1;
     }
@@ -356,16 +357,23 @@ int autocoder_load(FILE * fp, ac * autocoder)
     }
 
     /* create the autocoder */
-    if (autocoder_init(autocoder,
-                       no_of_inputs,
-                       no_of_hiddens,
-                       random_seed) != 0) {
-        return -4;
+    if (initialise != 0) {
+        if (autocoder_init(autocoder,
+                           no_of_inputs,
+                           no_of_hiddens,
+                           random_seed) != 0) {
+            return -4;
+        }
+    }
+    else {
+        autocoder->NoOfInputs = no_of_inputs;
+        autocoder->NoOfHiddens = no_of_hiddens;
+        autocoder->random_seed = random_seed;
     }
 
     if (fread(&autocoder->DropoutPercent, sizeof(float), 1, fp) == 0) {
         return -5;
-    }   
+    }
     if (fread(autocoder->weights, sizeof(float),
               autocoder->NoOfInputs*autocoder->NoOfHiddens, fp) == 0) {
         return -6;
@@ -480,10 +488,10 @@ int autocoder_compare(ac * autocoder0, ac * autocoder1)
         if (autocoder0->bias[h] != autocoder1->bias[h]) {
             return -3;
         }
-        for (int i = 0; i < autocoder0->NoOfInputs; i++) {
-            if (autocoder0->inputs[h*autocoder0->NoOfInputs + i] != autocoder1->inputs[h*autocoder1->NoOfInputs + i]) {
-                return -4;
-            }
+    }
+    for (int i = 0; i < autocoder0->NoOfInputs*autocoder0->NoOfHiddens; i++) {
+        if (autocoder0->weights[i] != autocoder1->weights[i]) {
+            return -4;
         }
     }
     return 0;

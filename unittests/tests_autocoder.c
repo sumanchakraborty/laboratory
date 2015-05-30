@@ -50,7 +50,7 @@ static void test_autocoder_init()
         assert(autocoder.bias[h] > -0.3f);
         assert(autocoder.bias[h] < 0.3f);
     }
-	
+
     autocoder_free(&autocoder);
 
     printf("Ok\n");
@@ -84,7 +84,7 @@ static void test_autocoder_save_load()
 
     fp = fopen("/tmp/autocoder_test.dat","r");
     assert(fp);
-    assert(autocoder_load(fp, &autocoder_loaded)==0);
+    assert(autocoder_load(fp, &autocoder_loaded, 0)==0);
     fclose(fp);
 
     for (int i = 0; i < no_of_inputs*no_of_hiddens; i++) {
@@ -115,9 +115,9 @@ static void test_autocoder_update()
                           no_of_inputs,
                           no_of_hiddens,
                           random_seed) == 0);
-	autocoder.DropoutPercent = 0.1f;
+    autocoder.DropoutPercent = 0.1f;
     autocoder.noise = 0;
-	
+
     /* set some inputs */
     for (int i = 0; i < no_of_inputs; i++) {
         autocoder_set_input(&autocoder, i, 0.25f + ((i/(float)no_of_inputs)*0.5f));

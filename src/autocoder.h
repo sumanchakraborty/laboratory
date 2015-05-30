@@ -70,7 +70,7 @@ void autocoder_feed_forward(ac * autocoder);
 void autocoder_backprop(ac * autocoder);
 void autocoder_learn(ac * autocoder);
 int autocoder_save(FILE * fp, ac * autocoder);
-int autocoder_load(FILE * fp, ac * autocoder);
+int autocoder_load(FILE * fp, ac * autocoder, int initialise);
 void autocoder_set_input(ac * autocoder, int index, float value);
 void autocoder_set_inputs(ac * autocoder, float inputs[]);
 float autocoder_get_hidden(ac * autocoder, int index);

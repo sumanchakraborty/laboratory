@@ -796,7 +796,7 @@ int conv_load(FILE * fp, deeplearn_conv * conv)
     free(error_threshold);
 
     for (int i = 0; i < conv->no_of_layers; i++) {
-        if (autocoder_load(fp, conv->layer[i].autocoder) != 0) {
+        if (autocoder_load(fp, conv->layer[i].autocoder, 0) != 0) {
             return -17;
         }
         if (fread(&conv->layer[i].units_across,

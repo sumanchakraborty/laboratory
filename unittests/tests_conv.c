@@ -213,6 +213,7 @@ static void test_conv_save_load()
     conv2.current_layer = 4577;
     conv2.training_complete = 3;
     conv2.itterations = 642;
+    conv2.layer[0].autocoder=NULL;
 
     /* load */
     fp = fopen(filename,"r");
@@ -221,6 +222,13 @@ static void test_conv_save_load()
     fclose(fp);
 
     /* compare the results */
+    assert(conv2.layer[0].autocoder != NULL);
+    assert(conv2.layer[0].autocoder->inputs != NULL);
+    assert(conv2.layer[0].autocoder->hiddens != NULL);
+    assert(conv1.layer[0].autocoder->NoOfInputs ==
+           conv2.layer[0].autocoder->NoOfInputs);
+    assert(conv1.layer[0].autocoder->NoOfHiddens ==
+           conv2.layer[0].autocoder->NoOfHiddens);
     assert(conv1.reduction_factor == conv2.reduction_factor);
     assert(conv1.pooling_factor == conv2.pooling_factor);
     assert(conv1.random_seed != conv2.random_seed);
@@ -234,11 +242,18 @@ static void test_conv_save_load()
     assert(conv1.training_complete == conv2.training_complete);
     assert(conv1.itterations == conv2.itterations);
     for (i = 0; i < conv1.no_of_layers; i++) {
+        for (int j = 0; j < conv1.layer[i].autocoder->NoOfInputs*
+                 conv1.layer[i].autocoder->NoOfHiddens; j++) {
+            assert(conv1.layer[i].autocoder->weights[j] > -0.3f);
+            assert(conv1.layer[i].autocoder->weights[j] < 0.3f);
+            assert(conv2.layer[i].autocoder->weights[j] > -0.3f);
+            assert(conv2.layer[i].autocoder->weights[j] < 0.3f);
+        }
         assert(conv1.error_threshold[i] == conv2.error_threshold[i]);
         if ((conv1.layer[i].autocoder != NULL) &&
             (conv2.layer[i].autocoder != NULL)) {
             assert(autocoder_compare(conv1.layer[i].autocoder,
-									 conv2.layer[i].autocoder) == 0);
+                                     conv2.layer[i].autocoder) == 0);
         }
         assert(conv1.layer[i].units_across == conv2.layer[i].units_across);
         assert(conv1.layer[i].units_down == conv2.layer[i].units_down);
