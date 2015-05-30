@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
     int no_of_outputs = 1;
     int output_field_index[] = { 1 };
-    float error_threshold_percent[] = { 1.6f, 1.6f, 3.0f, 3.0f };
+    float error_threshold_percent[] = { 1.6f, 1.6f, 3.5f, 3.0f };
     unsigned int random_seed = 123;
 
     /* load the data */
@@ -66,9 +66,9 @@ int main(int argc, char* argv[])
     deeplearn_set_learning_rate(&learner, 0.2f);
 
     /* set percentage of dropouts */
-    deeplearn_set_dropouts(&learner, 0.001f);
+    deeplearn_set_dropouts(&learner, 2.0f);
 
-    learner.history_plot_interval = 50000;
+    learner.history_plot_interval = 500000;
 
     sprintf(learner.history_plot_title,"%s",TITLE);
 

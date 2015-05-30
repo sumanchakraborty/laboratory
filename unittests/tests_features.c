@@ -69,9 +69,9 @@ static void test_learn_from_image()
 
     /* create a network */
     assert(autocoder_init(&feature_autocoder,
-						  patch_radius*patch_radius*4*img_depth,
-						  no_of_features,
-						  random_seed) == 0);
+                          patch_radius*patch_radius*4*img_depth,
+                          no_of_features,
+                          random_seed) == 0);
     assert(feature_autocoder.inputs!=0);
     assert(feature_autocoder.hiddens!=0);
     assert(feature_autocoder.outputs!=0);
@@ -100,8 +100,8 @@ static void test_learn_from_image()
     assert(error_value[6] + error_value[7] <
            error_value[0] + error_value[1]);
     autocoder_plot_weights(&feature_autocoder,
-						   "/tmp/test_features_learn_from_image.png",
-						   480,800,8);
+                           "/tmp/test_features_learn_from_image.png",
+                           480,800,8);
 
     /* free the memory */
     autocoder_free(&feature_autocoder);
@@ -120,7 +120,6 @@ static void test_learn_from_flt()
     int img_depth = 24/8;
     int result,i = 0;
     unsigned int random_seed = 123;
-    float error_value[10];
     unsigned int bitsperpixel = 0;
     unsigned char * img, * img2;
     float flt[128*128*3];
@@ -158,16 +157,20 @@ static void test_learn_from_flt()
 
     /* create a network */
     assert(autocoder_init(&feature_autocoder,
-						  patch_radius*patch_radius*4*img_depth,
-						  no_of_features,
-						  random_seed) == 0);
+                          patch_radius*patch_radius*4*img_depth,
+                          no_of_features,
+                          random_seed) == 0);
     assert(feature_autocoder.inputs!=0);
     assert(feature_autocoder.hiddens!=0);
     assert(feature_autocoder.outputs!=0);
     assert(feature_autocoder.BPerror == AUTOCODER_UNKNOWN);
     assert(feature_autocoder.BPerrorAverage == AUTOCODER_UNKNOWN);
 
-    for (i = 0; i < 8; i++) {
+    float errorval[2];
+    errorval[0]=0;
+    errorval[1]=0;
+
+    for (i = 0; i < 20; i++) {
         result =
             features_learn_from_flt(samples_across,
                                     samples_down,
@@ -182,14 +185,19 @@ static void test_learn_from_flt()
             printf("\nresult = %d\n",result);
         }
         assert(result==0);
-        error_value[i] = BPerror;
+        if (i < 10) {
+            errorval[0] += fabs(BPerror);
+        }
+        else {
+            errorval[1] += fabs(BPerror);
+        }
     }
 
     /* check that the training error reduced */
-    assert(error_value[6] + error_value[7] < error_value[0] + error_value[1]);
+    assert(errorval[1] < errorval[0]);
     autocoder_plot_weights(&feature_autocoder,
-						   "/tmp/test_features_learn_from_flt.png",
-						   480,800,8);
+                           "/tmp/test_features_learn_from_flt.png",
+                           480,800,8);
 
     /* free the memory */
     autocoder_free(&feature_autocoder);
@@ -218,8 +226,8 @@ static void test_features_conv_img_to_flt()
     printf("test_features_conv_img_to_flt...");
 
     assert(autocoder_init(&feature_autocoder,
-						  no_of_inputs, no_of_hiddens,
-						  random_seed) == 0);
+                          no_of_inputs, no_of_hiddens,
+                          random_seed) == 0);
 
     /* set some input values */
     for (int i = 0; i < img_width*img_height*img_depth; i++) {

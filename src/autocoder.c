@@ -161,9 +161,9 @@ void autocoder_decode(ac * autocoder, float * decoded)
         /* weighted sum of hidden inputs */
         float adder = 0;
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
-                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+            if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT)
                 continue;
+
             adder +=
                 autocoder->weights[h*autocoder->NoOfInputs + i] *
                 autocoder->hiddens[h];
@@ -208,9 +208,9 @@ void autocoder_backprop(ac * autocoder)
         errorPercent += fabs(BPerror);
         float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
-                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+            if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT)
                 continue;
+
             autocoder->bperr[h] +=
                 BPerror * afact * autocoder->weights[h*autocoder->NoOfInputs + i];
         }
@@ -253,9 +253,9 @@ void autocoder_learn(ac * autocoder)
         float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
         float gradient = afact * BPerror;
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-            if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
-                (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+            if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT)
                 continue;
+
             int n = h*autocoder->NoOfInputs + i;
             autocoder->lastWeightChange[n] =
                 e * (autocoder->lastWeightChange[n] + 1) *
@@ -267,9 +267,9 @@ void autocoder_learn(ac * autocoder)
     /* weights between hiddens and inputs */
     e = autocoder->learningRate / (1.0f + autocoder->NoOfInputs);
     for (int h = 0; h < autocoder->NoOfHiddens; h++) {
-        if ((autocoder->hiddens[h] < AUTOCODER_DROPPED_OUT-1) &&
-            (autocoder->hiddens[h] > AUTOCODER_DROPPED_OUT+1))
+        if (autocoder->hiddens[h] == AUTOCODER_DROPPED_OUT)
             continue;
+
         float afact = autocoder->hiddens[h] * (1.0f - autocoder->hiddens[h]);
         float BPerror = autocoder->bperr[h];
         float gradient = afact * BPerror;
