@@ -278,7 +278,7 @@ static void test_update_img()
 
     assert(deepconvnet_plot_features(&convnet, 0,
                                      "/tmp/features.png",
-                                     640, 640)==0);
+                                     640, 640) == 0);
 
     deepconvnet_free(&convnet);
     free(img);

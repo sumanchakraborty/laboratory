@@ -171,8 +171,7 @@ static void deepconvnet_update_history(deepconvnet * convnet)
             error_value = 0;
         }
 
-        convnet->history[convnet->history_index] =
-            error_value;
+        convnet->history[convnet->history_index] = error_value;
         convnet->history_index++;
         convnet->history_ctr = 0;
 

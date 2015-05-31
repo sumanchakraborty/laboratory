@@ -204,7 +204,7 @@ void autocoder_backprop(ac * autocoder)
     float errorPercent = 0;
     for (int i = 0; i < autocoder->NoOfInputs; i++) {
         float BPerror = autocoder->inputs[i] - autocoder->outputs[i];
-        autocoder->BPerror += BPerror;
+        autocoder->BPerror += fabs(BPerror);
         errorPercent += fabs(BPerror);
         float afact = autocoder->outputs[i] * (1.0f - autocoder->outputs[i]);
         for (int h = 0; h < autocoder->NoOfHiddens; h++) {
