@@ -476,7 +476,7 @@ float deepconvnet_get_performance(deepconvnet * convnet)
         int index = convnet->test_set_index[i];
         unsigned char * img = convnet->images[index];
         deepconvnet_update_img(convnet, img, -1);
-		/*
+        /*
         printf("\n1. ");
         for (int j = 0; j < convnet->learner->net->NoOfOutputs; j++) {
             printf("%.4f\t", deepconvnet_get_output(convnet, j));
@@ -491,7 +491,7 @@ float deepconvnet_get_performance(deepconvnet * convnet)
             }
         }
         printf("\n");
-		*/
+        */
         if (deeplearn_get_class(convnet->learner) ==
             convnet->classification_number[index]) {
             performance += 100.0f;
@@ -605,5 +605,41 @@ int deepconvnet_read_images(char * directory,
         return -3;
     }
 
+    return 0;
+}
+
+/**
+* @brief Plots the features learned for a given convolution layer
+* @param convnet Deep convnet object
+* @param layer_index Index number of the convolution layer
+* @param filename Filename to save the image as (must be PNG format)
+* @param img_width Image width
+* @param img_height Image height
+* @return zero on success
+*/
+int deepconvnet_plot_features(deepconvnet * convnet,
+                              int layer_index,
+                              char * filename,
+                              int img_width, int img_height)
+{
+    unsigned char * img;
+
+     /* allocate memory for the image */
+    img = (unsigned char*)malloc(img_width*img_height*3*sizeof(unsigned char));
+    if (!img) {
+        return -1;
+    }
+
+    int retval =
+        conv_plot_features(convnet->convolution,
+                           layer_index, img, img_width, img_height);
+    if (retval != 0) return retval;
+
+    deeplearn_write_png_file(filename,
+                             (unsigned int)img_width,
+                             (unsigned int)img_height,
+                             24, img);
+
+    free(img);
     return 0;
 }

@@ -64,7 +64,7 @@ typedef struct {
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;
 
-	/* array index numbers for training and test set */
+    /* array index numbers for training and test set */
     int * training_set_index;
     int * test_set_index;
 } deepconvnet;
@@ -106,5 +106,9 @@ void deepconvnet_set_output(deepconvnet * convnet, int index, float value);
 float deepconvnet_get_output(deepconvnet * convnet, int index);
 void deepconvnet_set_class(deepconvnet * convnet, int class_number);
 int deepconvnet_get_class(deepconvnet * convnet);
+int deepconvnet_plot_features(deepconvnet * convnet,
+                              int layer_index,
+                              char * filename,
+                              int img_width, int img_height);
 
 #endif

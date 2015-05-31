@@ -78,8 +78,10 @@ void autocoder_update(ac * autocoder);
 void autocoder_normalise_inputs(ac * autocoder);
 int autocoder_compare(ac * autocoder0, ac * autocoder1);
 int autocoder_plot_weights(ac * autocoder,
-                           char * filename,
-                           int image_width, int image_height,
-                           int input_image_width);
+                           int feature_index,
+                           int patch_radius, int patch_depth,
+                           int img_tx, int img_ty, int img_bx, int img_by,
+                           unsigned char img[],
+                           int img_width, int img_height);
 
 #endif

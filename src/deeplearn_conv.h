@@ -116,5 +116,8 @@ float get_conv_output(deeplearn_conv * conv, int index);
 int conv_outputs(deeplearn_conv * conv);
 void conv_set_learning_rate(deeplearn_conv * conv, float rate);
 void conv_set_dropouts(deeplearn_conv * conv, float dropout_percent);
+int conv_plot_features(deeplearn_conv * conv, int layer_index,
+                       unsigned char img[],
+                       int img_width, int img_height);
 
 #endif

@@ -99,9 +99,6 @@ static void test_learn_from_image()
     /* check that the training error reduced */
     assert(error_value[6] + error_value[7] <
            error_value[0] + error_value[1]);
-    autocoder_plot_weights(&feature_autocoder,
-                           "/tmp/test_features_learn_from_image.png",
-                           480,800,8);
 
     /* free the memory */
     autocoder_free(&feature_autocoder);
@@ -195,9 +192,6 @@ static void test_learn_from_flt()
 
     /* check that the training error reduced */
     assert(errorval[1] < errorval[0]);
-    autocoder_plot_weights(&feature_autocoder,
-                           "/tmp/test_features_learn_from_flt.png",
-                           480,800,8);
 
     /* free the memory */
     autocoder_free(&feature_autocoder);

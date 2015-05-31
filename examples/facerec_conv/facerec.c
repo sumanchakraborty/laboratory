@@ -82,7 +82,7 @@ static void facerec_training()
 
     deepconvnet_set_learning_rate(&convnet, 0.2f);
 
-    deepconvnet_set_dropouts(&convnet, 0.001f);
+    deepconvnet_set_dropouts(&convnet, 2.0f);
 
     convnet.history_plot_interval = 200;
 

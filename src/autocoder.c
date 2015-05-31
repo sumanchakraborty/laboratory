@@ -498,42 +498,69 @@ int autocoder_compare(ac * autocoder0, ac * autocoder1)
 }
 
 /**
-* @brief Plots weight matrices within an image
+* @brief Plots weight values within an image
 * @param autocoder Autocoder object
-* @param filename Filename of the image to save as
-* @param image_width Width of the image in pixels
-* @param image_height Height of the image in pixels
-* @param input_image_width When displaying all inputs as an image this
-         is the number of inputs across.  Set this to zero for the
-         inputs image to be square.
+* @param feature_index Index number of the hidden (encoder) unit
+* @param patch_radius Radius of the patch in the input layer of a
+*        convolution system
+* @param patch depth Depth of the input layer of a convolution system
+* @param img_tx Top x coordinate for where to draw the weights
+* @param img_ty Top y coordinate for where to draw the weights
+* @param img_bx Bottom x coordinate for where to draw the weights
+* @param img_by Bottom y coordinate for where to draw the weights
+* @param img Image array (3 bytes per pixel)
+* @param img_width Width of the image
+* @param img_height Height of the image
+* @return zero on success
 */
 int autocoder_plot_weights(ac * autocoder,
-                           char * filename,
-                           int image_width, int image_height,
-                           int input_image_width)
+                           int feature_index,
+                           int patch_radius, int patch_depth,
+                           int img_tx, int img_ty, int img_bx, int img_by,
+                           unsigned char img[],
+                           int img_width, int img_height)
 {
-    unsigned char * img;
+    int img_y_range = img_by - img_ty;
+    int img_x_range = img_bx - img_tx;
+    int patch_width = patch_radius*2;
+    int no_of_weights = patch_width*patch_width*patch_depth;
 
-    /* allocate memory for the image */
-    img = (unsigned char*)malloc(image_width*image_height*3*
-                                 sizeof(unsigned char));
-    if (!img) {
+    /* check that the number of inputs matches the expected patch size */
+    if (autocoder->NoOfInputs != no_of_weights) {
         return -1;
     }
 
-    /* clear the image with a white background */
-    memset((void*)img,'\255',image_width*image_height*3*
-           sizeof(unsigned char));
+    float min_weight = autocoder->weights[0];
+    float max_weight = min_weight;
+    int start_index = feature_index*no_of_weights;
+    for (int i = start_index; i < start_index + no_of_weights; i++) {
+        if (autocoder->weights[i] < min_weight) {
+            min_weight = autocoder->weights[i];
+        }
+        if (autocoder->weights[i] > max_weight) {
+            max_weight = autocoder->weights[i];
+        }
+    }
 
-    /* TODO */
+    float weight_range = max_weight - min_weight;
+    if (weight_range <= 0.0f) return -2;
 
-    /* write the image to file */
-    deeplearn_write_png_file(filename,
-                             (unsigned int)image_width,
-                             (unsigned int)image_height,
-                             24, img);
-
-    /* free the image memory */
-    free(img);
+    /* for every pixel in the output image */
+    for (int y = img_ty; y < img_by; y++) {
+        int patch_y = (y - img_ty) * patch_width / img_y_range;
+        for (int x = img_tx; x < img_bx; x++) {
+            int patch_x = (x - img_tx) * patch_width / img_x_range;
+            /* position in the image */
+            int img_n = (y*img_width + x)*3;
+            /* position in the patch */
+            int patch_n = (patch_y*patch_width + patch_x)*patch_depth;
+            for (int c = 0; c < 3; c++) {
+                float w = autocoder->weights[start_index + patch_n +
+                                             (c*patch_depth/3)];
+                img[img_n + c] =
+                    (unsigned char)((w-min_weight)*255/weight_range);
+            }
+        }
+    }
     return 0;
 }

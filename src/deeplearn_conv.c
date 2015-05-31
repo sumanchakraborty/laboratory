@@ -129,8 +129,8 @@ int conv_init(int no_of_layers,
 
         /* initialise the autocoder for this layer */
         if (autocoder_init(conv->layer[i].autocoder,
-						   patch_pixels*depth, max_features,
-						   *random_seed) != 0) {
+                           patch_pixels*depth, max_features,
+                           *random_seed) != 0) {
             return -3;
         }
 
@@ -187,12 +187,12 @@ static void conv_update_history(deeplearn_conv * conv)
         conv->history_ctr = 0;
 
         /* show the learned features */
-		/*
+        /*
         if (conv->current_layer == 0) {
             features_plot_weights(conv->layer[0].autocoder,
                                   "learned_features.png",3,
                                   800, 800);
-								  }*/
+                                  }*/
 
         if (conv->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < conv->history_index; i++) {
@@ -838,4 +838,54 @@ void conv_set_dropouts(deeplearn_conv * conv, float dropout_percent)
     for (int i = 0; i < conv->no_of_layers; i++) {
         conv->layer[i].autocoder->DropoutPercent = dropout_percent;
     }
+}
+
+/**
+* @brief Plots the features learned by an autocoder at the given layer
+* @param conv Convolution object
+* @param layer_index Index of the layer for which to plot the features
+* @param img Image array
+* @param img_width Width of the image
+* @param img_height Height of the image
+* @return zero on success
+*/
+int conv_plot_features(deeplearn_conv * conv, int layer_index,
+                       unsigned char img[],
+                       int img_width, int img_height)
+{
+    int patch_radius = conv_patch_radius(layer_index, conv);
+    int patch_depth = conv->max_features;
+    int fx = (int)sqrt(conv->max_features);
+    int fy = conv->max_features/fx;
+    ac * autocoder = conv->layer[layer_index].autocoder;
+
+    if (layer_index >= conv->no_of_layers) return -100;
+
+    /* clear the img with a white background */
+    memset((void*)img,'\255',img_width*img_height*3);
+
+    if (layer_index == 0) {
+        patch_depth = conv->inputs_depth;
+    }
+
+    /* for every feature within the autocoder */
+    for (int y = 0; y < fy; y++) {
+        int img_ty = y * img_height / fy;
+        int img_by = img_ty + (img_height/fy) - 2;
+        for (int x = 0; x < fx; x++) {
+            int feature_index = (y*fx + x);
+            if (feature_index >= conv->max_features) continue;
+            int img_tx = x * img_width / fx;
+            int img_bx = img_tx + (img_width/fx) - 2;
+
+            int retval =
+                autocoder_plot_weights(autocoder,
+                                       feature_index,
+                                       patch_radius, patch_depth,
+                                       img_tx, img_ty, img_bx, img_by,
+                                       img, img_width, img_height);
+            if (retval != 0) return retval;
+        }
+    }
+    return 0;
 }
