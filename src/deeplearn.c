@@ -268,24 +268,24 @@ void copy_autocoder_to_hidden_layer(deeplearn * learner, int hidden_layer)
 */
 void deeplearn_pretrain(bp * net, ac * autocoder, int current_layer)
 {
-	bp_feed_forward_layers(net, current_layer);
-	if (current_layer > 0) {
-		/* copy the hidden unit values to the inputs
-		   of the autocoder */
-		for (int i = 0; i < bp_hiddens_in_layer(net,current_layer-1); i++) {
-			float hidden_value = bp_get_hidden(net, current_layer-1, i);
-			autocoder_set_input(autocoder, i, hidden_value);
-		}
-	}
-	else {
-		/* copy the input unit values to the inputs
-		   of the autocoder */
-		for (int i = 0; i < net->NoOfInputs; i++) {
-			autocoder_set_input(autocoder, i,
-								bp_get_input(net, i));
-		}
-	}
-	autocoder_update(autocoder);
+    bp_feed_forward_layers(net, current_layer);
+    if (current_layer > 0) {
+        /* copy the hidden unit values to the inputs
+           of the autocoder */
+        for (int i = 0; i < bp_hiddens_in_layer(net,current_layer-1); i++) {
+            float hidden_value = bp_get_hidden(net, current_layer-1, i);
+            autocoder_set_input(autocoder, i, hidden_value);
+        }
+    }
+    else {
+        /* copy the input unit values to the inputs
+           of the autocoder */
+        for (int i = 0; i < net->NoOfInputs; i++) {
+            autocoder_set_input(autocoder, i,
+                                bp_get_input(net, i));
+        }
+    }
+    autocoder_update(autocoder);
 }
 
 /**
@@ -306,12 +306,18 @@ void deeplearn_update(deeplearn * learner)
     minimum_error_percent =
         learner->error_threshold[current_layer];
 
+    /* If there is only a single hidden layer */
+    if ((current_layer == 0) && (learner->net->HiddenLayers == 1)) {
+        current_layer = 1;
+        learner->current_hidden_layer = current_layer;
+    }
+
     /* pretraining of autocoders */
     if (current_layer < learner->net->HiddenLayers) {
 
-		/* train the autocoder for this layer */
-		deeplearn_pretrain(learner->net,
-						   learner->autocoder[current_layer], current_layer);
+        /* train the autocoder for this layer */
+        deeplearn_pretrain(learner->net,
+                           learner->autocoder[current_layer], current_layer);
 
         /* update the backprop error value from the autocoder */
         learner->BPerror = learner->autocoder[current_layer]->BPerrorPercent;
@@ -364,8 +370,8 @@ void deeplearn_update_continuous(deeplearn * learner)
     learner->BPerror = 0;
 
     for (i = 0; i < learner->net->HiddenLayers; i++) {
-		/* train the autocoder for this layer */
-		deeplearn_pretrain(learner->net, learner->autocoder[i], i);
+        /* train the autocoder for this layer */
+        deeplearn_pretrain(learner->net, learner->autocoder[i], i);
 
         /* update the backprop error value */
         learner->BPerror += learner->autocoder[i]->BPerrorPercent;

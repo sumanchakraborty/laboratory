@@ -685,7 +685,8 @@ int deeplearndata_training(deeplearn * learner)
     }
     learner->training_ctr++;
 
-    if (learner->current_hidden_layer < learner->net->HiddenLayers) {
+    if ((learner->net->HiddenLayers > 1) &&
+        (learner->current_hidden_layer < learner->net->HiddenLayers)) {
         /* index number of a random training sample */
         int index = rand_num(&learner->net->random_seed)%learner->training_data_samples;
         /* get the sample */
