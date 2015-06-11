@@ -298,7 +298,9 @@ static void test_learn_test_patterns()
     int reduction_factor = 2;
     int no_of_outputs = 3;
     deepconvnet convnet;
-    float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    float error_threshold[] = { 2.0, 13.0, 5.0, 5.0, 5.0 };
+    float prev_error = DEEPLEARN_UNKNOWN_ERROR;
+    int prev_layer = 0;
     unsigned int random_seed = 7423;
     unsigned char * img =
         (unsigned char*)malloc(inputs_across*inputs_down*
@@ -318,21 +320,33 @@ static void test_learn_test_patterns()
                             error_threshold,
                             &random_seed) == 0);
 
-
     int training_itteration = 0;
     while (convnet.training_complete == 0) {
         /* create the input image */
         set_test_pattern(img, inputs_across, inputs_down,
                          inputs_depth, training_itteration%no_of_outputs);
 
+        /* learn */
         assert(deepconvnet_update_img(&convnet, img,
                                       training_itteration%no_of_outputs) == 0);
 
-        assert(!(convnet.BPerror == DEEPLEARN_UNKNOWN_ERROR));
+        /* check that a valid backprop error exists */
+        if (training_itteration%20 == 0) {
+            if (!(convnet.BPerror == DEEPLEARN_UNKNOWN_ERROR)) {
+                if ((!(prev_error == DEEPLEARN_UNKNOWN_ERROR)) &&
+                    (prev_layer == convnet.current_layer)) {
+                    assert(prev_error > convnet.BPerror);
+                }
+                prev_error = convnet.BPerror;
+                prev_layer = convnet.current_layer;
+            }
+        }
 
-        printf("%d/%d BPerror: %.15f/%f\n",
-               convnet.current_layer, no_of_convolutions + no_of_deep_layers,
-               convnet.BPerror, error_threshold[convnet.current_layer]);
+        if (convnet.current_layer >= 4) {
+            printf("%d/%d BPerror: %f/%f\n",
+                   convnet.current_layer, no_of_convolutions + no_of_deep_layers,
+                   convnet.BPerror, error_threshold[convnet.current_layer]);
+        }
 
         training_itteration++;
     }

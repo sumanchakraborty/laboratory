@@ -175,7 +175,7 @@ static void deepconvnet_update_history(deepconvnet * convnet)
         convnet->history[convnet->history_index] = error_value;
         convnet->history_index++;
         convnet->history_ctr = 0;
-		convnet->BPerror = error_value;
+        convnet->BPerror = error_value;
 
         if (convnet->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < convnet->history_index; i++) {
@@ -257,6 +257,8 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
     }
 
     if (convnet->convolution->training_complete == 0) {
+        convnet->BPerror = convnet->convolution->BPerror;
+        convnet->current_layer = convnet->convolution->current_layer;
         return 0;
     }
 
@@ -270,6 +272,10 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
             deepconvnet_set_class(convnet, class_number);
         }
         deeplearn_update(convnet->learner);
+        convnet->BPerror = convnet->learner->BPerror;
+        convnet->current_layer =
+            convnet->convolution->current_layer +
+            convnet->learner->current_hidden_layer;
     }
     else {
         /* feed forward only */
