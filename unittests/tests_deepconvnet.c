@@ -291,8 +291,8 @@ static void test_learn_test_patterns()
 {
     int no_of_convolutions = 2;
     int no_of_deep_layers = 2;
-    int inputs_across = 8;
-    int inputs_down = 8;
+    int inputs_across = 32;
+    int inputs_down = 32;
     int inputs_depth = 3;
     int max_features = 20;
     int reduction_factor = 2;
@@ -321,20 +321,14 @@ static void test_learn_test_patterns()
 
     int training_itteration = 0;
     while (convnet.training_complete == 0) {
+		/* create the input image */
         set_test_pattern(img, inputs_across, inputs_down,
                          inputs_depth, training_itteration%no_of_outputs);
-        assert(deepconvnet_update_img(&convnet, img, -1)==0);
 
-        for (int i = 0; i < no_of_outputs; i++) {
-            if (i != training_itteration%no_of_outputs) {
-                deepconvnet_set_output(&convnet, 0, 0.25f);
-            }
-            else {             
-                deepconvnet_set_output(&convnet, 0, 0.75f);
-            }
-        }
+        assert(deepconvnet_update_img(&convnet, img,
+									  training_itteration%no_of_outputs) == 0);
 
-        printf("%d/%d BPerror: %f/%f\n",
+        printf("%d/%d BPerror: %.15f/%f\n",
                convnet.current_layer, no_of_convolutions + no_of_deep_layers,
                convnet.BPerror, error_threshold[convnet.current_layer]);
 

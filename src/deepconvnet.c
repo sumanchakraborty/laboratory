@@ -103,6 +103,7 @@ int deepconvnet_init(int no_of_convolutions,
     convnet->history_step = 1;
 
     /* default history settings */
+    convnet->BPerror = DEEPLEARN_UNKNOWN_ERROR;
     convnet->training_ctr = 0;
     convnet->history_plot_interval = 30;
     sprintf(convnet->history_plot_filename,"%s","training.png");
