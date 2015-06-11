@@ -321,12 +321,14 @@ static void test_learn_test_patterns()
 
     int training_itteration = 0;
     while (convnet.training_complete == 0) {
-		/* create the input image */
+        /* create the input image */
         set_test_pattern(img, inputs_across, inputs_down,
                          inputs_depth, training_itteration%no_of_outputs);
 
         assert(deepconvnet_update_img(&convnet, img,
-									  training_itteration%no_of_outputs) == 0);
+                                      training_itteration%no_of_outputs) == 0);
+
+        assert(!(convnet.BPerror == DEEPLEARN_UNKNOWN_ERROR));
 
         printf("%d/%d BPerror: %.15f/%f\n",
                convnet.current_layer, no_of_convolutions + no_of_deep_layers,
