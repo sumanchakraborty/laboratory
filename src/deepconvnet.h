@@ -60,6 +60,7 @@ typedef struct {
     unsigned int history_plot_interval;
     char history_plot_filename[256];
     char history_plot_title[256];
+    float BPerror;
 
     float history[DEEPLEARN_HISTORY_SIZE];
     int history_index, history_ctr, history_step;

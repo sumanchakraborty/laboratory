@@ -174,6 +174,7 @@ static void deepconvnet_update_history(deepconvnet * convnet)
         convnet->history[convnet->history_index] = error_value;
         convnet->history_index++;
         convnet->history_ctr = 0;
+		convnet->BPerror = error_value;
 
         if (convnet->history_index >= DEEPLEARN_HISTORY_SIZE) {
             for (i = 0; i < convnet->history_index; i++) {

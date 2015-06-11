@@ -287,12 +287,73 @@ static void test_update_img()
     printf("Ok\n");
 }
 
+static void test_learn_test_patterns()
+{
+    int no_of_convolutions = 2;
+    int no_of_deep_layers = 2;
+    int inputs_across = 8;
+    int inputs_down = 8;
+    int inputs_depth = 3;
+    int max_features = 20;
+    int reduction_factor = 2;
+    int no_of_outputs = 3;
+    deepconvnet convnet;
+    float error_threshold[] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    unsigned int random_seed = 7423;
+    unsigned char * img =
+        (unsigned char*)malloc(inputs_across*inputs_down*
+                               inputs_depth*sizeof(unsigned char));
+
+    printf("test_learn_test_patterns...");
+
+    assert(deepconvnet_init(no_of_convolutions,
+                            no_of_deep_layers,
+                            inputs_across,
+                            inputs_down,
+                            inputs_depth,
+                            max_features,
+                            reduction_factor,
+                            no_of_outputs,
+                            &convnet,
+                            error_threshold,
+                            &random_seed) == 0);
+
+
+    int training_itteration = 0;
+    while (convnet.training_complete == 0) {
+        set_test_pattern(img, inputs_across, inputs_down,
+                         inputs_depth, training_itteration%no_of_outputs);
+        assert(deepconvnet_update_img(&convnet, img, -1)==0);
+
+        for (int i = 0; i < no_of_outputs; i++) {
+            if (i != training_itteration%no_of_outputs) {
+                deepconvnet_set_output(&convnet, 0, 0.25f);
+            }
+            else {             
+                deepconvnet_set_output(&convnet, 0, 0.75f);
+            }
+        }
+
+        printf("%d/%d BPerror: %f/%f\n",
+               convnet.current_layer, no_of_convolutions + no_of_deep_layers,
+               convnet.BPerror, error_threshold[convnet.current_layer]);
+
+        training_itteration++;
+    }
+
+    deepconvnet_free(&convnet);
+    free(img);
+
+    printf("Ok\n");
+}
+
 int run_tests_deepconvnet()
 {
     printf("\nRunning deepconvnet tests\n");
 
     test_init();
     test_update_img();
+    test_learn_test_patterns();
 
     printf("All deepconvnet tests completed\n");
     return 1;
