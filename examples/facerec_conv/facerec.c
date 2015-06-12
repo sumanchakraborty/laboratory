@@ -57,6 +57,7 @@ static void facerec_training()
     int output_classes = 25;
     float error_threshold[] = { 4.0, 15.0, 8.0, 8.0 };
     unsigned int ctr, random_seed = 34217;
+    float performance;
 
     if (deepconvnet_read_images("../facerec/images",
                                 &convnet,
@@ -106,7 +107,7 @@ static void facerec_training()
     }
 
     printf("Training Completed\n");
-    float performance = deepconvnet_get_performance(&convnet);
+    performance = deepconvnet_get_performance(&convnet);
     if (performance >= 0) {
         printf("Test data set performance is %.2f\n",
                performance);
