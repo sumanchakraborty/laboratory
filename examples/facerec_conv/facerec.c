@@ -88,22 +88,33 @@ static void facerec_training()
 
     sprintf(convnet.history_plot_title, "%s", TITLE);
 
-	ctr = 99999;
-    while (deepconvnet_training(&convnet) != 0) {
-		if (convnet.current_layer == 0) {
-			if (ctr > 1000) {
-				deepconvnet_plot_features(&convnet, 0,
-										  "features0.png",
-										  640, 640);
-				ctr = 0;
-			}
-			ctr++;
-		}
+    ctr = 99999;
+    while (deepconvnet_training(&convnet) >= 0) {
+        if (convnet.current_layer == 0) {
+            if (ctr > 1000) {
+                deepconvnet_plot_features(&convnet, 0,
+                                          "features0.png",
+                                          640, 640);
+                ctr = 0;
+            }
+            ctr++;
+        }
+    }
+    if (deepconvnet_training(&convnet) < 0) {
+        printf("Training error\n");
+        return;
     }
 
     printf("Training Completed\n");
-    printf("Test data set performance is %.2f\n",
-           deepconvnet_get_performance(&convnet));
+    float performance = deepconvnet_get_performance(&convnet);
+    if (performance >= 0) {
+        printf("Test data set performance is %.2f\n",
+               performance);
+    }
+    else {
+        printf("Performance measurement error %d\n",
+               (int)performance);
+    }
 
     deepconvnet_free(&convnet);
 }

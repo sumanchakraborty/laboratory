@@ -289,7 +289,8 @@ void deeplearn_pretrain(bp * net, ac * autocoder, int current_layer)
 }
 
 /**
-* @brief Performs training initially using autocoders for each hidden
+* @brief Performs training initially using autocoders
+*        for each hidden
 *        layer and eventually for the entire network.
 * @param learner Deep learner object
 */
@@ -307,7 +308,8 @@ void deeplearn_update(deeplearn * learner)
         learner->error_threshold[current_layer];
 
     /* If there is only a single hidden layer */
-    if ((current_layer == 0) && (learner->net->HiddenLayers == 1)) {
+    if ((current_layer == 0) &&
+        (learner->net->HiddenLayers == 1)) {
         current_layer = 1;
         learner->current_hidden_layer = current_layer;
     }
@@ -317,10 +319,12 @@ void deeplearn_update(deeplearn * learner)
 
         /* train the autocoder for this layer */
         deeplearn_pretrain(learner->net,
-                           learner->autocoder[current_layer], current_layer);
+                           learner->autocoder[current_layer],
+                           current_layer);
 
         /* update the backprop error value from the autocoder */
-        learner->BPerror = learner->autocoder[current_layer]->BPerrorPercent;
+        learner->BPerror =
+            learner->autocoder[current_layer]->BPerrorPercent;
 
         /* If below the error threshold.
            Only do this after a minimum number of itterations

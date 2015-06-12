@@ -244,8 +244,67 @@ static int deepconvnet_set_inputs_conv(deeplearn * learner, deeplearn_conv * con
 }
 
 /**
+* @brief Updates the current training error
+* @param convnet Deep convnet object
+*/
+static void deepconvnet_update_training_error(deepconvnet * convnet)
+{
+    /* update the backprop error */
+    if (convnet->current_layer <
+        convnet->convolution->no_of_layers) {
+        convnet->BPerror = convnet->convolution->BPerror;
+    }
+    else {
+        convnet->BPerror = convnet->learner->BPerror;
+    }
+}
+
+/**
+* @brief Updates the index of the current layer being trained
+* @param convnet Deep convnet object
+*/
+static void deepconvnet_update_current_layer(deepconvnet * convnet)
+{
+    /* set the current layer */
+    convnet->current_layer =
+        convnet->convolution->current_layer +
+        convnet->learner->current_hidden_layer;
+}
+
+/**
+* @brief Periodicaly plots the training error in a graph
+* @param convnet Deep convnet object
+*/
+static void deepconvnet_update_training_plot(deepconvnet * convnet)
+{
+    /* plot a graph showing training progress */
+    if (convnet->history_plot_interval > 0) {
+        if (convnet->training_ctr > convnet->history_plot_interval) {
+            if (strlen(convnet->history_plot_filename) > 0) {
+                deepconvnet_plot_history(convnet, 1024, 480);
+            }
+            convnet->training_ctr = 0;
+        }
+        convnet->training_ctr++;
+    }
+}
+
+/**
+* @brief Used during training to update error, current layer, etc
+* @param convnet Deep convnet object
+*/
+static void deepconvnet_update(deepconvnet * convnet)
+{
+    deepconvnet_update_training_error(convnet);
+    deepconvnet_update_current_layer(convnet);
+    deepconvnet_update_history(convnet);
+    deepconvnet_update_training_plot(convnet);
+    convnet->training_complete = convnet->learner->training_complete;
+}
+
+/**
 * @brief Update routine for training the system
-* @param learner Deep learner object
+* @param convnet Deep convnet object
 * @param img Array containing input image
 * @param class_number Desired class number
 * @return Zero on success
@@ -257,8 +316,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
     }
 
     if (convnet->convolution->training_complete == 0) {
-        convnet->BPerror = convnet->convolution->BPerror;
-        convnet->current_layer = convnet->convolution->current_layer;
+        deepconvnet_update(convnet);
         return 0;
     }
 
@@ -272,10 +330,7 @@ int deepconvnet_update_img(deepconvnet * convnet, unsigned char img[], int class
             deepconvnet_set_class(convnet, class_number);
         }
         deeplearn_update(convnet->learner);
-        convnet->BPerror = convnet->learner->BPerror;
-        convnet->current_layer =
-            convnet->convolution->current_layer +
-            convnet->learner->current_hidden_layer;
+        deepconvnet_update(convnet);
     }
     else {
         /* feed forward only */
@@ -429,6 +484,7 @@ int deepconvnet_training(deepconvnet * convnet)
 {
     if (convnet->learner->training_complete != 0) return 0;
     if (convnet->no_of_images == 0) return 0;
+    if (convnet->classification_number == NULL) return -1;
 
     /* pick an image at random */
     int training_images = convnet->no_of_images*8/10;
@@ -438,29 +494,7 @@ int deepconvnet_training(deepconvnet * convnet)
     unsigned char * img = convnet->images[index];
     if (deepconvnet_update_img(convnet, img,
                                convnet->classification_number[index]) != 0) {
-        return -1;
-    }
-
-    /* set the current layer being trained */
-    convnet->current_layer =
-        convnet->learner->current_hidden_layer +
-        convnet->convolution->current_layer;
-
-    deepconvnet_update_history(convnet);
-
-    /* plot a graph showing training progress */
-    if (convnet->training_ctr > convnet->history_plot_interval) {
-        if (strlen(convnet->history_plot_filename) > 0) {
-            deepconvnet_plot_history(convnet, 1024, 480);
-        }
-        convnet->training_ctr = 0;
-    }
-    convnet->training_ctr++;
-
-    /* update the completion status */
-    convnet->training_complete = convnet->learner->training_complete;
-    if (convnet->training_complete == 0) {
-        return 1;
+        return -2;
     }
 
     return 0;
@@ -469,7 +503,7 @@ int deepconvnet_training(deepconvnet * convnet)
 /**
 * @brief Returns performance on the test set
 * @param convnet Deep convnet object
-* @return Percentage of correct classifications
+* @return Percentage of correct classifications or a negative number on error
 */
 float deepconvnet_get_performance(deepconvnet * convnet)
 {
@@ -478,27 +512,12 @@ float deepconvnet_get_performance(deepconvnet * convnet)
     int test_images = convnet->no_of_images*2/10;
 
     if (convnet->no_of_images == 0) return -1;
+    if (convnet->classification_number == NULL) return -2;
 
     for (int i = 0; i < test_images; i++) {
         int index = convnet->test_set_index[i];
         unsigned char * img = convnet->images[index];
         deepconvnet_update_img(convnet, img, -1);
-        /*
-        printf("\n1. ");
-        for (int j = 0; j < convnet->learner->net->NoOfOutputs; j++) {
-            printf("%.4f\t", deepconvnet_get_output(convnet, j));
-        }
-        printf("\n2. ");
-        for (int j = 0; j < convnet->learner->net->NoOfOutputs; j++) {
-            if (j != convnet->classification_number[index]) {
-                printf("-----\t");
-            }
-            else {
-                printf("1.000\t");
-            }
-        }
-        printf("\n");
-        */
         if (deeplearn_get_class(convnet->learner) ==
             convnet->classification_number[index]) {
             performance += 100.0f;
