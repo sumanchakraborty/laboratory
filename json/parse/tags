@@ -1,0 +1,91 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ARRAY_SIZE	test.c	41;"	d	file:
+ASSERT	test.c	36;"	d	file:
+CC	Makefile	/^CC=gcc $/;"	m
+CFLAGS	Makefile	/^CFLAGS=-g -c -Wall$/;"	m
+EMIT	parse.c	394;"	d	file:
+END_OF_STRING	parse.c	51;"	d	file:
+EXECUTABLE	Makefile	/^EXECUTABLE=json$/;"	m
+EXPECT	parse.c	49;"	d	file:
+FAIL	test.c	31;"	d	file:
+FROZEN_FREE	parse.c	34;"	d	file:
+FROZEN_HEADER_INCLUDED	parse.h	19;"	d
+FROZEN_REALLOC	parse.c	30;"	d	file:
+JSON_STRING_INCOMPLETE	parse.h	45;"	d
+JSON_STRING_INVALID	parse.h	44;"	d
+JSON_TOKEN_ARRAY_TOO_SMALL	parse.h	46;"	d
+JSON_TYPE_ARRAY	parse.h	/^  JSON_TYPE_ARRAY   = 7$/;"	e	enum:json_type
+JSON_TYPE_EOF	parse.h	/^  JSON_TYPE_EOF     = 0,      \/\/ End of parsed tokens marker$/;"	e	enum:json_type
+JSON_TYPE_FALSE	parse.h	/^  JSON_TYPE_FALSE   = 5,$/;"	e	enum:json_type
+JSON_TYPE_NULL	parse.h	/^  JSON_TYPE_NULL    = 6,$/;"	e	enum:json_type
+JSON_TYPE_NUMBER	parse.h	/^  JSON_TYPE_NUMBER  = 2,$/;"	e	enum:json_type
+JSON_TYPE_OBJECT	parse.h	/^  JSON_TYPE_OBJECT  = 3,$/;"	e	enum:json_type
+JSON_TYPE_STRING	parse.h	/^  JSON_TYPE_STRING  = 1,$/;"	e	enum:json_type
+JSON_TYPE_TRUE	parse.h	/^  JSON_TYPE_TRUE    = 4,$/;"	e	enum:json_type
+LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
+OBJECTS	Makefile	/^OBJECTS=$(SOURCES:.c=.o)$/;"	m
+RUN_TEST	test.c	42;"	d	file:
+SOURCES	Makefile	/^SOURCES=parse test$/;"	m
+TRY	parse.c	50;"	d	file:
+_CRT_SECURE_NO_WARNINGS	parse.c	18;"	d	file:
+capture_len	parse.c	/^static int capture_len(struct frozen *f, int token_index, const char *ptr) {$/;"	f	file:
+capture_ptr	parse.c	/^static int capture_ptr(struct frozen *f, const char *ptr, enum json_type type) {$/;"	f	file:
+cmp_token	test.c	/^static int cmp_token(const struct json_token *tok, const char *str, int type) {$/;"	f	file:
+compare	parse.c	/^static int compare(const char *s, const char *str, int len) {$/;"	f	file:
+cur	parse.c	/^  const char *cur;$/;"	m	struct:frozen	file:
+cur	parse.c	/^static int cur(struct frozen *f) {$/;"	f	file:
+do_realloc	parse.c	/^  int do_realloc;$/;"	m	struct:frozen	file:
+doit	parse.c	/^static int doit(struct frozen *f) {$/;"	f	file:
+end	parse.c	/^  const char *end;$/;"	m	struct:frozen	file:
+find_json_token	parse.c	/^const struct json_token *find_json_token(const struct json_token *toks,$/;"	f
+frozen	parse.c	/^struct frozen {$/;"	s	file:
+get_escape_len	parse.c	/^static int get_escape_len(const char *s, int len) {$/;"	f	file:
+get_utf8_char_len	parse.c	/^static int get_utf8_char_len(unsigned char ch) {$/;"	f	file:
+is_alpha	parse.c	/^static int is_alpha(int ch) {$/;"	f	file:
+is_digit	parse.c	/^static int is_digit(int ch) {$/;"	f	file:
+is_hex_digit	parse.c	/^static int is_hex_digit(int ch) {$/;"	f	file:
+is_space	parse.c	/^static int is_space(int ch) {$/;"	f	file:
+json_emit_double	parse.c	/^int json_emit_double(char *buf, int buf_len, double value) {$/;"	f
+json_emit_int	parse.c	/^int json_emit_int(char *buf, int buf_len, long int value) {$/;"	f
+json_emit_quoted_str	parse.c	/^int json_emit_quoted_str(char *buf, int buf_len, const char *str) {$/;"	f
+json_emit_raw_str	parse.c	/^int json_emit_raw_str(char *buf, int buf_len, const char *str) {$/;"	f
+json_parse	parse.c	/^struct json_token *json_parse(const char *s, int s_len) {$/;"	f
+json_token	parse.h	/^struct json_token {$/;"	s
+json_type	parse.h	/^enum json_type {$/;"	g
+left	parse.c	/^static int left(const struct frozen *f) {$/;"	f	file:
+len	parse.h	/^  int len;              \/\/ Token length$/;"	m	struct:json_token
+main	test.c	/^int main(void) {$/;"	f
+max_tokens	parse.c	/^  int max_tokens;$/;"	m	struct:frozen	file:
+num_desc	parse.h	/^  int num_desc;         \/\/ For arrays and object, total number of descendants$/;"	m	struct:json_token
+num_tokens	parse.c	/^  int num_tokens;$/;"	m	struct:frozen	file:
+parse_array	parse.c	/^static int parse_array(struct frozen *f) {$/;"	f	file:
+parse_identifier	parse.c	/^static int parse_identifier(struct frozen *f) {$/;"	f	file:
+parse_json	parse.c	/^int parse_json(const char *s, int s_len, struct json_token *arr, int arr_len) {$/;"	f
+parse_json2	parse.c	/^struct json_token *parse_json2(const char *s, int s_len) {$/;"	f
+parse_key	parse.c	/^static int parse_key(struct frozen *f) {$/;"	f	file:
+parse_number	parse.c	/^static int parse_number(struct frozen *f) {$/;"	f	file:
+parse_object	parse.c	/^static int parse_object(struct frozen *f) {$/;"	f	file:
+parse_pair	parse.c	/^static int parse_pair(struct frozen *f) {$/;"	f	file:
+parse_string	parse.c	/^static int parse_string(struct frozen *f) {$/;"	f	file:
+parse_value	parse.c	/^static int parse_value(struct frozen *f) {$/;"	f	file:
+path_part_len	parse.c	/^static int path_part_len(const char *p) {$/;"	f	file:
+ptr	parse.h	/^  const char *ptr;      \/\/ Points to the beginning of the token$/;"	m	struct:json_token
+run_all_tests	test.c	/^static const char *run_all_tests(void) {$/;"	f	file:
+skip_whitespaces	parse.c	/^static void skip_whitespaces(struct frozen *f) {$/;"	f	file:
+snprintf	parse.c	26;"	d	file:
+static_num_tests	test.c	/^static int static_num_tests = 0;$/;"	v	file:
+test_and_skip	parse.c	/^static int test_and_skip(struct frozen *f, int expected) {$/;"	f	file:
+test_config	test.c	/^static const char *test_config(void) {$/;"	f	file:
+test_emit	test.c	/^static const char *test_emit(void) {$/;"	f	file:
+test_emit_escapes	test.c	/^static const char *test_emit_escapes(void) {$/;"	f	file:
+test_emit_overflow	test.c	/^static const char *test_emit_overflow(void) {$/;"	f	file:
+test_errors	test.c	/^static const char *test_errors(void) {$/;"	f	file:
+test_nested	test.c	/^static const char *test_nested(void) {$/;"	f	file:
+test_realloc	test.c	/^static const char *test_realloc(void) {$/;"	f	file:
+tokens	parse.c	/^  struct json_token *tokens;$/;"	m	struct:frozen	typeref:struct:frozen::json_token	file:
+type	parse.h	/^  enum json_type type;  \/\/ Type of the token, possible values below$/;"	m	struct:json_token	typeref:enum:json_token::json_type

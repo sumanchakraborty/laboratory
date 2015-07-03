@@ -1,0 +1,20 @@
+ACG_START
+
+ACG_PREFIX BFD
+
+ACG_COMMENT blah blah he he
+
+ACG_DEFINE HDR_LEN 5
+ACG_DEFINE AUTH_HDR_LEN 10
+
+ACG_ENUM MsgType
+  CONTROL
+  ECHO
+  DATA
+
+ACG_STRUCT Form
+  ubyte  version
+  ubyte  flags
+  ubyte4 length
+
+ACG_END

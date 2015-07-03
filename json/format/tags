@@ -1,0 +1,21 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CC	Makefile	/^CC=gcc $/;"	m
+CFLAGS	Makefile	/^CFLAGS=-g -c -Wall$/;"	m
+EMIT	format.c	7;"	d	file:
+EXECUTABLE	Makefile	/^EXECUTABLE=json$/;"	m
+FORMAT_HEADER	format.h	3;"	d
+LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
+MAX_LENGTH	format.h	5;"	d
+OBJECTS	Makefile	/^OBJECTS=$(SOURCES:.c=.o)$/;"	m
+SOURCES	Makefile	/^SOURCES=format test$/;"	m
+ixjson_format	test.c	/^static const char *ixjson_format(void) {$/;"	f	file:
+ixjson_format_double	format.c	/^int ixjson_format_double(char *buf, int buf_len, double value) {$/;"	f
+ixjson_format_int	format.c	/^int ixjson_format_int(char *buf, int buf_len, long int value) {$/;"	f
+ixjson_format_quoted_str	format.c	/^int ixjson_format_quoted_str(char *buf, int buf_len, const char *str) {$/;"	f
+ixjson_format_raw_str	format.c	/^int ixjson_format_raw_str(char *buf, char *off, const char *str) {$/;"	f
+main	test.c	/^int main(void) {$/;"	f

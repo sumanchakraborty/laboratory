@@ -1,0 +1,76 @@
+
+http://www.technologywoman.com/2008/10/22/top-10-best-microsoft-interview/
+
+----------------------------------------------------------------------------------------
+
+Given two nodes in a binary tree, find the first common parent node. 
+You are not allowed to store any nodes in a data structure.
+
+----------------------------------------------------------------------------------------
+
+bool findCA(node* elem, node* n1, node* n2, node* & result)
+{
+   if(elem == NULL) return false;
+ 
+   bool left = findCA(elem->left, n1, n2, result);
+   bool right = findCA(elem->right, n1, n2, result);
+   bool curr = (n1==elem || n2 ==elem);
+ 
+   if(left && right && !result){
+     result = elem;
+     return true;
+   }
+   if((left || right) && curr){
+     result = elem;
+     return true;
+   }
+   if(curr|| left || right){
+     return true;
+   }
+   return false;
+}
+ 
+node* findCommonAncestor(node* elem, node* n1, node* n2)
+{
+  node* result;
+  findCA(elem, n1, n2, result);
+  return result;
+}
+
+----------------------------------------------------------------------------------------
+
+Simulate a 7 sided die using a 5 sided die -
+
+----------------------------------------------------------------------------------------
+
+write the code for rand7() (that will generate random nos from 0 to 6 each with 
+equal probability) given a function for rand5().
+
+rand7() 
+{
+return (rand5() + (rand5()%3));
+}
+
+----------------------------------------------------------------------------------------
+
+How long it would take to sort 1 billion numbers? 
+make any assumptions you wanted.. assume the computer would have more than 
+4 GB of RAM, so the array would fit in memory in its entirety, 
+and the machine would run at 4 GHz.
+
+----------------------------------------------------------------------------------------
+
+for me it comes to 7.5 sec...
+
+4 GHZ = 4 billion calculations per second
+ 
+nlogn/4GHZ (n=1 billion = 2^30 or 10^9 as per US...also 1G=2^30) 
+= [1024^3 * log( 1024^3)] / [4 * 1024^3] 
+= [2^30 * log(2^30)] / [4 * 2^30] 
+= [2^30 * 30] / [4 * 2^30] 
+= 30/4 = 7.5 sec
+
+----------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------------------
