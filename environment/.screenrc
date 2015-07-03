@@ -1,0 +1,102 @@
+
+# ===============================================================
+# VARIABLES - Paths and Files (esp. programs)
+# ===============================================================
+# shell:  Default process started in screen's windows.
+# Makes it possible to use a different shell inside screen
+# than is set as the default login shell.  Halleluja! :-)
+# shell                 zsh
+# shell                 bash
+# shell                 ksh
+shell -$SHELL
+
+# ===============================================================
+# CAPTION - shows a "caption" for the window.
+# ===============================================================
+# a "caption" is another line which can show information -
+# in addition to the hardstatus line.
+#
+# use caption to show window list:
+# caption always "%{= kc}%?%-Lw%?%{= kY}%n*%f %t%?(%u)%?%{= kc}%?%+Lw%?"
+  caption always "%0=%{+b rk}%H %{bk}| %0L=%{mk}%>%-Lw%{= BW}%n%f* %t%{-}%+Lw%L>%?(%u)%? %{bk}|%>%=%{Yk} %=%C%A %Y.%m.%d %{bk}%100="
+
+# ===============================================================
+# Hardstatus Line
+# ===============================================================
+# hardstatus: Always show the window list in the last line:
+# hardstatus alwayslastline "%0=%{kB}| %{kw}%h %{kB}|%=%{kR}Load: %l%100="
+# hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+# hardstatus alwayslastline '%{= kg}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{=b kR}(%{W}%n*%f %t%?(%u)%?%{=b kR})%{= kw}%?%+Lw%?%?%= %{g}][%{Y}%l%{g}]%{=b C}[ %d %M %c ]%{W}'
+
+# ===============================================================
+# Colors 
+# ===============================================================
+# "sorendition": set the colors for the "messages" and "text marking"
+# (ie text you mark in copy mode, it also effects the hardstatus and caption):
+# sorendition 02 40 # green  on black
+# sorendition 02 34 # yellow on blue
+# sorendition    rw # red    on white
+# sorendition    kG # black  on bold green
+# sorendition 10 99 # default!
+
+# ===============================================================
+# VARIABLES - Number values
+# ===============================================================
+# defscrollback         30000           # default: 100
+  defscrollback         4000            # default: 100
+# msgminwait            3               # default: 1
+  silencewait           15              # default: 30
+
+# ===============================================================
+# xterm tweaks
+# ===============================================================
+# xterm understands both im/ic and doesn't have a status line.
+# Note: Do not specify im and ic in the real termcap/info file as
+# some programs (e.g. vi) will not work anymore.
+# termcap  xterm hs@:cs=\E[%i%d;%dr:im=\E[4h:ei=\E[4l
+# terminfo xterm hs@:cs=\E[%i%p1%d;%p2%dr:im=\E[4h:ei=\E[4l
+  termcapinfo xterm ti@:te@
+
+# ===============================================================
+# Messages
+# ===============================================================
+# There are two kinds of messages:  "activity" and "bell"
+# They are also the names of the commands that set the
+# respective messages.  
+
+# ==============================================================
+# BIND and the Services:
+# ==============================================================
+# bind <key> <command>
+# this binds the key to start a windows with <command> inside.
+#
+# the command "screen" starts a "window" -
+# and the default key is 'c' for "create".
+# (i know - this *is* confusing at first.)
+# with 'screen -t title" you can set a titlestring.
+# the number following is the window number to be used.
+# if the window number is already taken then
+# the least highest available number is used.
+#
+# bind A title  # default!
+#
+# BUUG - Berlin Unix User Group - read some news about Unix
+# bind B # unbound by default
+# bind B screen -t 'buug' 4 links www.buug.de
+
+# ===============================================================
+# BINDKEY:
+# ===============================================================
+# Use the function keys F7 and F8
+# to cycle backwards/forwards in
+# the list of existing windows:
+#
+#  bindkey -k k7 prev
+#  bindkey -k k8 next
+
+  screen -t build
+  screen -t nfs
+  screen -t kse
+# screen -t smb
+# screen -t iscsi
+# screen -t amazon
