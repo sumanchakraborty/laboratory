@@ -1,0 +1,22 @@
+
+<protocol name="BFD">
+
+  <define level1="STATE" level2="DOWN" value="1"/>
+  <define level1="STATE" level2="INIT" value="2"/>
+  <define level1="STATE" level2="UP"   value="3"/>
+
+  <enum name="TLVType">
+    <member type="TLV" subtype="ADDRESS"/>
+    <member type="TLV" subtype="INTERVAL"/>
+    <member type="TLV" subtype="IDENTIFIER"/>
+    <member type="TLV" subtype="TTL"/>
+  </enum>
+
+  <struct name="BFDForm">
+    <member type="version"  size="ubyte"/>
+    <member type="length"   size="ubyte4"/>
+    <member type="falg"     size="ubyte"/>
+    <member type="interval" size="ubyte"/>
+  </struct>
+
+</protocol>
