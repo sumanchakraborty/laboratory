@@ -8,3 +8,4 @@ r -l l auto-eth-tcp-core 1.17
 sudo valgrind --leak-check=yes --log-file=valgrind.log ./anvl -l l auto-eth-tcp-core 12.19
 git add * && git commit -m "commit" && git push origin master
 git add -A && git commit -m "commit" && git push origin master
+
