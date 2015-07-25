@@ -1625,7 +1625,7 @@ static int deeplearn_export_python(deeplearn * learner, char * filename)
         fprintf(fp, "%s", "    for i in range(this.no_of_input_fields):\n");
         fprintf(fp, "%s", "      if this.field_length[i] == 0:\n");
         fprintf(fp, "%s", "        # Normalise numeric inputs into a 0.25 - 0.75 range\n");
-        fprintf(fp, "%s", "        network_inputs.append(0.25 + ((float(inputs[i]) - input_range_min[i])*0.5/(input_range_max[i] - input_range_min[i])))\n");
+        fprintf(fp, "%s", "        network_inputs.append(0.25 + ((float(inputs[i]) - this.input_range_min[i])*0.5/(this.input_range_max[i] - this.input_range_min[i])))\n");
         fprintf(fp, "%s", "        if network_inputs[pos] < 0.25:\n");
         fprintf(fp, "%s", "          network_inputs[pos] = 0.25\n");
         fprintf(fp, "%s", "        if network_inputs[pos] > 0.75:\n");
