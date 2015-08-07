@@ -1,25 +1,4 @@
-[10.216.110.200] run: date; ls -la
-[10.216.110.200] out: Sun May 31 21:49:33 PDT 2015
-[10.216.110.200] out: total 1165596
-[10.216.110.200] out: dr-xr-x---.  8 root root      4096 May 24 23:18 .
-[10.216.110.200] out: drwxrwxr-x. 27 root root      4096 May 31 20:06 ..
-[10.216.110.200] out: -rw-------.  1 root root      4612 Apr 17 23:22 anaconda-ks.cfg
-[10.216.110.200] out: -rw-------   1 root root      5859 May 27 20:26 .bash_history
-[10.216.110.200] out: -rw-r--r--.  1 root root        18 May 20  2009 .bash_logout
-[10.216.110.200] out: -rw-r--r--.  1 root root       176 May 20  2009 .bash_profile
-[10.216.110.200] out: -rw-r--r--.  1 root root       176 Sep 22  2004 .bashrc
-[10.216.110.200] out: -rw-r--r--.  1 root root       100 Sep 22  2004 .cshrc
-[10.216.110.200] out: -rw-r--r--   1 root root       148 May 24 23:18 difference.txt
-[10.216.110.200] out: -rw-r--r--.  1 root root     18178 Apr 17 23:22 install.log
-[10.216.110.200] out: -rw-r--r--.  1 root root      4393 Apr 17 23:20 install.log.syslog
-[10.216.110.200] out: drwxrwxr-x   3 root root      4096 Apr 17 23:58 Ixia
-[10.216.110.200] out: drwxrwxr-x   3 root root      4096 Apr 27 20:49 .java
-[10.216.110.200] out: drwxrwxr-x   3 root root      4096 Apr 26 23:12 .local
-[10.216.110.200] out: drwxr-xr-x.  2 root root      4096 May  4 02:37 .ssh
-[10.216.110.200] out: -rw-r--r--.  1 root root       129 Dec  3  2004 .tcshrc
-[10.216.110.200] out: drwxr-xr-x   4 root root      4096 May 20 21:04 update_238555
-[10.216.110.200] out: -rw-r--r--   1 root root 594267178 May 24 22:49 update_238555.tar.bz2
-[10.216.110.200] out: drwxr-xr-x   4 root root      4096 May 23 19:00 update_238922
-[10.216.110.200] out: -rw-r--r--   1 root root   1868135 May 24 22:50 update_238922.tar.bz2
-[10.216.110.200] out: -rw-r--r--   1 root root 594268464 May 24 22:48 update_vm-183596-238555.bps
-[10.216.110.200] out: -rw-r--r--   1 root root   1869424 May 24 22:48 update_vm-214168-238922.bps
+
+BOOTPROTO=dhcp
+IPADDR=10.10.10.55
+
