@@ -42,6 +42,7 @@ args = parser.parse_args()
 
 # IP Address
 if args.ip: 
+    print "IP Address: " + args.ip
     content = get_file(FILE)
     found = re.search("IPADDR=.*", content)
     if not found:
@@ -53,7 +54,7 @@ if args.ip:
 
 # Mask
 if args.mask: 
-    print args.mask
+    print "Netmask: " + args.mask
     content = get_file(FILE)
     found = re.search("NETMASK=.*", content)
     if not found:
@@ -65,7 +66,7 @@ if args.mask:
 
 # Network
 if args.net: 
-    print args.net
+    print "Network: " + args.net
     content = get_file(FILE)
     found = re.search("NETWORK=.*", content)
     if not found:
@@ -77,7 +78,7 @@ if args.net:
 
 # Gateway
 if args.gw: 
-    print args.gw
+    print "Gateway: " + args.gw
     content = get_file(FILE)
     found = re.search("GATEWAY=.*", content)
     if not found:
@@ -89,7 +90,7 @@ if args.gw:
 
 # Static/DHCP
 if args.static: 
-    print args.static
+    print "Static: " + args.static
     content = get_file(FILE)
     found = re.search("BOOTPROTO=.*", content)
     if not found:
@@ -101,7 +102,7 @@ if args.static:
 
 # Hostname
 if args.host: 
-    print args.host
+    print "Hostname: " + args.host
     content = get_file(FILE)
     found = re.search("HOSTNAME=.*", content)
     if not found:
@@ -113,7 +114,10 @@ if args.host:
 
 # DNS
 if args.dns: 
-    print args.dns
+    print "DNS: " + args.dns
     content = get_file(FILE)
     set_file(FILE, content + "nameserver %s\n" % args.dns)
+
+# os.system("echo \"------------------\"")
+# os.system("cat " + FILE)
 
