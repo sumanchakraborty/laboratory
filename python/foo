@@ -1,4 +1,2 @@
-
-BOOTPROTO=dhcp
-IPADDR=10.10.10.55
-
+nameserver 11.11.22.22
+nameserver 11.22.22.22
