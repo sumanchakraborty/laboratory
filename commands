@@ -9,3 +9,7 @@ sudo valgrind --leak-check=yes --log-file=valgrind.log ./anvl -l l auto-eth-tcp-
 git add * && git commit -m "commit" && git push origin master
 git add -A && git commit -m "commit" && git push origin master
 
+
+sync latest
+-------------------
+git pull --rebase origin master
