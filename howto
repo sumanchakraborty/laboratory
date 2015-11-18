@@ -15,13 +15,16 @@ git pull --rebase origin master
 
 commit
 -------------------
+<edit>
 git status
 git add . (or file name)
-git status
 git commit -m "description about change"
-git status
-git log
 git push origin master
+
+verify
+-------------------
+git log
+git status
 
 --------------------------------------------------
 SETUP SSH & GIT ACCOUNT
