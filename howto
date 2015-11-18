@@ -4,20 +4,17 @@ sudo ./anvl -l l auto-eth-tcp-core 1.17 | tee log
 sudo gdb anvl
 b anvltcputil.c:9756
 r -l l auto-eth-tcp-core 1.17
-
 sudo valgrind --leak-check=yes --log-file=valgrind.log ./anvl -l l auto-eth-tcp-core 12.19
-git add * && git commit -m "commit" && git push origin master
-git add -A && git commit -m "commit" && git push origin master
 
-sync latest
+sync
 -------------------
-git pull --rebase origin master
+git clone git@github.com:sumanchakraborty/laboratory.git
 
 commit
 -------------------
 <edit>
 git status
-git add . (or file name)
+git add -A . (or file name)
 git commit -m "description about change"
 git push origin master
 
