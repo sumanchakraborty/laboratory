@@ -16,8 +16,9 @@ git pull --rebase origin master
 commit
 -------------------
 git status
-git add .
+git add . (or file name)
 git status
+git commit -m "description about change"
 
 --------------------------------------------------
 SETUP SSH & GIT ACCOUNT
