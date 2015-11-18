@@ -19,6 +19,9 @@ git status
 git add . (or file name)
 git status
 git commit -m "description about change"
+git status
+git log
+git push origin master
 
 --------------------------------------------------
 SETUP SSH & GIT ACCOUNT
