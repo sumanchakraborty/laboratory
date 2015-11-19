@@ -1,2 +1,7 @@
 
+SETUP
+-------------------------------------------
 yum install golang
+
+edit .bash_profile & write following line
+export GOPATH="$HOME/laboratory/go/"
