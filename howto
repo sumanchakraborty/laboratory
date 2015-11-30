@@ -6,9 +6,13 @@ b anvltcputil.c:9756
 r -l l auto-eth-tcp-core 1.17
 sudo valgrind --leak-check=yes --log-file=valgrind.log ./anvl -l l auto-eth-tcp-core 12.19
 
-sync
+checkout
 -------------------
 git clone git@github.com:sumanchakraborty/laboratory.git
+
+sync
+-------------------
+git pull git@github.com:bashrc/libdeep.git
 
 commit
 -------------------
