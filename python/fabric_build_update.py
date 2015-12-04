@@ -42,10 +42,23 @@ def uptime():
     #
 
 def install():
-    res = run('ls -la')
+    res = run("touch setup.sh")
+    res = run("echo '#!/bin/sh' >> setup.sh")
+    res = run("echo 'for SCRIPT in updatesteps/*' >> setup.sh")
+    res = run("echo 'do' >> setup.sh")
+    res = run("echo 'if [ -f $SCRIPT -a -x $SCRIPT ]' >> setup.sh")
+    res = run("echo 'then' >> setup.sh")
+    res = run("echo '$SCRIPT' >> setup.sh")
+    res = run("echo 'fi' >> setup.sh")
+    res = run("echo 'done' >> setup.sh")
+
+    res = run('chmod +x setup.sh')
+#   res = run('./setup.sh')
+#   res = run('rm -rf setup.sh')
 
 def main():
     uts_dict = tasks.execute(uptime)
+    uts_dict = tasks.execute(install)
     # 
     # Now, calculate average uptime...
     #
