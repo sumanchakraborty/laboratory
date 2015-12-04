@@ -31,7 +31,7 @@ from fabric.api import run
 from fabric.api import env
 from fabric.network import disconnect_all
 
-env.password = 'reDref3u'
+env.password = ''
 env.hosts = ['root@10.216.110.201']
 
 def uptime():
