@@ -5,3 +5,19 @@ yum install golang
 
 edit .bash_profile & write following line
 export GOPATH="$HOME/laboratory/go/"
+
+RUN
+-------------------------------------------
+go run hello.go
+go build hello.go
+
+BEEGO - Install
+-------------------------------------------
+go get github.com/beego/bee
+
+BEEGO - Project
+-------------------------------------------
+Project will be created ubder $GOPATH/src
+bee new foo
+bee run
+
