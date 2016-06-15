@@ -4,6 +4,14 @@ MAINTAINER Suman Chakraborty <suman.chakraborty@gmail.com>
 
 RUN yum -y update && yum clean all
 RUN yum install -y vim git
+
+# Set ssh for Git
+RUN ssh-keygen
+RUN ssh-agent /bin/bash
+RUN ssh-add ~/.ssh/id_rsa 
+RUN ssh-add -l
+
+# Set environment for Git
 RUN git config --global user.email "suman.chakraborty@gmail.com"
 RUN git config --global user.name "Suman Chakraborty"
 RUN git clone git@github.com:sumanchakraborty/laboratory.git
