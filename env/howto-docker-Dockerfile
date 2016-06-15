@@ -1,0 +1,19 @@
+FROM centos:7
+
+MAINTAINER Suman Chakraborty <suman.chakraborty@gmail.com>
+
+RUN yum -y update && yum clean all
+RUN yum install -y vim git
+RUN git config --global user.email "suman.chakraborty@gmail.com"
+RUN git config --global user.name "Suman Chakraborty"
+RUN git clone git@github.com:sumanchakraborty/laboratory.git
+
+# Set environment variables.
+ENV HOME /root
+
+# Define working directory.
+WORKDIR /laboratory
+
+# Define default command.
+CMD ["bash"]
+
