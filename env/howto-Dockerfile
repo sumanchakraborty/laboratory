@@ -3,8 +3,10 @@ FROM centos:latest
 MAINTAINER Suman Chakraborty <suman.chakraborty@gmail.com>
 
 RUN yum -y update
-RUN yum -y install docker git vim
-RUN yum -y install wget ssh nettools
+RUN yum -y groupinstall 'Development Tools'
+RUN yum -y install docker git vim python
+RUN yum -y install wget ssh nettools curl
+RUN yum -y install tcpdump
 RUN yum -y clean all
 
 # Set ssh for Git
@@ -27,9 +29,9 @@ ENV HOME /root
 WORKDIR /laboratory
 
 # Prepare work environment
-RUN cp /laboratory/env/.vimrc /root
-RUN cp /laboratory/env/.screenrc /root
-RUN cp /laboratory/env/.bash_profile /root
+# RUN cp /laboratory/env/.vimrc /root
+# RUN cp /laboratory/env/.screenrc /root
+# RUN cp /laboratory/env/.bash_profile /root
 
 # Define default command.
 CMD ["bash"]
