@@ -26,6 +26,11 @@ ENV HOME /root
 # Define working directory.
 WORKDIR /laboratory
 
+# Prepare work environment
+RUN cp /laboratory/env/.vimrc /root
+RUN cp /laboratory/env/.screenrc /root
+RUN cp /laboratory/env/.bash_profile /root
+
 # Define default command.
 CMD ["bash"]
 
