@@ -1,15 +1,19 @@
-FROM centos:7
+FROM centos:latest
 
 MAINTAINER Suman Chakraborty <suman.chakraborty@gmail.com>
 
-RUN yum -y update && yum clean all
-RUN yum install -y vim git
+RUN yum -y update
+RUN yum -y install docker git vim
+RUN yum -y install wget ssh nettools
+RUN yum -y clean all
 
 # Set ssh for Git
-RUN ssh-keygen
-RUN ssh-agent /bin/bash
-RUN ssh-add ~/.ssh/id_rsa 
-RUN ssh-add -l
+RUN mkdir -p /root/.ssh
+COPY id_rsa /root/.ssh/id_rsa
+COPY id_rsa.pub /root/.ssh/id_rsa.pub
+RUN chmod 600 /root/.ssh/id_rsa
+RUN chmod 600 /root/.ssh/id_rsa.pub
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Set environment for Git
 RUN git config --global user.email "suman.chakraborty@gmail.com"
