@@ -1,0 +1,41 @@
+
+yum install net-tools dos2unix vim cscope kernel-devel rpmdevtools
+yum install ncurses-devel qt3-devel libXi-devel gcc-c++
+yum install bison bc xmlto asciidoc hmaccalc pesign 
+yum install binutils-devel newt-devel python-devel 
+yum install audit-libs-devel numactl-devel pciutils-devel
+yum install rpm-build redhat-rpm-config perl perl-ExtUtils-Embed
+yum install elfutils-devel elfutils-libelf-devel zlib-devel
+
+rpm -Uvh kernel-<version>.src.rpm
+
+vim SPECS/kernel.spec
+%define buildid .suman
+
+tar -xvJf SOURCES/linux-3.10.0-123.el7.tar.xz
+tar -cvJf SOURCES/linux-3.10.0-123.el7.tar.xz SOURCES/linux-3.10.0-123.el7
+
+rpmbuild -ba --with baseonly --without debuginfo --target=`uname -m` SPECS/kernel.spec
+rpm -ivh --force RPMS/x86_64/kernel-3.10.0-123.el7.suman.x86_64.rpm
+
+printk(KERN_INFO "suman %s:%s:%d\n", __FILE__, __func__, __LINE__);
+
+captuer
+------------------------------
+ifconfig enp0s8 10.10.10.11 netmask 255.255.255.0
+ifconfig enp0s9 10.10.10.22 netmask 255.255.255.0
+
+ethtool -k enp0s8
+ethtool -K enp0s8 rx on; ethtool -K enp0s9 rx on
+ethtool -K enp0s8 tso off; ethtool -K enp0s9 tso off
+ethtool -K enp0s8 gso off; ethtool -K enp0s9 gso off
+
+rm -rf snd.pcap; tcpdump -i enp0s8 -w snd.pcap
+rm -rf rcv.pcap; tcpdump -i enp0s9 -w rcv.pcap
+
+./get4_ll_rcv enp0s9 2
+./get4_ll_snd enp0s8 enp0s9 2
+
+
+
+
