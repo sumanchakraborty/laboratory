@@ -6,7 +6,7 @@ RUN yum -y update
 RUN yum -y groupinstall 'Development Tools'
 RUN yum -y install docker git vim python
 RUN yum -y install wget ssh nettools curl
-RUN yum -y install tcpdump
+RUN yum -y install tcpdump gnuplot doxygen
 RUN yum -y clean all
 
 # Set ssh for Git
