@@ -5,15 +5,17 @@ MAINTAINER Suman Chakraborty <suman.chakraborty@gmail.com>
 RUN yum -y update
 RUN yum -y groupinstall 'Development Tools'
 RUN yum -y install epel-release
-RUN yum -y install docker git vim python
+RUN yum -y install docker git vim dos2unix
 RUN yum -y install wget ssh nettools curl
 RUN yum -y install tcpdump gnuplot doxygen
-RUN yum -y install dos2unix python-pip
 RUN yum -y clean all
 
-# python library
-RUN pip install pandas numpy
-RUN pip install scipy matplotlib
+# python
+# seaborn dependencies - numpy, scipy, matplotlib, pandas
+RUN yum -y install python python-pip python-devel
+RUN yum -y install lapack lapack-devel blas blas-devel
+RUN yum -y install freetype-devel libpng-devel
+RUN pip install keras seaborn
 
 # Set ssh for Git
 RUN mkdir -p /root/.ssh
