@@ -15,7 +15,8 @@ RUN yum -y clean all
 RUN yum -y install python python-pip python-devel
 RUN yum -y install lapack lapack-devel blas blas-devel
 RUN yum -y install freetype-devel libpng-devel
-RUN pip install keras seaborn
+RUN pip install scikit-learn keras seaborn
+RUN pip install keras --upgrade
 
 # Set ssh for Git
 RUN mkdir -p /root/.ssh
