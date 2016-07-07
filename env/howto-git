@@ -4,6 +4,7 @@ git clone git@github.com:sumanchakraborty/laboratory.git
 
 sync
 -------------------
+git pull (within directiry)
 git pull git@github.com:bashrc/libdeep.git
 
 commit
