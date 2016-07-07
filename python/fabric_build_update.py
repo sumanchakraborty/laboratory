@@ -1,9 +1,9 @@
 
 '''
-Lab - Average Uptime
+suman.chakraborty@gmail.com
 
-Write a script that uses the Fabric library to poll a group of hosts for their
-uptimes, and displays their average uptime for the user.
+Script that uses the fabric library to install a build 
+by reading json configuration file.
 
 cd /var/tmp/
 /usr/bin/strikepack.rb D update_vm-183596-234843.bps update.tar.bz2
@@ -32,14 +32,16 @@ from fabric.api import run, env
 from fabric.context_managers import cd
 from fabric.network import disconnect_all
 
+URL = "http://foo"
 CONFIG = 'fabric_build_update.json'
-URL = "http://10.218.2.22/builds/main/254651/updates/update_vm-183596-254651.bps"
 
 def configure():
+    global URL
     with open(CONFIG) as data_file:    
         data = json.load(data_file)
         node_count = len(data["nodes"])
-        print "URL: " + data["url"]
+        URL = data["url"]
+        print "URL: " + URL
         print "Node Count: " + str(node_count)
         index = 0
         env.user = 'root'
@@ -54,6 +56,7 @@ def reboot():
     res = run("reboot")
 
 def download():
+    global URL
     with cd('/var/tmp'):
         res = run("rm -rf update*")
         res = run("wget -nv -O update.bps "+ URL)
