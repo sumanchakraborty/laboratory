@@ -8,5 +8,5 @@ rm -rf $1
 
 echo "gcc -g -o $1 $1.c -lpcap"
 # gcc -g -o $1 $1.c -lpcap -lpthread
-gcc -g -o $1 $1.c
+gcc -Wall -g -o $1 $1.c
 
