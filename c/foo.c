@@ -1,4 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+struct layer {
+    int r_count; // row
+    int c_count; // column
+    int index;
+    int *arr;
+    int arrLen;
+};
+typedef struct layer layer_t;
 
 inline int layer_count(int R, int C)
 {
@@ -19,33 +29,40 @@ inline int element_count(int R, int C, int i)
 	return 2*r + 2*c - 4;
 }
 
-int *prepare_array(int **M, int R, int C, int i)
+inline int get_layer(layer_t *l, int R, int C, int i)
 {
-    int ei = 0;
-	int *ea = 0;
+    l->index = i;
+    l->r_count = R - (i*2);
+    l->c_count = C - (i*2);
+	l->arrLen = (2 * l->r_count) + 
+                (2 * l->c_count) - 4;
+	l->arr = (int*)malloc(l->arrLen*sizeof(int));
+}
 
-	ec = element_count(R, C, i);
-	ea = (int*)malloc(ec*sizeof(int));
+int prepare_array(int **M, layer_t *l)
+{
+    int ri = 0, ci = 0;
+    int ei = 0;
 
 	// get element array
     // right
     for (ci = i; ci < c - 1; ci++) {
-        ea[ei++] = M[i][ci];
+        l->arr[ei++] = M[i][ci];
     }
     // down
     for (ri = i; ri < r - 1; ri++) {
-        ea[ei++] = M[ri][ci];
+        l->arr[ei++] = M[ri][ci];
     }
     // left
     for (ci = c - 1; ci > 0; ci--) {
-        ea[ei++] = M[r-1][ci];
+        l->arr[ei++] = M[r-1][ci];
     }
     // up
     for (ri = r - 1; ri > 0; ri--) {
-        ea[ei++] = M[ri][i];
+        l->arr[ei++] = M[ri][i];
     }
 
-    return ea;
+    return;
 }
 
 void rotate_array(int *A, int R, int C, int i, int S)
@@ -66,6 +83,7 @@ void rotate_array(int *A, int R, int C, int i, int S)
 void restore_array(int *A, int **M, int R, int C, int i)
 {
     int ei = 0;
+    int ri = 0, ci = 0;
 
     // right
     for (ci = i; ci < c - 1; ci++) {
@@ -102,17 +120,31 @@ void print_matrix(int **M, int R, int C)
 
 int main ()
 {
-	// read matrix M, 
-	// R - row
-	// C - column
-	// S - steps
+    int **M = 0; // matrix
+    int i = 0, j = 0;
+    int r = 0, c = 0;
+    int R = 0, C = 0, S = 0; // row, col, steps
+    layer_t l;
+
+    scanf("%d %d %d", &R, &C, &S);
+    M = (int*)malloc(R*sizeof(int*));
+    for (i = 0; i < R; i++) {
+        M[i] = (int*)malloc(C*sizeof(int));
+    }
+
+    for (i = 0; i < R; i++) {
+        for (j = 0; j < C; j++) {
+            scanf("%d", &M[i][j]);
+        }
+    }
 
 	int* A = 0;
-	int i = 0, j = 0;
 	int c = layer_count(R, C);
 	
 	for (i = 0; i < c; i++) {
-		A = prepare_array(M, R, C, i);
+        // get row column
+        get_layer(&l, R, C, i);
+		prepare_array(M, &l);
 		rotate_array(A, R, C, i, S);
 		restore_array(A, M, R, C, i);
 	}
