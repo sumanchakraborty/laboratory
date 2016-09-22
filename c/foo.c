@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DEBUG(...)                    \
 {                                     \
@@ -46,16 +47,6 @@ inline int layer_count(int R, int C)
 	return count;
 }
 
-inline int element_count(int R, int C, int i)
-{
-	// get row column
-	int r = R - (i*2);
-	int c = C - (i*2);
-
-	// get element count
-	return 2*r + 2*c - 4;
-}
-
 inline int get_layer(layer_t *l, int R, int C, int i)
 {
     l->index = i;
@@ -64,8 +55,10 @@ inline int get_layer(layer_t *l, int R, int C, int i)
 	l->arrLen = (2 * l->r_count) + 
                 (2 * l->c_count) - 4;
 	l->arr = (int*)malloc(l->arrLen*sizeof(int));
+#if 0
     DEBUG("layer [%d]: row %d, col %d, element %d \n", 
             l->index, l->r_count, l->c_count, l->arrLen);
+#endif
     return 0;
 }
 
@@ -110,17 +103,20 @@ int prepare_array(int **M, layer_t *l)
 
 void rotate_array(layer_t *l, int S)
 {
-    int i = 0, x = 0;
+    int i = 0;
     int *A = l->arr;
-    int ec = l->arrLen;
+    int N = l->arrLen;
+    int F = N - (S % N);
 
-    // following is 1 step rotation
-    x = A[0];
-    for (i = 0; i < ec - 1; i++) {
-        A[i] = A[i+1];
+    int *B = malloc(N*sizeof(int));
+    memcpy(B, A, N*sizeof(int));
+
+    // rotate S steps
+    for (i = 0; i < N; i++) {
+        A[(F+i)%N] = B[i];
     }
-    A[i] = x;
 
+    free(B);
     return;
 }
 
@@ -183,13 +179,12 @@ int main ()
         }
     }
 
-    printf("--- before ---\n");
     print_matrix(M, R, C);
 
     layer_t l;
 	int lc = layer_count(R, C);
 
-    DEBUG("layer count - %d\n", lc);
+    //DEBUG("layer count - %d\n", lc);
 	
 	for (i = 0; i < lc; i++) {
         // get row column
@@ -199,7 +194,7 @@ int main ()
 		restore_array(M, &l);
 	}
 
-    printf("--- after ---\n");
+    printf("--- result ---\n");
     print_matrix(M, R, C);
 
     delete_matrix(M, R, C);
