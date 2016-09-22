@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DEBUG(...)                    \
+{                                     \
+    printf("DEBUG [%d]: ", __LINE__);  \
+    printf(__VA_ARGS__);              \
+}
+
 struct layer {
     int r_count; // row
     int c_count; // column
@@ -12,12 +18,23 @@ typedef struct layer layer_t;
 
 inline int **create_matrix(int R, int C)
 {
+    int i = 0;
     int **M = 0;
     M = malloc(R*sizeof(int*));
     for (i = 0; i < R; i++) {
         M[i] = malloc(C*sizeof(int));
     }
     return M;
+}
+
+inline void delete_matrix(int **M, int R, int C)
+{
+    int i = 0;
+    for (i = 0; i < R; i++) {
+        free(M[i]);
+    }
+    free(M);
+    return;
 }
 
 inline int layer_count(int R, int C)
@@ -47,6 +64,8 @@ inline int get_layer(layer_t *l, int R, int C, int i)
 	l->arrLen = (2 * l->r_count) + 
                 (2 * l->c_count) - 4;
 	l->arr = (int*)malloc(l->arrLen*sizeof(int));
+    DEBUG("layer [%d]: row %d, col %d, element %d \n", 
+            l->index, l->r_count, l->c_count, l->arrLen);
     return 0;
 }
 
@@ -61,21 +80,30 @@ int prepare_array(int **M, layer_t *l)
 
 	// get element array
     // right
-    for (ci = i; ci < c - 1; ci++) {
-        A[ei++] = M[i][ci];
+    for (ci = 0; ci < c - 1; ci++) {
+        A[ei++] = M[i][i+ci];
     }
     // down
-    for (ri = i; ri < r - 1; ri++) {
-        A[ei++] = M[ri][ci];
+    for (ri = 0; ri < r - 1; ri++) {
+        A[ei++] = M[i+ri][i+ci];
     }
     // left
     for (ci = c - 1; ci > 0; ci--) {
-        A[ei++] = M[r-1][ci];
+        A[ei++] = M[i+r-1][i+ci];
     }
     // up
     for (ri = r - 1; ri > 0; ri--) {
-        A[ei++] = M[ri][i];
+        A[ei++] = M[i+ri][i];
     }
+
+#if 0
+    // print array
+    printf("\nDEBUG: array - ");
+    for (i = 0; i < l->arrLen; i++) {
+        printf("%d, ", l->arr[i]);
+    }
+    printf("\n");
+#endif
 
     return 0;
 }
@@ -106,20 +134,20 @@ void restore_array(int **M, layer_t *l)
     int r = l->r_count;
 
     // right
-    for (ci = i; ci < c - 1; ci++) {
-        M[i][ci] = A[ei++];
+    for (ci = 0; ci < c - 1; ci++) {
+        M[i][i+ci] = A[ei++];
     }
     // down
-    for (ri = i; ri < r - 1; ri++) {
-        M[ri][ci] = A[ei++];
+    for (ri = 0; ri < r - 1; ri++) {
+        M[i+ri][i+ci] = A[ei++];
     }
     // left
     for (ci = c - 1; ci > 0; ci--) {
-        M[r-1][ci] = A[ei++];
+        M[i+r-1][i+ci] = A[ei++];
     }
     // up
     for (ri = r - 1; ri > 0; ri--) {
-        M[ri][i] = A[ei++];
+        M[i+ri][i] = A[ei++];
     }
 
     free(l->arr);
@@ -145,7 +173,6 @@ int main ()
     int **M = 0; // matrix
     int i = 0, j = 0;
     int R = 0, C = 0, S = 0; // row, col, steps
-    layer_t l;
 
     scanf("%d %d %d", &R, &C, &S);
     M = create_matrix(R, C);
@@ -159,7 +186,10 @@ int main ()
     printf("--- before ---\n");
     print_matrix(M, R, C);
 
+    layer_t l;
 	int lc = layer_count(R, C);
+
+    DEBUG("layer count - %d\n", lc);
 	
 	for (i = 0; i < lc; i++) {
         // get row column
