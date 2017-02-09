@@ -1,0 +1,7 @@
+#!/bin/bash
+
+docker login --username=sumanchakraborty --email=suman.chakraborty@gmail.com
+# imput password
+docker tag lab:latest sumanchakraborty/lab:latest
+docker push sumanchakraborty/lab:latest
+
