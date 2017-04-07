@@ -15,7 +15,7 @@ RUN yum -y clean all
 RUN yum -y install python python-pip python-devel
 RUN yum -y install lapack lapack-devel blas blas-devel
 RUN yum -y install freetype-devel libpng-devel
-RUN pip install keras seaborn --upgrade
+RUN pip install scapy keras seaborn --upgrade
 
 # Set ssh for Git
 RUN mkdir -p /root/.ssh
@@ -32,6 +32,9 @@ RUN git config --global diff.tool vimdiff
 RUN git config --global difftool.prompt false
 RUN git config --global alias.d difftool
 RUN git clone git@github.com:sumanchakraborty/laboratory.git
+
+# Moutn shared volume
+ADD . /shared
 
 # Set environment variables.
 ENV HOME /root
