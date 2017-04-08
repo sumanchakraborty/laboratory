@@ -48,3 +48,7 @@ COPY across containers & hosts
 docker ps - get <containerId> 
 docker cp <containerId>:/file/path/within/container /host/path/target
 
+Remove Docker images
+------------------------------------------
+docker rmi -f $(docker images -f dangling=true -q)
+docker rmi -f $(docker images -aq)
