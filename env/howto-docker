@@ -50,5 +50,6 @@ docker cp <containerId>:/file/path/within/container /host/path/target
 
 Remove Docker images
 ------------------------------------------
+docker stop $(docker ps -aq); docker rm $(docker ps -aq)
 docker rmi -f $(docker images -f dangling=true -q)
 docker rmi -f $(docker images -aq)
