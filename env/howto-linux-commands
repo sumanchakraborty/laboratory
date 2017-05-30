@@ -1,1 +1,2 @@
 grep -rl "pattern" --include=\*.{c,h} --exclude=\*.{o,so}
+watch "dmesg | tail -20"
