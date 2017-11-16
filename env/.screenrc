@@ -94,9 +94,11 @@ shell -$SHELL
 #  bindkey -k k7 prev
 #  bindkey -k k8 next
 
+# ===============================================================
+# VBELL:
+# ===============================================================
+# To permanently disable the visual bell
+  vbell off
+
   screen -t build
-  screen -t nfs
-  screen -t kse
-# screen -t smb
-# screen -t iscsi
-# screen -t amazon
+  screen -t source
