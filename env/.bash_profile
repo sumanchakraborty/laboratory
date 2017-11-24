@@ -8,11 +8,9 @@ fi
 # ===============================================================
 # SYSTEM
 # ===============================================================
-# oldPS1=$PS1
-# oldPS2=$PS2
-# export PS1="suman>"
   export PS1="\u@\h \w> "
   export PATH=$PATH:$HOME/bin
+  export CSCOPE_EDITOR=vim
 
 # ===============================================================
 # GIT Prompt Configuration
