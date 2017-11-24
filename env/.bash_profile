@@ -15,6 +15,14 @@ fi
   export PATH=$PATH:$HOME/bin
 
 # ===============================================================
+# GIT Prompt Configuration
+# ===============================================================
+# export GIT_PS1_SHOWDIRTYSTATE=1
+# export GIT_PS1_SHOWCOLORHINTS=1
+# export GIT_PS1_SHOWUNTRACKEDFILES=1
+# export PS1='\[\033[1;36m\]\u@\h:\[\033[0m\]\[\033[1;34m\]\w\[\033[0m\] \[\033[1;32m\]$(__git_ps1)\[\033[0m\]\$ '
+
+# ===============================================================
 # ENVIRONMENT VARIABLES
 # ===============================================================
 # export P4USER=schakraborty
