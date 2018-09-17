@@ -1,6 +1,7 @@
 checkout
 -------------------
 git clone git@github.com:sumanchakraborty/laboratory.git
+git clone git@github.com:sumanchakraborty/laboratory.git -b <branch> <branch>
 
 sync
 -------------------
