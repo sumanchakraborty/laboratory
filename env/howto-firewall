@@ -1,0 +1,26 @@
+
+display services 
+----------------
+firewall-cmd --zone=public --list-service
+firewall-cmd --zone=public --permanent --list-service
+
+display ports
+-------------
+firewall-cmd --zone=public --list-ports;
+firewall-cmd --zone=public --permanent --list-ports;
+
+add service
+-----------
+firewall-cmd --zone=public --add-service=http
+firewall-cmd --zone=public --permanent --add-service=http
+
+add port
+--------
+firewall-cmd --zone=public --add-port=8080/tcp;
+firewall-cmd --zone=public --permanent --add-port=8080/tcp;
+
+remove port
+-----------
+firewall-cmd --zone=public --remove-port=8080/tcp;
+firewall-cmd --zone=public --permanent --remove-port=8080/tcp;
+
