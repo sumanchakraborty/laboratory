@@ -42,6 +42,13 @@ fi
   alias screenl='screen -ls'
   alias screeno='screen -S suman'
   alias screenc='screen -S suman -X quit'
+
+# ===============================================================
+# COMMAND ALIAS
+# ===============================================================
+  export GOPATH=~/go
+  export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+
 # build
 # alias ixvm='cd perforce-bps/ixvm/ &&
 #             source p4env &&
