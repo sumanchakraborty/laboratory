@@ -12,8 +12,8 @@ commit
 -------------------
 <edit>
 git status
-git add -A . (or file name)
-git commit -m "description about change"
+git add -A . (or file name) - OR -
+git commit -a -m "description about change"
 git push origin master
 
 verify
