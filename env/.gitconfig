@@ -120,17 +120,33 @@
 	st = status -sb
 	ci = commit
 	co = checkout
-        graph = log --graph --oneline --decorate=short --branches='*'
 	br = branch
-	df = diff --color-words='[^[:space:]]'
 	sh = show --color-words='[^[:space:]]'
 	lg = log -p
-        serve = !git daemon --reuseaddr --verbose --base-path=. --export-all ./.git
-        pend = cherry -v origin/master
+    serve = !git daemon --reuseaddr --verbose --base-path=. --export-all ./.git
+    pend = cherry -v origin/master
 #	prefab = cherry -v origin/fabrication
+# ------------------------
+# diff
+# ------------------------
+	df = diff --color-words='[^[:space:]]'
+	dt = difftool
+# ------------------------
+# log graph
+# ------------------------
+    bd = log master..dev-6.5.0
+    lg = log --graph --oneline --decorate=short --branches='*'
+    lg1 = !"git lg1-specific --all"
+    lg2 = !"git lg2-specific --all"
+    lg3 = !"git lg3-specific --all"
+
+    lg1-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+    lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+    lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
+
 [format]
-        pretty = '%C(yellow)%h%Creset %C(magenta)%cd%Creset %d %s'
+    pretty = '%C(yellow)%h%Creset %C(magenta)%cd%Creset %d %s'
 [user]
-	email = suman.chakraborty@tallysolutions.com
+	email = suman.chakraborty@rsa.com
 	name = Suman Chakraborty
 
