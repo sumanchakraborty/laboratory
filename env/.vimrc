@@ -1,12 +1,14 @@
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Install Vundle from
-" https://github.com/VundleVim/Vundle.vim
+" Vundle
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-colorscheme desert
+" git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+" cp ~/laboratory/env/plugins.vim ~/.vim/
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+so ~/.vim/plugins.vim
 
 syntax on
+colorscheme sublimemonokai
 
 set shiftwidth=4
 set expandtab
@@ -19,11 +21,7 @@ set hlsearch            " Highlight search matches.
 set noerrorbells        " No beeps.
 set tabstop=4           " Number of spaces <tab> counts for.
 set textwidth=0         " Don't wrap words by default.
-
-set guifont=Neep\ 20
-
-" set columns=80
-
+set t_Co=256
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CSCOPE settings for vim           
