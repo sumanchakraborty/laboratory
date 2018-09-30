@@ -8,7 +8,6 @@
 so ~/.vim/plugins.vim
 
 syntax on
-colorscheme sublimemonokai
 
 set shiftwidth=4
 set expandtab
@@ -346,3 +345,10 @@ call <SID>EnableMultiWin()
 
 let s:loaded = 1
 " vim:ts=4:fo=roq:
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Themes
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" colorscheme molokai
+  colorscheme sublimemonokai
+
