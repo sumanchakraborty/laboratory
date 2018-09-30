@@ -35,12 +35,11 @@ fi
   alias ..='cd ..'
   alias ll='ls -lahGFh'
   alias vi='vim'
-# screen
-  alias screenx='screen -x'                 # attach
-  alias screenr='screen -r'                 # resume
-  alias screenl='screen -ls'
-  alias screeno='screen -S suman'
-  alias screenc='screen -S suman -X quit'
+# tmux
+  alias tmuxo='tmux new -s suman'
+  alias tmuxa='tmux attach -t suman'
+  alias tmuxl='tmux list-sessions'
+  alias tmuxc='tmux kill-session -t suman'
 
 # ===============================================================
 # COMMAND ALIAS
