@@ -1,0 +1,17 @@
+
+Get latest tmux
+---------------
+https://liyang85.github.io/how-to-install-the-latest-stable-tmux-on-centos7.html
+
+yum install libevent
+yum install libevent-devel
+
+wget https://github.com/tmux/tmux/releases/download/2.4/tmux-2.4.tar.gz
+tar xzf tmux-2.4.tar.gz
+cd tmux-2.4
+./configure && make
+sudo make install
+
+tmux plugin
+-----------
+https://github.com/tmux-plugins/tpm
