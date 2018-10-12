@@ -47,17 +47,11 @@ fi
   export GOPATH=~/go
   export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
-# build
-# alias ixvm='cd perforce-bps/ixvm/ &&
-#             source p4env &&
-#             cd bpslinuxcontroller/main/'
-# alias cdvm='cd perforce-bps/bps-vm/ &&
-#             source p4env &&
-#             cd main/tests/libsoftnp/'
-# alias cdps='cd perforce-bps/bps-ps/ &&
-#             source p4env &&
-#             cd main/tests/libsoftnp/'
-# alias cdfs='cd perforce-bps/bps-fs/ &&
-#             source p4env &&
-#             cd main/tests/libsoftnp/'
+# utility
+  alias cdlab='cd ~ && date &&
+               cd laboratory/ &&
+               git br'
+  alias cdwtd='cd ~ && date &&
+               cd wtd/code/main3/ &&
+               git br'
 
