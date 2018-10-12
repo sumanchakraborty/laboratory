@@ -117,6 +117,7 @@
 [log]
         date = short
 [alias]
+    tg = describe --tags
 	st = status -sb
 	ci = commit
 	co = checkout
