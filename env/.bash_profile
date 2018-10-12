@@ -36,10 +36,11 @@ fi
   alias ll='ls -lahGFh'
   alias vi='vim'
 # tmux
+  alias tmux="TERM=screen-256color tmux"
   alias tmuxo='tmux new -s suman'
-  alias tmuxa='tmux attach -t suman'
+  alias tmuxa='tmux attach'
   alias tmuxl='tmux list-sessions'
-  alias tmuxc='tmux kill-session -t suman'
+  alias tmuxk='tmux kill-session -t suman'
 
 # ===============================================================
 # COMMAND ALIAS
