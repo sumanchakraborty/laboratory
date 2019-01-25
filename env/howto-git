@@ -28,6 +28,13 @@ git config --global difftool.prompt false
 git config --global alias.d difftool
 git status [get <file> name]
 git d <file>
+git difftool <file>
+git difftool <hash>~ <hash>
+
+tag
+-------------------
+git tag -a <tag> '-mRelease candidate <tag>'
+git push origin <tag>
 
 --------------------------------------------------
 SETUP SSH & GIT ACCOUNT
