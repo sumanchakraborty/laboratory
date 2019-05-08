@@ -1,0 +1,4 @@
+docker rm test
+docker build -t goapp:1.0 .
+docker images
+docker run <IMAGE-ID>
