@@ -60,4 +60,12 @@ ssh-add -l
 Step 4. Install the public key on GitHub account
 cat ~/.ssh/id_rsa.pub
 copy this content to github account
+
+Step 5. (Optional) if broken pipe 
+vim .ssh/config
+Host *
+   ServerAliveInterval 600
+   TCPKeepAlive yes
+   IPQoS=throughput
+chmod 600 .ssh/config
 --------------------------------------------------
