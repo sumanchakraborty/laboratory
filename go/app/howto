@@ -1,4 +1,0 @@
-go run app.go
-http://10.216.102.30:9090/login
-
-https://astaxie.gitbooks.io/build-web-application-with-golang/en/04.1.html
