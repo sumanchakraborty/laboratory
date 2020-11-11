@@ -102,9 +102,11 @@ following features:
 
 -   The SRDF Module supports the following functionalities for concurrent configuration: 
 
+>
 > **NOTE:** See [SRDF 
 > documentation](https://www.dellemc.com/fi-fi/collaterals/unauth/technical-guides-support-information/products/storage/docu88915.pdf) 
 > for more details about SRDF functionality.
+>
 
     -   Create concurrent SRDF pair with the following replication modes:
         -   Synchronous
