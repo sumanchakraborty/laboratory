@@ -13,8 +13,7 @@
 
 **Ansible Modules for Dell EMC PowerMax** 
 =========================================
-
-# Release Notes 1.2
+## Release Notes 1.2
 
 Notes, cautions, and warnings
 =============================
@@ -95,17 +94,16 @@ following features:
 
   ○ Remove volumes from SDRF protected storage group.
 
-  **NOTE:** Add/ Remove volume to/from SRDF protected storage group is
-  supported from PowerMax Foxtail version (v5978.444.444) onwards.
+  > **NOTE:** Add/ Remove volume to/from SRDF protected storage group is
+  > supported from PowerMax Foxtail version (v5978.444.444) onwards.
 
 -   The following enhancements have been made in Volume module:
 
-    1.  Add new volume to SDRF protected storage group.
+    -   Add new volume to SDRF protected storage group.
+    -   Expand volume which is part of SRDF protected storage group.
 
-  ○ Expand volume which is part of SRDF protected storage group.
-
-  **NOTE:** Add/Expand volume to/from SRDF protected storage group is
-  supported from PowerMax Foxtail version (v5978.444.444) onwards.
+> **NOTE:** Add/Expand volume to/from SRDF protected storage group is
+> supported from PowerMax Foxtail version (v5978.444.444) onwards.
 
 -   The SRDF Module supports the following functionalities for
     concurrent configuration: **NOTE:** See [SRDF
