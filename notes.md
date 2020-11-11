@@ -11,9 +11,10 @@
     -   [Troubleshoot and get help](#troubleshoot-and-get-help)
         -   [Technical support](#technical-support)
 
-**Ansible Modules for Dell EMC PowerMax** Release Notes
+**Ansible Modules for Dell EMC PowerMax** 
+=========================================
 
-**1.2**
+# Release Notes 1.2
 
 Notes, cautions, and warnings
 =============================
@@ -31,10 +32,6 @@ injury, or death.**
 EMC, and other trademarks are trademarks of Dell Inc. or its
 subsidiaries. Other trademarks may be trademarks of their respective
 owners.
-
-**1**
-
-**Release Notes**
 
 These release notes contain supplemental information about Ansible
 Modules for Dell EMC PowerMax. Topics include: **Topics:**
@@ -109,8 +106,6 @@ following features:
 
   **NOTE:** Add/Expand volume to/from SRDF protected storage group is
   supported from PowerMax Foxtail version (v5978.444.444) onwards.
-
-**Release Notes 3**
 
 -   The SRDF Module supports the following functionalities for
     concurrent configuration: **NOTE:** See [SRDF
@@ -198,8 +193,6 @@ for Dell EMC PowerMax.
 -   PyU4V v9.1 and above are supported in this release. ● PyU4V v3.x and
       Unisphere v9.0 are not supported.
 
-**4 Release Notes**
-
 Software media, organization, and files
 =======================================
 
@@ -225,8 +218,8 @@ The Ansible Modules for Dell EMC PowerMax is available on [Ansible
 Modules for PowerMax GitHub](https://github.com/dell/ansible-powermax)
 page. The documentation includes the following:
 
-● Ansible Modules for Dell EMC PowerMax Release Notes (this document) ●
-Ansible Modules for Dell EMC PowerMax Product Guide
+● Ansible Modules for Dell EMC PowerMax Release Notes (this document) 
+● Ansible Modules for Dell EMC PowerMax Product Guide
 
 Troubleshoot and get help
 -------------------------
@@ -246,4 +239,3 @@ community](https://www.dell.com/community/Automation/bd-p/Automation).
 For any issues with Dell EMC Storage, contact [Dell EMC Online
 Support](http://www.dell.com/support).
 
-**Release Notes 5**
