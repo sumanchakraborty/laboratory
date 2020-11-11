@@ -89,16 +89,13 @@ The Ansible Modules for Dell EMC PowerMax release 1.2 supports the
 following features:
 
 -   The following enhancements have been made in Storage Group module:
+    -   Add new volumes to SDRF protected storage group.
+    -   Remove volumes from SDRF protected storage group.
 
-    1.  Add new volumes to SDRF protected storage group.
-
-  ○ Remove volumes from SDRF protected storage group.
-
-  > **NOTE:** Add/ Remove volume to/from SRDF protected storage group is
-  > supported from PowerMax Foxtail version (v5978.444.444) onwards.
+> **NOTE:** Add/ Remove volume to/from SRDF protected storage group is
+> supported from PowerMax Foxtail version (v5978.444.444) onwards.
 
 -   The following enhancements have been made in Volume module:
-
     -   Add new volume to SDRF protected storage group.
     -   Expand volume which is part of SRDF protected storage group.
 
