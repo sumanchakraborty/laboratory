@@ -69,14 +69,12 @@ The Ansible Modules for Dell EMC PowerMax supports the following
 features:
 
 -   Create volumes, storage groups, hosts, host groups, port groups,
-    masking views, and snapshots of a storage group. ● Modify volumes,
-    storage groups, hosts, host groups, and port groups in the array.
-
+    masking views, and snapshots of a storage group. 
+-   Modify volumes, storage groups, hosts, host groups, and port
+    groups in the array.
 -   Delete volumes, storage groups, hosts, host groups, port groups,
     masking views, and snapshots of a storage group.
-
 -   Get details of a port.
-
 -   Get entities of the array.
 
 New features and changes
@@ -113,7 +111,6 @@ following features:
         -   Asynchronous
         -   Adaptive copy
         -   Active mode
-
     -   Get SRDF pair states for a given storage group and RDFG number.
     -   Modify concurrent SRDF pair mode. 
     -   Perform the following operations:
