@@ -13,7 +13,7 @@
 
 **Ansible Modules for Dell EMC PowerMax** 
 =========================================
-## Release Notes 1.2
+### Release Notes 1.2
 
 Notes, cautions, and warnings
 =============================
@@ -102,63 +102,46 @@ following features:
 > **NOTE:** Add/Expand volume to/from SRDF protected storage group is
 > supported from PowerMax Foxtail version (v5978.444.444) onwards.
 
--   The SRDF Module supports the following functionalities for
-    concurrent configuration: **NOTE:** See [SRDF
-    documentation](https://www.dellemc.com/fi-fi/collaterals/unauth/technical-guides-support-information/products/storage/docu88915.pdf)
-    for more details about SRDF functionality.
+-   The SRDF Module supports the following functionalities for concurrent configuration: 
 
-    1.  Create concurrent SRDF pair with the following replication
-          modes:
+>   **NOTE:** See [SRDF
+>   documentation](https://www.dellemc.com/fi-fi/collaterals/unauth/technical-guides-support-information/products/storage/docu88915.pdf)
+>   for more details about SRDF functionality.
 
-  ￭ Synchronous
+    -   Create concurrent SRDF pair with the following replication modes:
+        -   Synchronous
+        -   Asynchronous
+        -   Adaptive copy
+        -   Active mode
 
-  ￭ Asynchronous
+    -   Get SRDF pair states for a given storage group and RDFG number.
+    -   Modify concurrent SRDF pair mode. 
+    -   Perform the following operations:
+        -   Establish
+        -   Restore 
+        -   Swap
+        -   Failover
+        -   Resume
+        -   Suspend
+        -   Split
+        -   Failback
+        -   Setbias
 
-  ￭ Adaptive copy
-
-  ￭ Active mode
-
-  ○ Get SRDF pair states for a given storage group and RDFG number.
-
-  ○ Modify concurrent SRDF pair mode. ○ Perform the following
-  operations:
-
-  ￭ Establish
-
-  ￭ Restore ￭ Swap
-
-  ￭ Failover
-
-  ￭ Resume
-
-  ￭ Suspend
-
-  ￭ Split
-
-  ￭ Failback
-
-  ￭ Setbias
-
-  ○ Delete concurrent SRDF pair.
+    -   Delete concurrent SRDF pair.
 
 -   Support for Unisphere 9.1 and above
-
 -   Support for Python version 2.7 and above
-
 -   Support for PyU4V python library version 9.1.0.0 and above
 
-  **NOTE:** Unisphere Version 9.1 is compatible with PowerMax Python
-  library version 9.1.x.x and similarly Unisphere version above 9.1 will
-  only work with Python library version greater than 9.1.x.x.
+> **NOTE:** Unisphere Version 9.1 is compatible with PowerMax Python
+> library version 9.1.x.x and similarly Unisphere version above 9.1 will
+> only work with Python library version greater than 9.1.x.x.
 
 -   Support for PowerMaxOS 5978.665.665
 
 The following enhancements have been made in Gather Facts module:
-
 -   Supports Health key to get the health status of PowerMax array.
-
 -   Supports Generic filters that return a subset of storage entities.
-
 -   Return section has been added for each module.
 
 Known problems and limitations
@@ -167,10 +150,11 @@ Known problems and limitations
 This section lists the known problems and limitations of Ansible modules
 for Dell EMC PowerMax.
 
-● Known problems ● Limitations
+● Known problems 
+● Limitations
 
-**Known problems**
-
+Known problems
+--------------
 There are no known problems in this release.
 
 Limitations
@@ -180,11 +164,9 @@ This section lists the limitations in this release of Ansible modules
 for Dell EMC PowerMax.
 
 -   Star and Cascaded multisite SRDF configurations are not supported.
-
 -   The Invalidate, Ready, Not Ready, Move Pairs, and Refresh SRDF
       pairing operations are not supported. ● Migration use cases are
       not supported through the SRDF Module.
-
 -   PyU4V v9.1 and above are supported in this release. ● PyU4V v3.x and
       Unisphere v9.0 are not supported.
 
@@ -199,13 +181,11 @@ for PowerMax GitHub](https://github.com/dell/ansible-powermax) page.
 
 Additional resources
 ====================
-
 This section provides more information about the product, how to get
 support, and provide feedback.
 
 Documentation
 -------------
-
 This section lists the related documentation for Ansible Modules for
 Dell EMC PowerMax.
 
@@ -218,7 +198,6 @@ page. The documentation includes the following:
 
 Troubleshoot and get help
 -------------------------
-
 Use the resources in this topic to get help and support.
 
 ### Technical support
@@ -228,9 +207,6 @@ provided under the terms of the license that is attached to the source
 code. Dell EMC does not provide support for any source code
 modifications.
 
-For Ansible configuration, setup issues, or questions, use the [Dell EMC
-Automation
-community](https://www.dell.com/community/Automation/bd-p/Automation).
-For any issues with Dell EMC Storage, contact [Dell EMC Online
-Support](http://www.dell.com/support).
+-   For Ansible configuration, setup issues, or questions, use the [Dell EMC Automation community](https://www.dell.com/community/Automation/bd-p/Automation).
+-   For any issues with Dell EMC Storage, contact [Dell EMC Online Support](http://www.dell.com/support).
 
