@@ -1,4 +1,13 @@
--   [Notes, cautions, and warnings](#notes-cautions-and-warnings)
+
+**Ansible Modules for Dell EMC PowerMax** 
+=========================================
+### Release Notes 1.2
+
+Content
+=======
+These release notes contain supplemental information about Ansible
+Modules for Dell EMC PowerMax. Topics include: **Topics:**
+
 -   [Revision history](#revision-history)
 -   [Product description](#product-description)
 -   [New features and changes](#new-features-and-changes)
@@ -11,29 +20,6 @@
     -   [Troubleshoot and get help](#troubleshoot-and-get-help)
         -   [Technical support](#technical-support)
 
-**Ansible Modules for Dell EMC PowerMax** 
-=========================================
-### Release Notes 1.2
-
-Notes, cautions, and warnings
-=============================
-
-**NOTE:** A NOTE indicates important information that helps you make
-better use of your product.
-
-**CAUTION: A CAUTION indicates either potential damage to hardware or
-loss of data and tells you how to avoid the problem.**
-
-**WARNING: A WARNING indicates a potential for property damage, personal
-injury, or death.**
-
-© 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
-EMC, and other trademarks are trademarks of Dell Inc. or its
-subsidiaries. Other trademarks may be trademarks of their respective
-owners.
-
-These release notes contain supplemental information about Ansible
-Modules for Dell EMC PowerMax. Topics include: **Topics:**
 
 -   Revision history
 -   Product description
