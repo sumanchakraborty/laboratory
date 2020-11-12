@@ -3,6 +3,11 @@
 =========================================
 ### Release Notes 1.2
 
+>   © 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   EMC, and other trademarks are trademarks of Dell Inc. or its
+>   subsidiaries. Other trademarks may be trademarks of their respective
+>   owners.
+
 Content
 -------
 These release notes contain supplemental information about Ansible
@@ -151,7 +156,3 @@ modifications.
 -   For any issues with Dell EMC Storage, contact [Dell EMC Online Support](http://www.dell.com/support).
 
 
->   © 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
->   EMC, and other trademarks are trademarks of Dell Inc. or its
->   subsidiaries. Other trademarks may be trademarks of their respective
->   owners.
