@@ -112,8 +112,8 @@ Known problems and limitations
 This section lists the known problems and limitations of Ansible modules
 for Dell EMC PowerMax.
 
-● Known problems 
-● Limitations
+-   Known problems 
+-   Limitations
 
 Known problems
 --------------
@@ -127,10 +127,10 @@ for Dell EMC PowerMax.
 
 -   Star and Cascaded multisite SRDF configurations are not supported.
 -   The Invalidate, Ready, Not Ready, Move Pairs, and Refresh SRDF
-      pairing operations are not supported. ● Migration use cases are
-      not supported through the SRDF Module.
--   PyU4V v9.1 and above are supported in this release. ● PyU4V v3.x and
-      Unisphere v9.0 are not supported.
+      pairing operations are not supported. 
+-   Migration use cases are not supported through the SRDF Module.
+-   PyU4V v9.1 and above are supported in this release. 
+-   PyU4V v3.x and Unisphere v9.0 are not supported.
 
 Software media, organization, and files
 =======================================
@@ -155,8 +155,8 @@ The Ansible Modules for Dell EMC PowerMax is available on [Ansible
 Modules for PowerMax GitHub](https://github.com/dell/ansible-powermax)
 page. The documentation includes the following:
 
-● Ansible Modules for Dell EMC PowerMax Release Notes (this document) 
-● Ansible Modules for Dell EMC PowerMax Product Guide
+-   Ansible Modules for Dell EMC PowerMax Release Notes (this document) 
+-   Ansible Modules for Dell EMC PowerMax Product Guide
 
 Troubleshoot and get help
 -------------------------
