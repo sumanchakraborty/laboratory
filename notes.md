@@ -8,19 +8,6 @@ Content
 These release notes contain supplemental information about Ansible
 Modules for Dell EMC PowerMax. Topics include: **Topics:**
 
--   [Revision history](#revision-history)
--   [Product description](#product-description)
--   [New features and changes](#new-features-and-changes)
--   [Known problems and limitations](#known-problems-and-limitations)
-    -   [Limitations](#limitations)
--   [Software media, organization, and
-    files](#software-media-organization-and-files)
--   [Additional resources](#additional-resources)
-    -   [Documentation](#documentation)
-    -   [Troubleshoot and get help](#troubleshoot-and-get-help)
-        -   [Technical support](#technical-support)
-
-
 -   Revision history
 -   Product description
 -   New features and changes
@@ -31,9 +18,9 @@ Modules for Dell EMC PowerMax. Topics include: **Topics:**
 Revision history
 ================
 
-| **Date**       | **Document revision** | **Description of changes**                        |
-|----------------|-----------------------|---------------------------------------------------|
-| September 2020 | 01                    | Ansible Modules for Dell EMC PowerMax release 1.2 |
+| **Date** | **Document revision** | **Description of changes** |
+|----------|-----------------------|----------------------------|
+| September 2020 | 01 | Ansible Modules for Dell EMC PowerMax release 1.2 |
 
 Product description
 ===================
