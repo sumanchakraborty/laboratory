@@ -4,27 +4,28 @@
 ### Release Notes 1.2
 
 Content
-=======
+-------
 These release notes contain supplemental information about Ansible
 Modules for Dell EMC PowerMax. Topics include: **Topics:**
 
--   Revision history
--   Product description
--   New features and changes
--   Known problems and limitations
--   Software media, organization, and files
--   Additional resources
+-   Revision History
+-   Product Description
+-   New Features & Enhancements
+-   Known issues
+-   Limitations
+-   Software Package
+-   Documentation
+-   Technical Supports
 
-Revision history
-================
+Revision History
+----------------
 
 | **Date** | **Document revision** | **Description of changes** |
 |----------|-----------------------|----------------------------|
 | September 2020 | 01 | Ansible Modules for Dell EMC PowerMax release 1.2 |
 
-Product description
-===================
-
+Product Description
+-------------------
 This section describes the Ansible Modules for Dell EMC PowerMax arrays.
 
 The Ansible Modules for Dell EMC PowerMax are used for managing volumes,
@@ -45,8 +46,8 @@ features:
 -   Get details of a port.
 -   Get entities of the array.
 
-New features and changes
-========================
+New Features & Enhancements
+---------------------------
 
 This section describes the new features of the Ansible Modules for Dell
 EMC PowerMax in this release.
@@ -106,22 +107,12 @@ The following enhancements have been made in Gather Facts module:
 -   Supports Generic filters that return a subset of storage entities.
 -   Return section has been added for each module.
 
-Known problems and limitations
-==============================
-
-This section lists the known problems and limitations of Ansible modules
-for Dell EMC PowerMax.
-
--   Known problems 
--   Limitations
-
-Known problems
---------------
+Known issues
+------------
 There are no known problems in this release.
 
 Limitations
 -----------
-
 This section lists the limitations in this release of Ansible modules
 for Dell EMC PowerMax.
 
@@ -132,19 +123,10 @@ for Dell EMC PowerMax.
 -   PyU4V v9.1 and above are supported in this release. 
 -   PyU4V v3.x and Unisphere v9.0 are not supported.
 
-Software media, organization, and files
-=======================================
-
-This section provides information about where to find the software files
-for this release of the product.
-
+Software Package
+----------------
 The software package is available for download from the [Ansible Modules
 for PowerMax GitHub](https://github.com/dell/ansible-powermax) page.
-
-Additional resources
-====================
-This section provides more information about the product, how to get
-support, and provide feedback.
 
 Documentation
 -------------
@@ -158,12 +140,8 @@ page. The documentation includes the following:
 -   Ansible Modules for Dell EMC PowerMax Release Notes (this document) 
 -   Ansible Modules for Dell EMC PowerMax Product Guide
 
-Troubleshoot and get help
--------------------------
-Use the resources in this topic to get help and support.
-
-### Technical support
-
+Technical Supports
+------------------
 Ansible modules for PowerStore are supported by Dell EMC, and are
 provided under the terms of the license that is attached to the source
 code. Dell EMC does not provide support for any source code
@@ -172,3 +150,8 @@ modifications.
 -   For Ansible configuration, setup issues, or questions, use the [Dell EMC Automation community](https://www.dell.com/community/Automation/bd-p/Automation).
 -   For any issues with Dell EMC Storage, contact [Dell EMC Online Support](http://www.dell.com/support).
 
+
+>   © 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   EMC, and other trademarks are trademarks of Dell Inc. or its
+>   subsidiaries. Other trademarks may be trademarks of their respective
+>   owners.
