@@ -21,7 +21,7 @@ Modules for Dell EMC Unity.
 -   Documentation
 -   Technical Supports
 
-Revision history
+Revision History
 ----------------
 The table in this section lists the revision history of this document.
 
@@ -33,9 +33,6 @@ Table 1. Revision History
 
 Product Description
 -------------------
-Learn about Ansible Modules for Dell EMC Unity and the supported
-features.
-
 The Ansible modules for Dell EMC Unity are used to automate and
 orchestrate the deployment, configuration, and management of Dell
 
@@ -43,128 +40,70 @@ EMC Unity Family systems, including Unity, Unity XT, and the UnityVSA.
 The capabilities of Ansible modules are managing volumes (LUNs),
 consistency groups, storage pools, hosts, snapshots, and snapshot
 schedules, and obtaining Unity system information. The options available
-for each capability are list, show, create, delete, and modify. New
-features
+for each capability are list, show, create, delete, and modify. 
 
-List of features that are supported in this release.
-
-The Ansible Modules for Dell EMC Unity Version 1.0 initial release
-supports the following tasks for block-based storage:
+New Features & Enhancements
+---------------------------
+This release supports the following tasks for block-based storage:
 
 -   Gather Facts Module
-
-    1.  List of volumes
-
-> ○ List of consistency groups
->
-> ○ List of fibre channel (FC) initiators
->
-> ○ List of iSCSI initiators
->
-> ○ List of hosts
->
-> ○ List of snapshot schedules
-
--   Volume Module (LUNs) ○ Create volume
-
-▪ In a pool
-
-▪ Assign an I/O limit policy
-
-▪ Assign a tiering policy
-
-▪ Assign a snap schedule
-
-▪ Map to a host
-
-1.  Modify Volume
-
-▪ Expand a volume by name or ID
-
-▪ Modify volume details including description, compression, and default
-SP
-
-▪ Modify host by volume name or ID
-
-▪ Modify host mapping by host name or host ID
-
-> ○ Delete volume
-
-▪ Delete a volume by volume name or ID
-
+    -   List of volumes
+    -   List of consistency groups
+    -   List of fibre channel (FC) initiators
+    -   List of iSCSI initiators
+    -   List of hosts
+    -   List of snapshot schedules
+-   Volume Module (LUNs) 
+    -   Create volume
+        -   In a pool
+        -   Assign an I/O limit policy
+        -   Assign a tiering policy
+        -   Assign a snap schedule
+        -   Map to a host
+    -   Modify Volume
+        -   Expand a volume by name or ID
+        -   Modify volume details including description, compression, and default SP
+        -   Modify host by volume name or ID
+        -   Modify host mapping by host name or host ID
+    -   Delete volume
+        -   Delete a volume by volume name or ID
 -   Consistency Group Module
-
-    1.  Create a consistency group
-
-> ○ Get details for a consistency group by consistency group name or ID
->
-> ○ Add volumes to a consistency group
->
-> ○ Modify consistency group details
->
-> ○ Rename a consistency group
->
-> ○ Remove volumes (LUNs) from a consistency group
->
-> ○ Delete a consistency group
-
+    -   Create a consistency group
+    -   Get details for a consistency group by consistency group name or ID
+    -   Add volumes to a consistency group
+    -   Modify consistency group details
+    -   Rename a consistency group
+    -   Remove volumes (LUNs) from a consistency group
+    -   Delete a consistency group
 -   Storage Pool Module
-
-    1.  Get storage pool details using a pool name or pool ID
-
-> ○ Modify storage pool attributes using the pool name or pool ID
-
-2 Ansible Modules for Dell EMC Unity
+    -   Get storage pool details using a pool name or pool ID
+    -   Modify storage pool attributes using the pool name or pool ID
 
 -   Host Module
-
-    1.  Create a host
-
-> ○ Create a host with FC or iSCSI initiators
->
-> ○ Add FC or iSCSI initiators to a host
->
-> ○ Get details of a host
->
-> ○ Modify host attributes
->
-> ○ Rename a host
->
-> ○ Remove FC and iSCSI initiators from a host
->
-> ○ Delete a host
-
+    -   Create a host
+    -   Create a host with FC or iSCSI initiators
+    -   Add FC or iSCSI initiators to a host
+    -   Get details of a host
+    -   Modify host attributes
+    -   Rename a host
+    -   Remove FC and iSCSI initiators from a host
+    -   Delete a host
 -   Snapshot Module
-
-    1.  Create a snapshot for a consistency group
-
-> ○ Create a snapshot for a volume (LUN)
->
-> ○ Get snapshot details
->
-> ○ Map a host to a snapshot
->
-> ○ Unmap a host from a snapshot
->
-> ○ Modify attributes of a snapshot for a volume (LUN)
->
-> ○ Delete a snapshot
-
+    -   Create a snapshot for a consistency group
+    -   Create a snapshot for a volume (LUN)
+    -   Get snapshot details
+    -   Map a host to a snapshot
+    -   Unmap a host from a snapshot
+    -   Modify attributes of a snapshot for a volume (LUN)
+    -   Delete a snapshot
 -   Snapshot Schedule Module
-
-    1.  Create a snapshot schedule with an hourly rule
-
-> ○ Create a snapshot schedule with a daily rule
->
-> ○ Create a snapshot schedule with an every n days rule
->
-> ○ Create a snapshot schedule with a weekly rule
->
-> ○ Create a snapshot schedule with a monthly rule
->
-> ○ Get details of a specific snapshot schedule
->
-> ○ Modify the attributes of a snapshot schedule
+    -   Create a snapshot schedule with an hourly rule
+    -   Create a snapshot schedule with a daily rule
+    -   Create a snapshot schedule with an every n days rule
+    -   Create a snapshot schedule with a weekly rule
+    -   Create a snapshot schedule with a monthly rule
+    -   Get details of a specific snapshot schedule
+    -   Modify the attributes of a snapshot schedule
 
 Known Issues
 ------------
@@ -207,8 +146,6 @@ EMC Unity 1.0:
     1.  Snapshot schedules created using Ansible can only have one rule
         > applied. ○ For the create and modify operations, the type is
         > mandatory.
-
-Ansible Modules for Dell EMC Unity 3
 
 > ○ You cannot modify a rule type once the schedule is created. However,
 > you can modify other parameters within the same rule type. ○ A rule
