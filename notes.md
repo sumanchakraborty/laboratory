@@ -44,7 +44,7 @@ for each capability are list, show, create, delete, and modify.
 
 New Features & Enhancements
 ---------------------------
-This release supports the following tasks for block-based storage:
+This release supports the following tasks/operations -
 
 -   Gather Facts Module
     -   List of volumes
@@ -104,6 +104,7 @@ This release supports the following tasks for block-based storage:
     -   Create a snapshot schedule with a monthly rule
     -   Get details of a specific snapshot schedule
     -   Modify the attributes of a snapshot schedule
+    -   Delete snapshot schedule
 
 Known Issues
 ------------
@@ -112,59 +113,31 @@ There are no known problems in this release.
 Limitations
 -----------
 Note the following considerations when using Ansible Modules for Dell
-EMC Unity 1.0:
+EMC Unity:
 
 -   Storage pools module
-
-    1.  Only the get and modify operations are supported in this
-        > release.
-
-> ○ The create and delete operations are not applicable in 1.0.
+    -   Only the get and modify operations are supported in this release.
+    -   The create and delete operations are not applicable in 1.0.
 
 -   Consistency groups module
-
-    1.  If a consistency group has snapshots, you cannot add or remove
-        > volumes from it.
-
-> ○ Consistency groups cannot be mapped to a host. Only the individual
-> volumes (LUNs) that comprise the consistency group can be mapped to a
-> host.
->
-> ○ If a consistency group has volumes, it cannot be deleted.
->
-> ○ Tiering policies cannot be applied to an empty consistency group.
+    -   If a consistency group has snapshots, you cannot add or remove volumes from it.
+    -   Consistency groups cannot be mapped to a host. Only the individual volumes (LUNs) that comprise the consistency group can be mapped to a host.
+    -   If a consistency group has volumes, it cannot be deleted.
+    -   Tiering policies cannot be applied to an empty consistency group.
 
 -   Volumes module
-
-    1.  You cannot delete a volume that has mapped hosts.
-
-> ○ You must first unmap the hosts using the unmap operation for any
-> volumes you need to delete.
+    -   You cannot delete a volume that has mapped hosts.
+    -   You must first unmap the hosts using the unmap operation for any volumes you need to delete.
 
 -   Snapshot schedules module
-
-    1.  Snapshot schedules created using Ansible can only have one rule
-        > applied. ○ For the create and modify operations, the type is
-        > mandatory.
-
-> ○ You cannot modify a rule type once the schedule is created. However,
-> you can modify other parameters within the same rule type. ○ A rule
-> cannot have both autodelete and a desired retention time set at the
-> same time. These parameters are mutually exclusive.
->
-> ○ If an existing snapshot schedule has more than one rule applied to
-> it, only the get and delete operations are available when using
-> Ansible for those snapshots schedules.
+    -   Snapshot schedules created using Ansible can only have one rule applied. 
+    -   For the create and modify operations, the type is mandatory.
+    -   You cannot modify a rule type once the schedule is created. However, you can modify other parameters within the same rule type. 
+    -   A rule cannot have both autodelete and a desired retention time set at the same time. These parameters are mutually exclusive.
+    -   If an existing snapshot schedule has more than one rule applied to it, only the get and delete operations are available when using Ansible for those snapshots schedules.
 
 -   Host module
-
-    1.  Host initiators can only be removed when they are in a logged
-        > off state, meaning, there are no active initiator paths
-        > associated with the initiator. Software media, organization,
-        > and files
-
-This section provides information about where to find the software files
-for this release of the product.
+    -   Host initiators can only be removed when they are in a logged off state, meaning, there are no active initiator paths associated with the initiator. Software media, organization, and files
 
 Software Package
 ----------------
@@ -173,32 +146,19 @@ for Unity GitHub](https://github.com/dell/ansible-unity) page.
 
 Documentation
 -------------
-This section lists the related documentation for Ansible Modules for
-Dell EMC Unity..
-
 The latest documentation for Ansible Modules for Dell EMC Unity is
-available on the
-[https://github.com/dell/ansible-unity](https://GITHUB.COM/DELL/ANSIBLE-UNITY)
+available on the [https://github.com/dell/ansible-unity](https://GITHUB.COM/DELL/ANSIBLE-UNITY)
 page. This documentation includes the following:
 
 -   Ansible Modules for Dell EMC Unity Release Notes (this document)
-
 -   Ansible Modules for Dell EMC Unity Product Guide
 
-Troubleshoot and get help
--------------------------
+Technical Supports
+------------------
+Ansible modules for PowerStore are supported by Dell EMC, and are
+provided under the terms of the license that is attached to the source
+code. Dell EMC does not provide support for any source code
+modifications.
 
-Use the resources in this topic to get help and support.
-
-### Technical support
-
-Ansible modules for Unity are supported by Dell EMC, and are provided
-under the terms of the license that is attached to the source code. Dell
-EMC does not provide support for any source code modifications.
-
-For Ansible configuration, setup issues, or questions, use the [Dell EMC
-Automation
-community](https://www.dell.com/community/Automation/bd-p/Automation).
-For any issues with Dell EMC Storage, contact [Dell EMC Online
-Support](https://www.dell.com/support).
-
+-   For Ansible configuration, setup issues, or questions, use the [Dell EMC Automation community](https://www.dell.com/community/Automation/bd-p/Automation).
+-   For any issues with Dell EMC Storage, contact [Dell EMC Online Support](http://www.dell.com/support).
