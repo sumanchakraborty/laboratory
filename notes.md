@@ -1,49 +1,28 @@
--   [Revision history](#revision-history)
--   [Product description](#product-description)
--   [○ Delete snapshot schedule Known problems and
-    limitations](#delete-snapshot-schedule-known-problems-and-limitations)
-    -   [Limitations and
-        considerations](#limitations-and-considerations)
--   [Additional resources](#additional-resources)
-    -   [Documentation](#documentation)
-    -   [Troubleshoot and get help](#troubleshoot-and-get-help)
-        -   [Technical support](#technical-support)
+**Ansible Modules for Dell EMC Unity** 
+=========================================
+### Release Notes 1.1
 
-Ansible Modules for Dell EMC Unity
+>   © 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   EMC, and other trademarks are trademarks of Dell Inc. or its
+>   subsidiaries. Other trademarks may be trademarks of their respective
+>   owners.
 
-Version 1.0
-
-Release Notes
-
-Rev. 01
-
-June 2020
-
+Content
+-------
 These release notes contain supplemental information about Ansible
-Modules for Dell EMC Unity and include the following topics:
+Modules for Dell EMC Unity.
 
--   Revision
-    history...........................................................................................................................................................................................................2
-
--   Product
-    description....................................................................................................................................................................................................2
-
--   New
-    features...............................................................................................................................................................................................................2
-
--   Known problems and
-    limitations...............................................................................................................................................................................3
-
--   Software media, organization, and
-    files...................................................................................................................................................................4
-
--   Additional
-    resources...................................................................................................................................................................................................
-    4
+-   Revision History
+-   Product Description
+-   New Features & Enhancements
+-   Known issues
+-   Limitations
+-   Software Package
+-   Documentation
+-   Technical Supports
 
 Revision history
-================
-
+----------------
 The table in this section lists the revision history of this document.
 
 Table 1. Revision History
@@ -52,9 +31,8 @@ Table 1. Revision History
 |----------|-----------|---------------------------------|
 | 01       | June 2020 | Initial release of the product. |
 
-Product description
-===================
-
+Product Description
+-------------------
 Learn about Ansible Modules for Dell EMC Unity and the supported
 features.
 
@@ -188,19 +166,12 @@ SP
 >
 > ○ Modify the attributes of a snapshot schedule
 
-○ Delete snapshot schedule Known problems and limitations
-=========================================================
-
-List of known problems and limitations for the Ansible Modules for Dell
-EMC Unity version 1.0 release.
-
-Known problems
-
+Known Issues
+------------
 There are no known problems in this release.
 
-Limitations and considerations
-------------------------------
-
+Limitations
+-----------
 Note the following considerations when using Ansible Modules for Dell
 EMC Unity 1.0:
 
@@ -258,17 +229,13 @@ Ansible Modules for Dell EMC Unity 3
 This section provides information about where to find the software files
 for this release of the product.
 
-The software package is available for download from the
-<https://github.com/dell/ansible-unity> page.
-
-Additional resources
-====================
-
-Learn how to find more information about the product and get support.
+Software Package
+----------------
+The software package is available for download from the [Ansible Modules
+for Unity GitHub](https://github.com/dell/ansible-unity) page.
 
 Documentation
 -------------
-
 This section lists the related documentation for Ansible Modules for
 Dell EMC Unity..
 
@@ -298,19 +265,3 @@ community](https://www.dell.com/community/Automation/bd-p/Automation).
 For any issues with Dell EMC Storage, contact [Dell EMC Online
 Support](https://www.dell.com/support).
 
-4 Ansible Modules for Dell EMC Unity
-
-#### Notes, cautions, and warnings
-
-> NOTE: A NOTE indicates important information that helps you make
-> better use of your product.
->
-> CAUTION: A CAUTION indicates either potential damage to hardware or
-> loss of data and tells you how to avoid the problem.
->
-> WARNING: A WARNING indicates a potential for property damage, personal
-> injury, or death.
-
-© 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell, EMC,
-and other trademarks are trademarks of Dell Inc. or its subsidiaries.
-Other trademarks may be trademarks of their respective owners.
