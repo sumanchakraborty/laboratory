@@ -2,7 +2,7 @@
 =========================================
 ### Release Notes 1.1
 
->   © 2016 - 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   © 2020 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   EMC, and other trademarks are trademarks of Dell Inc. or its
 >   subsidiaries. Other trademarks may be trademarks of their respective
 >   owners.
@@ -15,7 +15,7 @@ Modules for Dell EMC Unity.
 -   Revision History
 -   Product Description
 -   New Features & Enhancements
--   Known issues
+-   Known Issues
 -   Limitations
 -   Software Package
 -   Documentation
