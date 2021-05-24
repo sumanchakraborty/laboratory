@@ -49,10 +49,7 @@ fi
   export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 # utility
-  alias cdlab='cd ~ && date &&
-               cd laboratory/ &&
-               git br'
-  alias cdwtd='cd ~ && date &&
-               cd wtd/code/main3/ &&
-               git br'
+# alias cdlab='cd ~ && date &&
+#              cd laboratory/ &&
+#              git br'
 

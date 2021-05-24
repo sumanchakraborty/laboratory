@@ -49,16 +49,16 @@ ls -a ~/.ssh
 
 Step 2. Set up your default identity
 ls -a ~/.ssh 
-ssh-keygen -t rsa -b 4096 -C "suman.chakraborty@gmail.com"
+ssh-keygen -t ed25519 -C "suman.chakraborty@gmail.com"
 
 Step 3. Start the ssh-agent and load your keys
 ps -e | grep ssh-agent
 ssh-agent /bin/bash
-ssh-add ~/.ssh/id_rsa 
+ssh-add ~/.ssh/id_ed25519 
 ssh-add -l 
 
 Step 4. Install the public key on GitHub account
-cat ~/.ssh/id_rsa.pub
+cat ~/.ssh/id_ed25519.pub
 copy this content to github account
 
 Step 5. (Optional) if broken pipe 
