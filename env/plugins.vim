@@ -8,7 +8,7 @@ Plugin 'flazz/vim-colorschemes'
 Plugin 'scrooloose/nerdtree'
 Plugin 'ErichDonGubler/vim-sublime-monokai'
 Plugin 'majutsushi/tagbar'
-Plugin 'fatih/vim-go'
+Plugin 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 call vundle#end()
 filetype plugin indent on
