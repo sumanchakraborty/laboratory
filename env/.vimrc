@@ -352,3 +352,6 @@ call <SID>EnableMultiWin()
 let s:loaded = 1
 " vim:ts=4:fo=roq:
 
+" NERDTree plugin specific commands
+:nnoremap <C-g> :NERDTreeToggle<CR>
+
