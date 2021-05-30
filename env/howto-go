@@ -11,23 +11,13 @@ create folder structure
   mkdir go/src go/bin go/pkg; 
   mkdir -p go/src/github.com/sumanchakraborty;
 
-edit .bash_profile & write following line
-  export GOPATH=~/go
-  export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-  source ~/.bash_profile
+edit .bashrc & write following line
+  export GOPATH=$HOME/go
+  export PATH=$PATH:$GOPATH/bin
+  source ~/.bashrc
 
 RUN
 -------------------------------------------
 go run hello.go
 go build hello.go
-
-BEEGO - Install
--------------------------------------------
-go get github.com/beego/bee
-
-BEEGO - Project
--------------------------------------------
-Project will be created ubder $GOPATH/src
-bee new foo
-bee run
 
