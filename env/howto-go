@@ -11,10 +11,10 @@ create folder structure
   mkdir go/src go/bin go/pkg; 
   mkdir -p go/src/github.com/sumanchakraborty;
 
-edit .bashrc & write following line
+edit .bash_profile & write following line
   export GOPATH=$HOME/go
   export PATH=$PATH:$GOPATH/bin
-  source ~/.bashrc
+  source ~/.bash_profile
 
 RUN
 -------------------------------------------
