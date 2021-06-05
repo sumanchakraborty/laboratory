@@ -1,20 +1,24 @@
 
 SETUP
 -------------------------------------------
-yum install golang -OR-
+follow steps https://golang.org/doc/install
 
-download golag tar from internet
+clean
+-----
+rm -rf /usr/local/go
+
+install
+-------
+download golag tar - https://golang.org/doc/install
 tar -C /usr/local -xzf go1.11.linux-amd64.tar.gz
 
-create folder structure
-  cd ~; mkdir go;
-  mkdir go/src go/bin go/pkg; 
-  mkdir -p go/src/github.com/sumanchakraborty;
-
+configure
+---------
 edit .bash_profile & write following line
-  export GOPATH=$HOME/go
-  export PATH=$PATH:$GOPATH/bin
+  export PATH=$PATH:/usr/local/go/bin
   source ~/.bash_profile
+
+binaries for vim-go ":GoInstallBinaries"
 
 RUN
 -------------------------------------------

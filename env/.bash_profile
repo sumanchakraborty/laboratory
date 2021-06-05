@@ -5,6 +5,8 @@ if [ -f ~/.bashrc ]; then
 	. ~/.bashrc
 fi
 
+cat /etc/centos-release
+
 # ===============================================================
 # COMMAND ALIAS
 # ===============================================================
@@ -15,6 +17,5 @@ fi
   alias tmuxl='tmux list-sessions'
   alias tmuxk='tmux kill-session -t suman'
 # golang
-  export GOPATH=$HOME/go
-  export PATH=$PATH:$GOPATH/bin
+  export PATH=$PATH:/usr/local/go/bin
 

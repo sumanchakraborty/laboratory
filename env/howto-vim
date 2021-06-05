@@ -4,4 +4,5 @@ Vundle
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 cp ~/laboratory/env/plugins.vim ~/.vim/
 Open vim & type ":PluginInstall"
+Install binaries for vim-go ":GoInstallBinaries"
 
