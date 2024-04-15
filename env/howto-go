@@ -25,3 +25,5 @@ RUN
 go run hello.go
 go build hello.go
 
+test
+
